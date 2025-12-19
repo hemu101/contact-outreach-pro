@@ -175,6 +175,93 @@ export type Database = {
         }
         Relationships: []
       }
+      conversations: {
+        Row: {
+          created_at: string
+          id: string
+          last_message: string | null
+          last_message_at: string | null
+          participant_ids: string[]
+          platform: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string | null
+          participant_ids: string[]
+          platform?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          last_message?: string | null
+          last_message_at?: string | null
+          participant_ids?: string[]
+          platform?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      creators: {
+        Row: {
+          avatar: string | null
+          avg_likes: string | null
+          bio: string | null
+          category: string[] | null
+          created_at: string
+          engagement: string | null
+          followers: string | null
+          handle: string
+          id: string
+          location: string | null
+          name: string
+          platform: string | null
+          recent_post: string | null
+          updated_at: string
+          user_id: string | null
+          verified: boolean | null
+        }
+        Insert: {
+          avatar?: string | null
+          avg_likes?: string | null
+          bio?: string | null
+          category?: string[] | null
+          created_at?: string
+          engagement?: string | null
+          followers?: string | null
+          handle: string
+          id?: string
+          location?: string | null
+          name: string
+          platform?: string | null
+          recent_post?: string | null
+          updated_at?: string
+          user_id?: string | null
+          verified?: boolean | null
+        }
+        Update: {
+          avatar?: string | null
+          avg_likes?: string | null
+          bio?: string | null
+          category?: string[] | null
+          created_at?: string
+          engagement?: string | null
+          followers?: string | null
+          handle?: string
+          id?: string
+          location?: string | null
+          name?: string
+          platform?: string | null
+          recent_post?: string | null
+          updated_at?: string
+          user_id?: string | null
+          verified?: boolean | null
+        }
+        Relationships: []
+      }
       credit_transactions: {
         Row: {
           amount: number
@@ -239,6 +326,41 @@ export type Database = {
             columns: ["campaign_contact_id"]
             isOneToOne: false
             referencedRelation: "campaign_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      messages: {
+        Row: {
+          content: string
+          conversation_id: string
+          created_at: string
+          id: string
+          is_read: boolean | null
+          sender_id: string
+        }
+        Insert: {
+          content: string
+          conversation_id: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_id: string
+        }
+        Update: {
+          content?: string
+          conversation_id?: string
+          created_at?: string
+          id?: string
+          is_read?: boolean | null
+          sender_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
             referencedColumns: ["id"]
           },
         ]
@@ -308,6 +430,35 @@ export type Database = {
           updated_at?: string
         }
         Relationships: []
+      }
+      saved_creators: {
+        Row: {
+          created_at: string
+          creator_id: string
+          id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          id?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "saved_creators_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       templates: {
         Row: {
