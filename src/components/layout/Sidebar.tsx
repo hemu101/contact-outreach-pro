@@ -7,7 +7,9 @@ import {
   Settings, 
   Zap,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  PieChart,
+  LayoutDashboard
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -17,7 +19,8 @@ interface SidebarProps {
 }
 
 const navItems = [
-  { id: 'dashboard', icon: BarChart3, label: 'Dashboard' },
+  { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
+  { id: 'analytics', icon: PieChart, label: 'Analytics' },
   { id: 'contacts', icon: Users, label: 'Contacts' },
   { id: 'templates', icon: FileText, label: 'Templates' },
   { id: 'campaigns', icon: Mail, label: 'Campaigns' },
