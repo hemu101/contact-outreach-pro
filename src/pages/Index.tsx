@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Dashboard } from '@/components/dashboard/Dashboard';
+import { CampaignAnalytics } from '@/components/dashboard/CampaignAnalytics';
 import { ContactsPage } from '@/components/contacts/ContactsPage';
 import { TemplateEditor } from '@/components/templates/TemplateEditor';
 import { CampaignBuilder } from '@/components/campaigns/CampaignBuilder';
@@ -20,7 +21,7 @@ const Index = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   
-  const { contacts, createManyContacts, deleteContact } = useContacts();
+  const { contacts, createManyContacts, deleteContact, updateContact } = useContacts();
   const { templates, createTemplate, updateTemplate } = useTemplates();
   const { campaigns, createCampaign } = useCampaigns();
 
@@ -58,6 +59,19 @@ const Index = () => {
 
   const handleDeleteContacts = (ids: string[]) => {
     ids.forEach(id => deleteContact.mutate(id));
+  };
+
+  const handleUpdateContact = (id: string, updates: any) => {
+    const dbUpdates: any = {};
+    if (updates.firstName !== undefined) dbUpdates.first_name = updates.firstName;
+    if (updates.lastName !== undefined) dbUpdates.last_name = updates.lastName;
+    if (updates.businessName !== undefined) dbUpdates.business_name = updates.businessName;
+    if (updates.email !== undefined) dbUpdates.email = updates.email;
+    if (updates.phone !== undefined) dbUpdates.phone = updates.phone;
+    if (updates.instagram !== undefined) dbUpdates.instagram = updates.instagram;
+    if (updates.tiktok !== undefined) dbUpdates.tiktok = updates.tiktok;
+    
+    updateContact.mutate({ id, ...dbUpdates });
   };
 
   const handleSaveTemplate = (template: any) => {
@@ -141,8 +155,17 @@ const Index = () => {
     switch (activeTab) {
       case 'dashboard':
         return <Dashboard stats={stats} activities={[]} onQuickAction={handleQuickAction} />;
+      case 'analytics':
+        return <CampaignAnalytics campaigns={campaigns} />;
       case 'contacts':
-        return <ContactsPage contacts={uiContacts} onUpload={handleUploadContacts} onDeleteContacts={handleDeleteContacts} />;
+        return (
+          <ContactsPage 
+            contacts={uiContacts} 
+            onUpload={handleUploadContacts} 
+            onDeleteContacts={handleDeleteContacts}
+            onUpdateContact={handleUpdateContact}
+          />
+        );
       case 'templates':
         return <TemplateEditor templates={uiTemplates} onSave={handleSaveTemplate} />;
       case 'campaigns':

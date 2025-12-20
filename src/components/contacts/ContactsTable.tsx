@@ -1,15 +1,17 @@
 import { useState } from 'react';
-import { Search, Mail, MessageCircle, Phone, MoreVertical, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react';
+import { Search, Mail, MessageCircle, Phone, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react';
 import { Contact } from '@/types/contact';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { EditableField } from './EditableField';
 import { cn } from '@/lib/utils';
 
 interface ContactsTableProps {
   contacts: Contact[];
   onDeleteContacts?: (ids: string[]) => void;
+  onUpdateContact?: (id: string, updates: Partial<Contact>) => void;
 }
 
 const statusConfig = {
@@ -18,7 +20,7 @@ const statusConfig = {
   failed: { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/10' },
 };
 
-export function ContactsTable({ contacts, onDeleteContacts }: ContactsTableProps) {
+export function ContactsTable({ contacts, onDeleteContacts, onUpdateContact }: ContactsTableProps) {
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
@@ -56,8 +58,13 @@ export function ContactsTable({ contacts, onDeleteContacts }: ContactsTableProps
     }
   };
 
+  const handleFieldUpdate = (contactId: string, field: keyof Contact, value: string) => {
+    if (onUpdateContact) {
+      onUpdateContact(contactId, { [field]: value });
+    }
+  };
+
   const allSelected = filtered.length > 0 && filtered.every(c => selectedIds.has(c.id));
-  const someSelected = filtered.some(c => selectedIds.has(c.id));
 
   return (
     <div className="space-y-4">
@@ -99,6 +106,13 @@ export function ContactsTable({ contacts, onDeleteContacts }: ContactsTableProps
         )}
       </div>
 
+      {/* Inline Edit Tip */}
+      {contacts.length > 0 && (
+        <p className="text-sm text-muted-foreground">
+          💡 Click on any field to edit it inline
+        </p>
+      )}
+
       {/* Table */}
       <div className="glass-card rounded-xl overflow-hidden">
         <div className="overflow-x-auto">
@@ -112,11 +126,11 @@ export function ContactsTable({ contacts, onDeleteContacts }: ContactsTableProps
                     aria-label="Select all"
                   />
                 </th>
-                <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Contact</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Name</th>
+                <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Email</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Business</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Channels</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Status</th>
-                <th className="text-right py-4 px-6 text-sm font-medium text-muted-foreground">Actions</th>
               </tr>
             </thead>
             <tbody>
@@ -146,15 +160,33 @@ export function ContactsTable({ contacts, onDeleteContacts }: ContactsTableProps
                         />
                       </td>
                       <td className="py-4 px-6">
-                        <div>
-                          <p className="font-medium text-foreground">
-                            {contact.firstName} {contact.lastName}
-                          </p>
-                          <p className="text-sm text-muted-foreground">{contact.email}</p>
+                        <div className="flex gap-1">
+                          <EditableField
+                            value={contact.firstName}
+                            onSave={(val) => handleFieldUpdate(contact.id, 'firstName', val)}
+                            placeholder="First name"
+                          />
+                          <EditableField
+                            value={contact.lastName}
+                            onSave={(val) => handleFieldUpdate(contact.id, 'lastName', val)}
+                            placeholder="Last name"
+                          />
                         </div>
                       </td>
-                      <td className="py-4 px-6 text-foreground">
-                        {contact.businessName || '-'}
+                      <td className="py-4 px-6">
+                        <EditableField
+                          value={contact.email}
+                          onSave={(val) => handleFieldUpdate(contact.id, 'email', val)}
+                          placeholder="Email"
+                          type="email"
+                        />
+                      </td>
+                      <td className="py-4 px-6">
+                        <EditableField
+                          value={contact.businessName}
+                          onSave={(val) => handleFieldUpdate(contact.id, 'businessName', val)}
+                          placeholder="Business name"
+                        />
                       </td>
                       <td className="py-4 px-6">
                         <div className="flex items-center gap-2">
@@ -185,11 +217,6 @@ export function ContactsTable({ contacts, onDeleteContacts }: ContactsTableProps
                             {contact.status.charAt(0).toUpperCase() + contact.status.slice(1)}
                           </span>
                         </div>
-                      </td>
-                      <td className="py-4 px-6 text-right">
-                        <button className="p-2 hover:bg-secondary rounded-lg transition-colors">
-                          <MoreVertical className="w-5 h-5 text-muted-foreground" />
-                        </button>
                       </td>
                     </tr>
                   );
