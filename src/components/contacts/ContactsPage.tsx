@@ -7,9 +7,10 @@ import { Download, UserPlus } from 'lucide-react';
 interface ContactsPageProps {
   contacts: Contact[];
   onUpload: (contacts: Contact[]) => void;
+  onDeleteContacts?: (ids: string[]) => void;
 }
 
-export function ContactsPage({ contacts, onUpload }: ContactsPageProps) {
+export function ContactsPage({ contacts, onUpload, onDeleteContacts }: ContactsPageProps) {
   const handleExport = () => {
     const headers = ['First Name', 'Last Name', 'Business Name', 'Email', 'Instagram', 'TikTok', 'Phone', 'Status'];
     const rows = contacts.map(c => [
@@ -56,7 +57,7 @@ export function ContactsPage({ contacts, onUpload }: ContactsPageProps) {
       </div>
 
       {/* Contacts Table */}
-      <ContactsTable contacts={contacts} />
+      <ContactsTable contacts={contacts} onDeleteContacts={onDeleteContacts} />
     </div>
   );
 }

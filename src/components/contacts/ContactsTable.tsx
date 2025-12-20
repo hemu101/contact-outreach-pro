@@ -1,11 +1,15 @@
 import { useState } from 'react';
-import { Search, Mail, MessageCircle, Phone, MoreVertical, CheckCircle, XCircle, Clock } from 'lucide-react';
+import { Search, Mail, MessageCircle, Phone, MoreVertical, CheckCircle, XCircle, Clock, Trash2 } from 'lucide-react';
 import { Contact } from '@/types/contact';
 import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { cn } from '@/lib/utils';
 
 interface ContactsTableProps {
   contacts: Contact[];
+  onDeleteContacts?: (ids: string[]) => void;
 }
 
 const statusConfig = {
@@ -14,26 +18,85 @@ const statusConfig = {
   failed: { icon: XCircle, color: 'text-destructive', bg: 'bg-destructive/10' },
 };
 
-export function ContactsTable({ contacts }: ContactsTableProps) {
+export function ContactsTable({ contacts, onDeleteContacts }: ContactsTableProps) {
   const [search, setSearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState<string>('all');
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
 
-  const filtered = contacts.filter(c => 
-    `${c.firstName} ${c.lastName} ${c.businessName} ${c.email}`
+  const filtered = contacts.filter(c => {
+    const matchesSearch = `${c.firstName} ${c.lastName} ${c.businessName} ${c.email}`
       .toLowerCase()
-      .includes(search.toLowerCase())
-  );
+      .includes(search.toLowerCase());
+    const matchesStatus = statusFilter === 'all' || c.status === statusFilter;
+    return matchesSearch && matchesStatus;
+  });
+
+  const handleSelectAll = (checked: boolean) => {
+    if (checked) {
+      setSelectedIds(new Set(filtered.map(c => c.id)));
+    } else {
+      setSelectedIds(new Set());
+    }
+  };
+
+  const handleSelectOne = (id: string, checked: boolean) => {
+    const newSet = new Set(selectedIds);
+    if (checked) {
+      newSet.add(id);
+    } else {
+      newSet.delete(id);
+    }
+    setSelectedIds(newSet);
+  };
+
+  const handleBulkDelete = () => {
+    if (selectedIds.size > 0 && onDeleteContacts) {
+      onDeleteContacts(Array.from(selectedIds));
+      setSelectedIds(new Set());
+    }
+  };
+
+  const allSelected = filtered.length > 0 && filtered.every(c => selectedIds.has(c.id));
+  const someSelected = filtered.some(c => selectedIds.has(c.id));
 
   return (
     <div className="space-y-4">
-      {/* Search */}
-      <div className="relative">
-        <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
-        <Input
-          placeholder="Search contacts..."
-          value={search}
-          onChange={(e) => setSearch(e.target.value)}
-          className="pl-10"
-        />
+      {/* Filters and Actions */}
+      <div className="flex flex-col sm:flex-row gap-4 items-start sm:items-center justify-between">
+        <div className="flex flex-1 gap-3 w-full sm:w-auto">
+          <div className="relative flex-1 sm:max-w-xs">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-muted-foreground" />
+            <Input
+              placeholder="Search contacts..."
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              className="pl-10"
+            />
+          </div>
+          <Select value={statusFilter} onValueChange={setStatusFilter}>
+            <SelectTrigger className="w-32">
+              <SelectValue placeholder="Status" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="all">All Status</SelectItem>
+              <SelectItem value="pending">Pending</SelectItem>
+              <SelectItem value="sent">Sent</SelectItem>
+              <SelectItem value="failed">Failed</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+        
+        {selectedIds.size > 0 && (
+          <Button 
+            variant="destructive" 
+            size="sm" 
+            onClick={handleBulkDelete}
+            className="shrink-0"
+          >
+            <Trash2 className="w-4 h-4 mr-2" />
+            Delete ({selectedIds.size})
+          </Button>
+        )}
       </div>
 
       {/* Table */}
@@ -42,6 +105,13 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
           <table className="w-full">
             <thead>
               <tr className="border-b border-border bg-secondary/30">
+                <th className="py-4 px-4 w-12">
+                  <Checkbox 
+                    checked={allSelected}
+                    onCheckedChange={handleSelectAll}
+                    aria-label="Select all"
+                  />
+                </th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Contact</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Business</th>
                 <th className="text-left py-4 px-6 text-sm font-medium text-muted-foreground">Channels</th>
@@ -52,8 +122,8 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
             <tbody>
               {filtered.length === 0 ? (
                 <tr>
-                  <td colSpan={5} className="text-center py-12 text-muted-foreground">
-                    {contacts.length === 0 ? 'No contacts yet. Upload a CSV to get started.' : 'No contacts match your search.'}
+                  <td colSpan={6} className="text-center py-12 text-muted-foreground">
+                    {contacts.length === 0 ? 'No contacts yet. Upload a CSV to get started.' : 'No contacts match your filters.'}
                   </td>
                 </tr>
               ) : (
@@ -62,9 +132,19 @@ export function ContactsTable({ contacts }: ContactsTableProps) {
                   return (
                     <tr 
                       key={contact.id} 
-                      className="border-b border-border/50 hover:bg-secondary/20 transition-colors animate-fade-in"
+                      className={cn(
+                        "border-b border-border/50 hover:bg-secondary/20 transition-colors animate-fade-in",
+                        selectedIds.has(contact.id) && "bg-primary/5"
+                      )}
                       style={{ animationDelay: `${idx * 50}ms` }}
                     >
+                      <td className="py-4 px-4">
+                        <Checkbox 
+                          checked={selectedIds.has(contact.id)}
+                          onCheckedChange={(checked) => handleSelectOne(contact.id, !!checked)}
+                          aria-label={`Select ${contact.firstName}`}
+                        />
+                      </td>
                       <td className="py-4 px-6">
                         <div>
                           <p className="font-medium text-foreground">
