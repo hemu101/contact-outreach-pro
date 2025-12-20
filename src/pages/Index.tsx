@@ -20,7 +20,7 @@ const Index = () => {
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   
-  const { contacts, createManyContacts } = useContacts();
+  const { contacts, createManyContacts, deleteContact } = useContacts();
   const { templates, createTemplate, updateTemplate } = useTemplates();
   const { campaigns, createCampaign } = useCampaigns();
 
@@ -56,6 +56,10 @@ const Index = () => {
     createManyContacts.mutate(formattedContacts);
   };
 
+  const handleDeleteContacts = (ids: string[]) => {
+    ids.forEach(id => deleteContact.mutate(id));
+  };
+
   const handleSaveTemplate = (template: any) => {
     const templateData = {
       name: template.name,
@@ -81,6 +85,23 @@ const Index = () => {
       },
       contactIds: campaign.contacts.map((c: any) => c.id),
     });
+  };
+
+  const handleQuickAction = (action: 'upload' | 'template' | 'campaign' | 'export') => {
+    switch (action) {
+      case 'upload':
+        setActiveTab('contacts');
+        break;
+      case 'template':
+        setActiveTab('templates');
+        break;
+      case 'campaign':
+        setActiveTab('campaigns');
+        break;
+      case 'export':
+        setActiveTab('n8n');
+        break;
+    }
   };
 
   // Convert DB contacts to UI format
@@ -119,9 +140,9 @@ const Index = () => {
   const renderContent = () => {
     switch (activeTab) {
       case 'dashboard':
-        return <Dashboard stats={stats} activities={[]} />;
+        return <Dashboard stats={stats} activities={[]} onQuickAction={handleQuickAction} />;
       case 'contacts':
-        return <ContactsPage contacts={uiContacts} onUpload={handleUploadContacts} />;
+        return <ContactsPage contacts={uiContacts} onUpload={handleUploadContacts} onDeleteContacts={handleDeleteContacts} />;
       case 'templates':
         return <TemplateEditor templates={uiTemplates} onSave={handleSaveTemplate} />;
       case 'campaigns':
@@ -138,7 +159,7 @@ const Index = () => {
       case 'settings':
         return <SettingsPage />;
       default:
-        return <Dashboard stats={stats} activities={[]} />;
+        return <Dashboard stats={stats} activities={[]} onQuickAction={handleQuickAction} />;
     }
   };
 

@@ -11,9 +11,10 @@ interface DashboardProps {
     pending: number;
   };
   activities: ActivityLog[];
+  onQuickAction: (action: 'upload' | 'template' | 'campaign' | 'export') => void;
 }
 
-export function Dashboard({ stats, activities }: DashboardProps) {
+export function Dashboard({ stats, activities, onQuickAction }: DashboardProps) {
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -65,16 +66,28 @@ export function Dashboard({ stats, activities }: DashboardProps) {
         <div className="glass-card rounded-xl p-6 animate-slide-up">
           <h3 className="text-lg font-semibold text-foreground mb-4">Quick Actions</h3>
           <div className="space-y-3">
-            <button className="w-full px-4 py-3 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-left font-medium">
+            <button 
+              onClick={() => onQuickAction('upload')}
+              className="w-full px-4 py-3 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors text-left font-medium"
+            >
               📤 Upload New CSV
             </button>
-            <button className="w-full px-4 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors text-left font-medium">
+            <button 
+              onClick={() => onQuickAction('template')}
+              className="w-full px-4 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors text-left font-medium"
+            >
               ✉️ Create Email Template
             </button>
-            <button className="w-full px-4 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors text-left font-medium">
+            <button 
+              onClick={() => onQuickAction('campaign')}
+              className="w-full px-4 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors text-left font-medium"
+            >
               🚀 Launch Campaign
             </button>
-            <button className="w-full px-4 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors text-left font-medium">
+            <button 
+              onClick={() => onQuickAction('export')}
+              className="w-full px-4 py-3 rounded-lg bg-secondary text-secondary-foreground hover:bg-secondary/80 transition-colors text-left font-medium"
+            >
               ⚡ Export n8n Workflow
             </button>
           </div>
