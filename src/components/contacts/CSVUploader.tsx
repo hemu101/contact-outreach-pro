@@ -8,46 +8,117 @@ interface CSVUploaderProps {
   onUpload: (contacts: Contact[]) => void;
 }
 
+// Column mapping with multiple aliases for auto-detection
+const columnMappings: Record<keyof Omit<Contact, 'id' | 'status' | 'createdAt' | 'emailSent' | 'dmSent' | 'voicemailSent'>, string[]> = {
+  firstName: ['first name', 'firstname', 'first', 'fname', 'given name', 'givenname'],
+  lastName: ['last name', 'lastname', 'last', 'lname', 'surname', 'family name'],
+  businessName: ['business', 'company', 'business name', 'businessname', 'company name', 'organization', 'org'],
+  email: ['email', 'e-mail', 'email address', 'emailaddress', 'mail'],
+  phone: ['phone', 'telephone', 'mobile', 'cell', 'phone number', 'phonenumber', 'tel'],
+  instagram: ['instagram', 'insta', 'ig', 'instagram handle', 'ig handle'],
+  tiktok: ['tiktok', 'tik tok', 'tt', 'tiktok handle'],
+  linkedin: ['linkedin', 'linked in', 'linkedin url', 'linkedin profile'],
+  location: ['location', 'address', 'full address'],
+  jobTitle: ['job title', 'jobtitle', 'title', 'position', 'role', 'job'],
+  city: ['city', 'town'],
+  state: ['state', 'province', 'region'],
+  country: ['country', 'nation'],
+};
+
 export function CSVUploader({ onUpload }: CSVUploaderProps) {
   const [isDragging, setIsDragging] = useState(false);
   const [fileName, setFileName] = useState<string | null>(null);
   const [preview, setPreview] = useState<Contact[]>([]);
   const [error, setError] = useState<string | null>(null);
+  const [detectedColumns, setDetectedColumns] = useState<string[]>([]);
 
   const parseCSV = (text: string): Contact[] => {
     const lines = text.trim().split('\n');
     if (lines.length < 2) throw new Error('CSV must have headers and at least one row');
 
-    const headers = lines[0].toLowerCase().split(',').map(h => h.trim());
+    const headers = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/["']/g, ''));
+    const detected: string[] = [];
+    
+    // Find matching column indices
+    const getColumnIndex = (field: keyof typeof columnMappings): number => {
+      const aliases = columnMappings[field];
+      for (const alias of aliases) {
+        const idx = headers.findIndex(h => h === alias || h.includes(alias));
+        if (idx !== -1) {
+          if (!detected.includes(field)) detected.push(field);
+          return idx;
+        }
+      }
+      return -1;
+    };
+
+    const fieldIndices: Record<string, number> = {};
+    for (const field of Object.keys(columnMappings)) {
+      fieldIndices[field] = getColumnIndex(field as keyof typeof columnMappings);
+    }
+
+    setDetectedColumns(detected);
     
     const contacts: Contact[] = [];
     
     for (let i = 1; i < lines.length; i++) {
-      const values = lines[i].split(',').map(v => v.trim());
+      // Handle CSV with quoted values
+      const values = parseCSVLine(lines[i]);
       
-      const getVal = (keys: string[]) => {
-        for (const key of keys) {
-          const idx = headers.findIndex(h => h.includes(key));
-          if (idx !== -1 && values[idx]) return values[idx];
-        }
-        return '';
+      const getValue = (field: string): string => {
+        const idx = fieldIndices[field];
+        return idx !== -1 && values[idx] ? values[idx].trim() : '';
       };
 
-      contacts.push({
+      const contact: Contact = {
         id: crypto.randomUUID(),
-        firstName: getVal(['first name', 'firstname', 'first']),
-        lastName: getVal(['last name', 'lastname', 'last']),
-        businessName: getVal(['business', 'company', 'business name']),
-        email: getVal(['email', 'e-mail']),
-        instagram: getVal(['instagram', 'insta', 'ig']) || undefined,
-        tiktok: getVal(['tiktok', 'tik tok', 'tt']) || undefined,
-        phone: getVal(['phone', 'telephone', 'mobile', 'cell']) || undefined,
+        firstName: getValue('firstName'),
+        lastName: getValue('lastName'),
+        businessName: getValue('businessName'),
+        email: getValue('email'),
+        instagram: getValue('instagram') || undefined,
+        tiktok: getValue('tiktok') || undefined,
+        phone: getValue('phone') || undefined,
+        linkedin: getValue('linkedin') || undefined,
+        location: getValue('location') || undefined,
+        jobTitle: getValue('jobTitle') || undefined,
+        city: getValue('city') || undefined,
+        state: getValue('state') || undefined,
+        country: getValue('country') || undefined,
         status: 'pending',
         createdAt: new Date(),
-      });
+      };
+
+      // Only include contacts with at least one contact method
+      if (contact.email || contact.instagram || contact.tiktok || contact.phone) {
+        contacts.push(contact);
+      }
     }
 
-    return contacts.filter(c => c.email || c.instagram || c.tiktok || c.phone);
+    return contacts;
+  };
+
+  // Parse a single CSV line handling quoted values
+  const parseCSVLine = (line: string): string[] => {
+    const values: string[] = [];
+    let current = '';
+    let inQuotes = false;
+    
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      
+      if (char === '"' || char === "'") {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        values.push(current.trim());
+        current = '';
+      } else {
+        current += char;
+      }
+    }
+    values.push(current.trim());
+    
+    return values;
   };
 
   const handleFile = useCallback((file: File) => {
@@ -120,11 +191,16 @@ export function CSVUploader({ onUpload }: CSVUploaderProps) {
                 <p className="text-sm text-muted-foreground mt-1">
                   {preview.length > 0 ? `${preview.length}+ contacts found` : 'Processing...'}
                 </p>
+                {detectedColumns.length > 0 && (
+                  <p className="text-xs text-muted-foreground mt-1">
+                    Detected: {detectedColumns.join(', ')}
+                  </p>
+                )}
               </div>
               <Button
                 variant="ghost"
                 size="sm"
-                onClick={() => { setFileName(null); setPreview([]); setError(null); }}
+                onClick={() => { setFileName(null); setPreview([]); setError(null); setDetectedColumns([]); }}
               >
                 <X className="w-4 h-4 mr-2" />
                 Remove
@@ -138,6 +214,9 @@ export function CSVUploader({ onUpload }: CSVUploaderProps) {
               <div>
                 <p className="font-medium text-foreground">Drop your CSV file here</p>
                 <p className="text-sm text-muted-foreground mt-1">or click to browse</p>
+                <p className="text-xs text-muted-foreground mt-2">
+                  Supports: First Name, Last Name, Business, Email, Phone, LinkedIn, City, State, Country, Job Title, Instagram, TikTok
+                </p>
               </div>
               <label htmlFor="csv-upload">
                 <Button variant="outline" asChild>
@@ -167,6 +246,7 @@ export function CSVUploader({ onUpload }: CSVUploaderProps) {
                   <th className="text-left py-2 px-3 text-muted-foreground font-medium">Name</th>
                   <th className="text-left py-2 px-3 text-muted-foreground font-medium">Business</th>
                   <th className="text-left py-2 px-3 text-muted-foreground font-medium">Email</th>
+                  <th className="text-left py-2 px-3 text-muted-foreground font-medium">Location</th>
                   <th className="text-left py-2 px-3 text-muted-foreground font-medium">Social</th>
                 </tr>
               </thead>
@@ -175,11 +255,19 @@ export function CSVUploader({ onUpload }: CSVUploaderProps) {
                   <tr key={contact.id} className="border-b border-border/50">
                     <td className="py-2 px-3 text-foreground">
                       {contact.firstName} {contact.lastName}
+                      {contact.jobTitle && <span className="text-xs text-muted-foreground block">{contact.jobTitle}</span>}
                     </td>
                     <td className="py-2 px-3 text-foreground">{contact.businessName}</td>
                     <td className="py-2 px-3 text-muted-foreground">{contact.email}</td>
                     <td className="py-2 px-3 text-muted-foreground">
-                      {[contact.instagram && 'IG', contact.tiktok && 'TT'].filter(Boolean).join(', ') || '-'}
+                      {[contact.city, contact.state, contact.country].filter(Boolean).join(', ') || contact.location || '-'}
+                    </td>
+                    <td className="py-2 px-3 text-muted-foreground">
+                      {[
+                        contact.instagram && 'IG',
+                        contact.tiktok && 'TT',
+                        contact.linkedin && 'LI'
+                      ].filter(Boolean).join(', ') || '-'}
                     </td>
                   </tr>
                 ))}

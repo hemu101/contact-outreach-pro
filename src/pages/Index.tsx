@@ -4,8 +4,10 @@ import { Sidebar } from '@/components/layout/Sidebar';
 import { Dashboard } from '@/components/dashboard/Dashboard';
 import { CampaignAnalytics } from '@/components/dashboard/CampaignAnalytics';
 import { ContactsPage } from '@/components/contacts/ContactsPage';
-import { TemplateEditor } from '@/components/templates/TemplateEditor';
+import { RichTemplateEditor } from '@/components/templates/RichTemplateEditor';
 import { CampaignBuilder } from '@/components/campaigns/CampaignBuilder';
+import { CampaignList } from '@/components/campaigns/CampaignList';
+import { CampaignDetails } from '@/components/campaigns/CampaignDetails';
 import { N8nWorkflow } from '@/components/n8n/N8nWorkflow';
 import { SettingsPage } from '@/components/settings/SettingsPage';
 import { useAuth } from '@/hooks/useAuth';
@@ -18,12 +20,13 @@ import { Toaster } from '@/components/ui/toaster';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
+  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   
   const { contacts, createManyContacts, deleteContact, updateContact } = useContacts();
   const { templates, createTemplate, updateTemplate } = useTemplates();
-  const { campaigns, createCampaign } = useCampaigns();
+  const { campaigns, createCampaign, launchCampaign, deleteCampaign } = useCampaigns();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -52,6 +55,12 @@ const Index = () => {
       phone: c.phone,
       instagram: c.instagram,
       tiktok: c.tiktok,
+      linkedin: c.linkedin,
+      location: c.location,
+      job_title: c.jobTitle,
+      city: c.city,
+      state: c.state,
+      country: c.country,
       status: 'pending' as const,
     }));
     createManyContacts.mutate(formattedContacts);
@@ -167,15 +176,29 @@ const Index = () => {
           />
         );
       case 'templates':
-        return <TemplateEditor templates={uiTemplates} onSave={handleSaveTemplate} />;
+        return <RichTemplateEditor templates={uiTemplates} onSave={handleSaveTemplate} />;
       case 'campaigns':
+        if (selectedCampaignId) {
+          return <CampaignDetails campaignId={selectedCampaignId} onBack={() => setSelectedCampaignId(null)} />;
+        }
         return (
-          <CampaignBuilder 
-            contacts={uiContacts} 
-            templates={uiTemplates} 
-            campaigns={[]}
-            onCreateCampaign={handleCreateCampaign}
-          />
+          <div className="space-y-6">
+            <CampaignBuilder 
+              contacts={uiContacts} 
+              templates={uiTemplates} 
+              campaigns={[]}
+              onCreateCampaign={handleCreateCampaign}
+            />
+            <div className="mt-8">
+              <h2 className="text-2xl font-bold text-foreground mb-4">Your Campaigns</h2>
+              <CampaignList 
+                campaigns={campaigns}
+                onViewCampaign={(id) => setSelectedCampaignId(id)}
+                onLaunchCampaign={(id) => launchCampaign.mutate(id)}
+                onDeleteCampaign={(id) => deleteCampaign.mutate(id)}
+              />
+            </div>
+          </div>
         );
       case 'n8n':
         return <N8nWorkflow />;
