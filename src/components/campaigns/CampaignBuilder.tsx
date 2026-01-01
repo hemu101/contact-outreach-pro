@@ -1,9 +1,13 @@
 import { useState } from 'react';
-import { Calendar, Clock, Play, Pause, Mail, MessageCircle, Phone, CheckCircle } from 'lucide-react';
+import { format } from 'date-fns';
+import { Calendar as CalendarIcon, Clock, Play, Mail, MessageCircle, Phone, CheckCircle, Eye } from 'lucide-react';
 import { Contact, Template, Campaign } from '@/types/contact';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Calendar } from '@/components/ui/calendar';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
+import { EmailPreview } from './EmailPreview';
 
 interface CampaignBuilderProps {
   contacts: Contact[];
@@ -16,8 +20,9 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
   const [campaignName, setCampaignName] = useState('');
   const [selectedContacts, setSelectedContacts] = useState<string[]>([]);
   const [selectedTemplates, setSelectedTemplates] = useState<Record<string, string>>({});
-  const [scheduleDate, setScheduleDate] = useState('');
-  const [scheduleTime, setScheduleTime] = useState('');
+  const [scheduleDate, setScheduleDate] = useState<Date | undefined>(undefined);
+  const [scheduleTime, setScheduleTime] = useState('09:00');
+  const [showEmailPreview, setShowEmailPreview] = useState(false);
 
   const handleSelectAllContacts = () => {
     if (selectedContacts.length === contacts.length) {
@@ -36,6 +41,13 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
   const handleLaunch = () => {
     const selectedContactObjects = contacts.filter(c => selectedContacts.includes(c.id));
     
+    let scheduledAt: Date | undefined;
+    if (scheduleDate) {
+      const [hours, minutes] = scheduleTime.split(':').map(Number);
+      scheduledAt = new Date(scheduleDate);
+      scheduledAt.setHours(hours, minutes, 0, 0);
+    }
+
     const campaign: Campaign = {
       id: crypto.randomUUID(),
       name: campaignName || `Campaign ${campaigns.length + 1}`,
@@ -46,9 +58,7 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
         tiktok: templates.find(t => t.type === 'tiktok' && selectedTemplates.tiktok === t.id),
         voicemail: templates.find(t => t.type === 'voicemail' && selectedTemplates.voicemail === t.id),
       },
-      scheduledAt: scheduleDate && scheduleTime 
-        ? new Date(`${scheduleDate}T${scheduleTime}`)
-        : undefined,
+      scheduledAt,
       status: scheduleDate ? 'scheduled' : 'draft',
       stats: {
         total: selectedContactObjects.length,
@@ -62,8 +72,8 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
     setCampaignName('');
     setSelectedContacts([]);
     setSelectedTemplates({});
-    setScheduleDate('');
-    setScheduleTime('');
+    setScheduleDate(undefined);
+    setScheduleTime('09:00');
   };
 
   const templatesByType = {
@@ -73,6 +83,9 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
     voicemail: templates.filter(t => t.type === 'voicemail'),
   };
 
+  const selectedEmailTemplate = templates.find(t => t.type === 'email' && selectedTemplates.email === t.id);
+  const selectedContactObjects = contacts.filter(c => selectedContacts.includes(c.id));
+
   return (
     <div className="space-y-6">
       {/* Header */}
@@ -81,6 +94,12 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
           <h1 className="text-3xl font-bold text-foreground">Campaigns</h1>
           <p className="text-muted-foreground mt-1">Build and schedule outreach campaigns</p>
         </div>
+        {selectedEmailTemplate && selectedContacts.length > 0 && (
+          <Button variant="outline" onClick={() => setShowEmailPreview(true)}>
+            <Eye className="w-4 h-4 mr-2" />
+            Preview Email
+          </Button>
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -174,6 +193,21 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
                 </div>
               ))}
             </div>
+
+            {/* Quick Preview Button */}
+            {selectedEmailTemplate && (
+              <div className="mt-4 pt-4 border-t border-border">
+                <Button 
+                  variant="outline" 
+                  size="sm"
+                  onClick={() => setShowEmailPreview(true)}
+                  disabled={selectedContacts.length === 0}
+                >
+                  <Eye className="w-4 h-4 mr-2" />
+                  Preview "{selectedEmailTemplate.name}"
+                </Button>
+              </div>
+            )}
           </div>
         </div>
 
@@ -183,17 +217,39 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
             <h3 className="text-lg font-semibold text-foreground mb-4">Schedule</h3>
             
             <div className="space-y-4">
+              {/* Date Picker */}
               <div>
                 <label className="text-sm text-muted-foreground mb-2 flex items-center gap-2">
-                  <Calendar className="w-4 h-4" />
+                  <CalendarIcon className="w-4 h-4" />
                   Date
                 </label>
-                <Input
-                  type="date"
-                  value={scheduleDate}
-                  onChange={(e) => setScheduleDate(e.target.value)}
-                />
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !scheduleDate && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {scheduleDate ? format(scheduleDate, "PPP") : "Pick a date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={scheduleDate}
+                      onSelect={setScheduleDate}
+                      disabled={(date) => date < new Date(new Date().setHours(0, 0, 0, 0))}
+                      initialFocus
+                      className={cn("p-3 pointer-events-auto")}
+                    />
+                  </PopoverContent>
+                </Popover>
               </div>
+
+              {/* Time Picker */}
               <div>
                 <label className="text-sm text-muted-foreground mb-2 flex items-center gap-2">
                   <Clock className="w-4 h-4" />
@@ -204,6 +260,47 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
                   value={scheduleTime}
                   onChange={(e) => setScheduleTime(e.target.value)}
                 />
+              </div>
+
+              {/* Quick Schedule Options */}
+              <div className="pt-2">
+                <p className="text-xs text-muted-foreground mb-2">Quick schedule:</p>
+                <div className="flex flex-wrap gap-2">
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      const tomorrow = new Date();
+                      tomorrow.setDate(tomorrow.getDate() + 1);
+                      setScheduleDate(tomorrow);
+                      setScheduleTime('09:00');
+                    }}
+                  >
+                    Tomorrow 9 AM
+                  </Button>
+                  <Button 
+                    variant="outline" 
+                    size="sm"
+                    onClick={() => {
+                      const nextWeek = new Date();
+                      nextWeek.setDate(nextWeek.getDate() + 7);
+                      setScheduleDate(nextWeek);
+                      setScheduleTime('09:00');
+                    }}
+                  >
+                    Next Week
+                  </Button>
+                  <Button 
+                    variant="ghost" 
+                    size="sm"
+                    onClick={() => {
+                      setScheduleDate(undefined);
+                      setScheduleTime('09:00');
+                    }}
+                  >
+                    Clear
+                  </Button>
+                </div>
               </div>
             </div>
           </div>
@@ -224,7 +321,9 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Schedule</span>
                 <span className="text-foreground font-medium">
-                  {scheduleDate ? `${scheduleDate} ${scheduleTime}` : 'Immediate'}
+                  {scheduleDate 
+                    ? `${format(scheduleDate, 'MMM d, yyyy')} at ${scheduleTime}`
+                    : 'Immediate'}
                 </span>
               </div>
             </div>
@@ -261,6 +360,14 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
           )}
         </div>
       </div>
+
+      {/* Email Preview Dialog */}
+      <EmailPreview
+        open={showEmailPreview}
+        onOpenChange={setShowEmailPreview}
+        template={selectedEmailTemplate}
+        contacts={selectedContactObjects.length > 0 ? selectedContactObjects : contacts.slice(0, 5)}
+      />
     </div>
   );
 }
