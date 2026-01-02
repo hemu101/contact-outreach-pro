@@ -24,6 +24,7 @@ export type Database = {
           opened_at: string | null
           sent_at: string | null
           status: string | null
+          variant: string | null
         }
         Insert: {
           campaign_id: string
@@ -34,6 +35,7 @@ export type Database = {
           opened_at?: string | null
           sent_at?: string | null
           status?: string | null
+          variant?: string | null
         }
         Update: {
           campaign_id?: string
@@ -44,6 +46,7 @@ export type Database = {
           opened_at?: string | null
           sent_at?: string | null
           status?: string | null
+          variant?: string | null
         }
         Relationships: [
           {
@@ -64,6 +67,7 @@ export type Database = {
       }
       campaigns: {
         Row: {
+          ab_testing_enabled: boolean | null
           click_count: number | null
           completed_at: string | null
           created_at: string
@@ -78,8 +82,19 @@ export type Database = {
           total_contacts: number | null
           updated_at: string
           user_id: string
+          variant_a_clicks: number | null
+          variant_a_content: string | null
+          variant_a_opens: number | null
+          variant_a_sent: number | null
+          variant_a_subject: string | null
+          variant_b_clicks: number | null
+          variant_b_content: string | null
+          variant_b_opens: number | null
+          variant_b_sent: number | null
+          variant_b_subject: string | null
         }
         Insert: {
+          ab_testing_enabled?: boolean | null
           click_count?: number | null
           completed_at?: string | null
           created_at?: string
@@ -94,8 +109,19 @@ export type Database = {
           total_contacts?: number | null
           updated_at?: string
           user_id: string
+          variant_a_clicks?: number | null
+          variant_a_content?: string | null
+          variant_a_opens?: number | null
+          variant_a_sent?: number | null
+          variant_a_subject?: string | null
+          variant_b_clicks?: number | null
+          variant_b_content?: string | null
+          variant_b_opens?: number | null
+          variant_b_sent?: number | null
+          variant_b_subject?: string | null
         }
         Update: {
+          ab_testing_enabled?: boolean | null
           click_count?: number | null
           completed_at?: string | null
           created_at?: string
@@ -110,6 +136,16 @@ export type Database = {
           total_contacts?: number | null
           updated_at?: string
           user_id?: string
+          variant_a_clicks?: number | null
+          variant_a_content?: string | null
+          variant_a_opens?: number | null
+          variant_a_sent?: number | null
+          variant_a_subject?: string | null
+          variant_b_clicks?: number | null
+          variant_b_content?: string | null
+          variant_b_opens?: number | null
+          variant_b_sent?: number | null
+          variant_b_subject?: string | null
         }
         Relationships: [
           {
