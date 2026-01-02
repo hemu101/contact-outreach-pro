@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { EmailPreview } from './EmailPreview';
 import { ContactFilter } from './ContactFilter';
+import { ABTestingConfig } from './ABTestingConfig';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Contact = Tables<'contacts'>;
@@ -17,7 +18,7 @@ interface CampaignBuilderProps {
   contacts: Contact[];
   templates: Template[];
   campaigns: Campaign[];
-  onCreateCampaign: (campaign: Campaign) => void;
+  onCreateCampaign: (campaign: Campaign & { abTesting?: { enabled: boolean; variantA: { subject: string; content: string }; variantB: { subject: string; content: string } } }) => void;
 }
 
 export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampaign }: CampaignBuilderProps) {
@@ -27,6 +28,11 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
   const [scheduleDate, setScheduleDate] = useState<Date | undefined>(undefined);
   const [scheduleTime, setScheduleTime] = useState('09:00');
   const [showEmailPreview, setShowEmailPreview] = useState(false);
+  
+  // A/B Testing state
+  const [abTestingEnabled, setAbTestingEnabled] = useState(false);
+  const [variantA, setVariantA] = useState({ subject: '', content: '' });
+  const [variantB, setVariantB] = useState({ subject: '', content: '' });
 
   const handleSelectAllContacts = () => {
     if (selectedContacts.length === contacts.length) {
@@ -75,7 +81,7 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
       createdAt: new Date(c.created_at),
     }));
 
-    const campaign: Campaign = {
+    const campaign = {
       id: crypto.randomUUID(),
       name: campaignName || `Campaign ${campaigns.length + 1}`,
       contacts: campaignContacts,
@@ -86,13 +92,18 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
         voicemail: templates.find(t => t.type === 'voicemail' && selectedTemplates.voicemail === t.id),
       },
       scheduledAt,
-      status: scheduleDate ? 'scheduled' : 'draft',
+      status: (scheduleDate ? 'scheduled' : 'draft') as 'draft' | 'scheduled' | 'running' | 'completed',
       stats: {
         total: campaignContacts.length,
         sent: 0,
         failed: 0,
       },
       createdAt: new Date(),
+      abTesting: abTestingEnabled ? {
+        enabled: true,
+        variantA,
+        variantB,
+      } : undefined,
     };
 
     onCreateCampaign(campaign);
@@ -101,6 +112,9 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
     setSelectedTemplates({});
     setScheduleDate(undefined);
     setScheduleTime('09:00');
+    setAbTestingEnabled(false);
+    setVariantA({ subject: '', content: '' });
+    setVariantB({ subject: '', content: '' });
   };
 
   const templatesByType = {
@@ -249,6 +263,16 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
               </div>
             )}
           </div>
+
+          {/* A/B Testing Configuration */}
+          <ABTestingConfig
+            enabled={abTestingEnabled}
+            onEnabledChange={setAbTestingEnabled}
+            variantA={variantA}
+            variantB={variantB}
+            onVariantAChange={setVariantA}
+            onVariantBChange={setVariantB}
+          />
         </div>
 
         {/* Schedule & Launch */}

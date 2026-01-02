@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Dashboard } from '@/components/dashboard/Dashboard';
-import { CampaignAnalytics } from '@/components/dashboard/CampaignAnalytics';
+import { AnalyticsDashboard } from '@/components/dashboard/AnalyticsDashboard';
 import { ContactsPage } from '@/components/contacts/ContactsPage';
 import { RichTemplateEditor } from '@/components/templates/RichTemplateEditor';
 import { CampaignBuilder } from '@/components/campaigns/CampaignBuilder';
@@ -105,6 +105,12 @@ const Index = () => {
         status: campaign.scheduledAt ? 'scheduled' : 'draft',
         scheduled_at: campaign.scheduledAt?.toISOString(),
         template_id: campaign.templates?.email?.id,
+        // A/B Testing fields
+        ab_testing_enabled: campaign.abTesting?.enabled || false,
+        variant_a_subject: campaign.abTesting?.variantA?.subject || null,
+        variant_a_content: campaign.abTesting?.variantA?.content || null,
+        variant_b_subject: campaign.abTesting?.variantB?.subject || null,
+        variant_b_content: campaign.abTesting?.variantB?.content || null,
       },
       contactIds: campaign.contacts.map((c: any) => c.id),
     });
@@ -165,7 +171,7 @@ const Index = () => {
       case 'dashboard':
         return <Dashboard stats={stats} activities={[]} onQuickAction={handleQuickAction} />;
       case 'analytics':
-        return <CampaignAnalytics campaigns={campaigns} />;
+        return <AnalyticsDashboard campaigns={campaigns} />;
       case 'contacts':
         return (
           <ContactsPage 

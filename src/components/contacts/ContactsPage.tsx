@@ -1,6 +1,7 @@
 import { Contact } from '@/types/contact';
 import { CSVUploader } from './CSVUploader';
 import { ContactsTable } from './ContactsTable';
+import { ExternalImporter } from './ExternalImporter';
 
 interface ContactsPageProps {
   contacts: Contact[];
@@ -13,12 +14,18 @@ export function ContactsPage({ contacts, onUpload, onDeleteContacts, onUpdateCon
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
-        <div>
-          <h1 className="text-3xl font-bold text-foreground">Contacts</h1>
-          <p className="text-muted-foreground mt-1">Manage your outreach contacts</p>
+      <div>
+        <h1 className="text-3xl font-bold text-foreground">Contacts</h1>
+        <p className="text-muted-foreground mt-1">Manage your outreach contacts</p>
+      </div>
+
+      {/* Import Options */}
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="space-y-4">
+          <h3 className="text-lg font-semibold text-foreground">Upload CSV</h3>
+          <CSVUploader onUpload={onUpload} />
         </div>
-        <CSVUploader onUpload={onUpload} />
+        <ExternalImporter onImport={onUpload} />
       </div>
 
       {/* Table */}
