@@ -184,7 +184,7 @@ const Index = () => {
         return (
           <div className="space-y-6">
             <CampaignBuilder 
-              contacts={uiContacts} 
+              contacts={contacts} 
               templates={uiTemplates} 
               campaigns={[]}
               onCreateCampaign={handleCreateCampaign}

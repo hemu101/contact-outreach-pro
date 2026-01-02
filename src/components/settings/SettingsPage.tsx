@@ -3,6 +3,7 @@ import { Key, Mail, MessageCircle, Phone, Save, ExternalLink, Loader2 } from 'lu
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useEmailSettings } from '@/hooks/useEmailSettings';
+import { DeliverabilityTest } from '@/components/campaigns/DeliverabilityTest';
 
 export function SettingsPage() {
   const { settings, isLoading, saveSettings } = useEmailSettings();
@@ -239,6 +240,11 @@ export function SettingsPage() {
               </li>
             </ul>
           </div>
+        </div>
+
+        {/* Email Deliverability Testing */}
+        <div className="lg:col-span-2">
+          <DeliverabilityTest />
         </div>
       </div>
 
