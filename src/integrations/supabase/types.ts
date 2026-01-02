@@ -65,6 +65,69 @@ export type Database = {
           },
         ]
       }
+      campaign_send_logs: {
+        Row: {
+          campaign_contact_id: string
+          campaign_id: string
+          created_at: string
+          error_code: string | null
+          error_message: string | null
+          event_type: string
+          id: string
+          ip_address: string | null
+          message_id: string | null
+          metadata: Json | null
+          provider: string | null
+          status: string
+          user_agent: string | null
+        }
+        Insert: {
+          campaign_contact_id: string
+          campaign_id: string
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          event_type: string
+          id?: string
+          ip_address?: string | null
+          message_id?: string | null
+          metadata?: Json | null
+          provider?: string | null
+          status: string
+          user_agent?: string | null
+        }
+        Update: {
+          campaign_contact_id?: string
+          campaign_id?: string
+          created_at?: string
+          error_code?: string | null
+          error_message?: string | null
+          event_type?: string
+          id?: string
+          ip_address?: string | null
+          message_id?: string | null
+          metadata?: Json | null
+          provider?: string | null
+          status?: string
+          user_agent?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_send_logs_campaign_contact_id_fkey"
+            columns: ["campaign_contact_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_send_logs_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaigns: {
         Row: {
           ab_testing_enabled: boolean | null
@@ -343,6 +406,51 @@ export type Database = {
           tool_used?: string | null
           type?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      email_deliverability_tests: {
+        Row: {
+          authentication_results: Json | null
+          completed_at: string | null
+          created_at: string
+          email: string
+          id: string
+          inbox_placement: string | null
+          result: Json | null
+          spam_score: number | null
+          status: string
+          test_type: string
+          user_id: string
+          warnings: string[] | null
+        }
+        Insert: {
+          authentication_results?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          email: string
+          id?: string
+          inbox_placement?: string | null
+          result?: Json | null
+          spam_score?: number | null
+          status?: string
+          test_type?: string
+          user_id: string
+          warnings?: string[] | null
+        }
+        Update: {
+          authentication_results?: Json | null
+          completed_at?: string | null
+          created_at?: string
+          email?: string
+          id?: string
+          inbox_placement?: string | null
+          result?: Json | null
+          spam_score?: number | null
+          status?: string
+          test_type?: string
+          user_id?: string
+          warnings?: string[] | null
         }
         Relationships: []
       }

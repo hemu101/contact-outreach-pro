@@ -1,13 +1,17 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
 import { Calendar as CalendarIcon, Clock, Play, Mail, MessageCircle, Phone, CheckCircle, Eye } from 'lucide-react';
-import { Contact, Template, Campaign } from '@/types/contact';
+import { Template, Campaign } from '@/types/contact';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
 import { EmailPreview } from './EmailPreview';
+import { ContactFilter } from './ContactFilter';
+import type { Tables } from '@/integrations/supabase/types';
+
+type Contact = Tables<'contacts'>;
 
 interface CampaignBuilderProps {
   contacts: Contact[];
@@ -48,10 +52,33 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
       scheduledAt.setHours(hours, minutes, 0, 0);
     }
 
+    // Convert DB contacts to Campaign format
+    const campaignContacts = selectedContactObjects.map(c => ({
+      id: c.id,
+      firstName: c.first_name || '',
+      lastName: c.last_name || '',
+      businessName: c.business_name || '',
+      email: c.email || '',
+      phone: c.phone || undefined,
+      instagram: c.instagram || undefined,
+      tiktok: c.tiktok || undefined,
+      linkedin: c.linkedin || undefined,
+      location: c.location || undefined,
+      jobTitle: c.job_title || undefined,
+      city: c.city || undefined,
+      state: c.state || undefined,
+      country: c.country || undefined,
+      status: (c.status || 'pending') as 'pending' | 'sent' | 'failed',
+      emailSent: c.email_sent || false,
+      dmSent: c.dm_sent || false,
+      voicemailSent: c.voicemail_sent || false,
+      createdAt: new Date(c.created_at),
+    }));
+
     const campaign: Campaign = {
       id: crypto.randomUUID(),
       name: campaignName || `Campaign ${campaigns.length + 1}`,
-      contacts: selectedContactObjects,
+      contacts: campaignContacts,
       templates: {
         email: templates.find(t => t.type === 'email' && selectedTemplates.email === t.id),
         instagram: templates.find(t => t.type === 'instagram' && selectedTemplates.instagram === t.id),
@@ -61,7 +88,7 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
       scheduledAt,
       status: scheduleDate ? 'scheduled' : 'draft',
       stats: {
-        total: selectedContactObjects.length,
+        total: campaignContacts.length,
         sent: 0,
         failed: 0,
       },
@@ -115,7 +142,7 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
             />
           </div>
 
-          {/* Contact Selection */}
+          {/* Contact Selection with Filtering */}
           <div className="glass-card rounded-xl p-6 animate-slide-up">
             <div className="flex items-center justify-between mb-4">
               <h3 className="text-lg font-semibold text-foreground">
@@ -131,42 +158,55 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
                 Upload contacts first to create a campaign
               </p>
             ) : (
-              <div className="max-h-64 overflow-y-auto space-y-2">
-                {contacts.map((contact) => (
-                  <div
-                    key={contact.id}
-                    onClick={() => handleToggleContact(contact.id)}
-                    className={cn(
-                      "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors",
-                      selectedContacts.includes(contact.id)
-                        ? "bg-primary/10 border border-primary/30"
-                        : "bg-secondary/50 hover:bg-secondary"
-                    )}
-                  >
-                    <div className={cn(
-                      "w-5 h-5 rounded border-2 flex items-center justify-center",
-                      selectedContacts.includes(contact.id)
-                        ? "border-primary bg-primary"
-                        : "border-muted-foreground"
-                    )}>
-                      {selectedContacts.includes(contact.id) && (
-                        <CheckCircle className="w-3 h-3 text-primary-foreground" />
+              <>
+                <ContactFilter
+                  contacts={contacts}
+                  selectedIds={selectedContacts}
+                  onFilteredContactsChange={setSelectedContacts}
+                />
+                
+                <div className="max-h-64 overflow-y-auto space-y-2 mt-4">
+                  {contacts.map((contact) => (
+                    <div
+                      key={contact.id}
+                      onClick={() => handleToggleContact(contact.id)}
+                      className={cn(
+                        "flex items-center gap-3 p-3 rounded-lg cursor-pointer transition-colors",
+                        selectedContacts.includes(contact.id)
+                          ? "bg-primary/10 border border-primary/30"
+                          : "bg-secondary/50 hover:bg-secondary"
                       )}
+                    >
+                      <div className={cn(
+                        "w-5 h-5 rounded border-2 flex items-center justify-center",
+                        selectedContacts.includes(contact.id)
+                          ? "border-primary bg-primary"
+                          : "border-muted-foreground"
+                      )}>
+                        {selectedContacts.includes(contact.id) && (
+                          <CheckCircle className="w-3 h-3 text-primary-foreground" />
+                        )}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <p className="font-medium text-foreground truncate">
+                          {contact.first_name} {contact.last_name}
+                        </p>
+                        <p className="text-sm text-muted-foreground truncate">{contact.email}</p>
+                        {(contact.job_title || contact.city) && (
+                          <p className="text-xs text-muted-foreground truncate">
+                            {[contact.job_title, contact.city].filter(Boolean).join(' • ')}
+                          </p>
+                        )}
+                      </div>
+                      <div className="flex items-center gap-1">
+                        {contact.email && <Mail className="w-4 h-4 text-primary" />}
+                        {contact.instagram && <MessageCircle className="w-4 h-4 text-pink-500" />}
+                        {contact.phone && <Phone className="w-4 h-4 text-success" />}
+                      </div>
                     </div>
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-foreground truncate">
-                        {contact.firstName} {contact.lastName}
-                      </p>
-                      <p className="text-sm text-muted-foreground truncate">{contact.email}</p>
-                    </div>
-                    <div className="flex items-center gap-1">
-                      {contact.email && <Mail className="w-4 h-4 text-primary" />}
-                      {contact.instagram && <MessageCircle className="w-4 h-4 text-pink-500" />}
-                      {contact.phone && <Phone className="w-4 h-4 text-success" />}
-                    </div>
-                  </div>
-                ))}
-              </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 

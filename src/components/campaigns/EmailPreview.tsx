@@ -1,5 +1,5 @@
 import { Mail, X } from 'lucide-react';
-import { Contact, Template } from '@/types/contact';
+import { Template } from '@/types/contact';
 import { Button } from '@/components/ui/button';
 import {
   Dialog,
@@ -15,6 +15,9 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { useState } from 'react';
+import type { Tables } from '@/integrations/supabase/types';
+
+type Contact = Tables<'contacts'>;
 
 interface EmailPreviewProps {
   open: boolean;
@@ -31,15 +34,15 @@ export function EmailPreview({ open, onOpenChange, template, contacts }: EmailPr
   const parseTemplate = (text: string, contact: Contact | undefined) => {
     if (!text || !contact) return text || '';
     return text
-      .replace(/\{\{firstName\}\}/g, contact.firstName || '')
-      .replace(/\{\{lastName\}\}/g, contact.lastName || '')
-      .replace(/\{\{businessName\}\}/g, contact.businessName || '')
+      .replace(/\{\{firstName\}\}/g, contact.first_name || '')
+      .replace(/\{\{lastName\}\}/g, contact.last_name || '')
+      .replace(/\{\{businessName\}\}/g, contact.business_name || '')
       .replace(/\{\{email\}\}/g, contact.email || '')
       .replace(/\{\{phone\}\}/g, contact.phone || '')
       .replace(/\{\{city\}\}/g, contact.city || '')
       .replace(/\{\{state\}\}/g, contact.state || '')
       .replace(/\{\{country\}\}/g, contact.country || '')
-      .replace(/\{\{jobTitle\}\}/g, contact.jobTitle || '')
+      .replace(/\{\{jobTitle\}\}/g, contact.job_title || '')
       .replace(/\{\{linkedin\}\}/g, contact.linkedin || '');
   };
 
@@ -84,7 +87,7 @@ export function EmailPreview({ open, onOpenChange, template, contacts }: EmailPr
               <SelectContent>
                 {contacts.map((contact) => (
                   <SelectItem key={contact.id} value={contact.id}>
-                    {contact.firstName} {contact.lastName} - {contact.email}
+                    {contact.first_name} {contact.last_name} - {contact.email}
                   </SelectItem>
                 ))}
               </SelectContent>
