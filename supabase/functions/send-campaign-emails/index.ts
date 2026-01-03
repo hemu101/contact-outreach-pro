@@ -87,11 +87,41 @@ serve(async (req: Request) => {
 
     console.log(`Found ${campaignContacts?.length || 0} pending contacts`);
 
-    // Update campaign status to running
-    await supabase
-      .from("campaigns")
-      .update({ status: "running", started_at: new Date().toISOString() })
-      .eq("id", campaignId);
+    // Check warmup limits
+    const { data: warmupSchedule } = await supabase
+      .from("email_warmup_schedules")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("status", "active")
+      .single();
+
+    let warmupLimit = Infinity;
+    if (warmupSchedule) {
+      const today = new Date().toISOString().split("T")[0];
+      const isNewDay = warmupSchedule.last_send_date !== today;
+      
+      if (isNewDay) {
+        const newLimit = Math.min(
+          warmupSchedule.current_daily_limit + warmupSchedule.increment_per_day,
+          warmupSchedule.target_daily_limit
+        );
+        
+        await supabase
+          .from("email_warmup_schedules")
+          .update({
+            emails_sent_today: 0,
+            last_send_date: today,
+            current_daily_limit: newLimit,
+          })
+          .eq("id", warmupSchedule.id);
+        
+        warmupLimit = newLimit;
+      } else {
+        warmupLimit = warmupSchedule.current_daily_limit - warmupSchedule.emails_sent_today;
+      }
+      
+      console.log(`Warmup limit: ${warmupLimit} emails remaining today`);
+    }
 
     let sentCount = 0;
     let failedCount = 0;
@@ -126,11 +156,24 @@ serve(async (req: Request) => {
       }
     }
 
+    // Track warmup emails sent
+    let warmupEmailsSent = 0;
+
     for (const cc of campaignContacts || []) {
       const contact = cc.contacts;
       if (!contact?.email) {
         console.log(`Skipping contact ${cc.contact_id}: no email`);
         continue;
+      }
+
+      // Check warmup limit
+      if (warmupSchedule && warmupEmailsSent >= warmupLimit) {
+        console.log(`Warmup limit reached, pausing campaign`);
+        await supabase
+          .from("campaigns")
+          .update({ status: "paused" })
+          .eq("id", campaignId);
+        break;
       }
 
       try {
@@ -280,7 +323,21 @@ serve(async (req: Request) => {
             .update({ email_sent: true, status: "sent" })
             .eq("id", contact.id);
 
+          // Log activity
+          await supabase.from("activity_logs").insert({
+            user_id: user.id,
+            action_type: "email_sent",
+            entity_type: "campaign_contacts",
+            entity_id: cc.id,
+            metadata: { 
+              campaign_id: campaignId, 
+              contact_email: contact.email,
+              subject 
+            },
+          });
+
           sentCount++;
+          warmupEmailsSent++;
         }
       } catch (error: any) {
         console.error(`Failed to send to ${contact.email}:`, error.message);
@@ -306,17 +363,38 @@ serve(async (req: Request) => {
       }
     }
 
+    // Update warmup schedule with emails sent
+    if (warmupSchedule && warmupEmailsSent > 0) {
+      await supabase
+        .from("email_warmup_schedules")
+        .update({
+          emails_sent_today: (warmupSchedule.emails_sent_today || 0) + warmupEmailsSent,
+          last_send_date: new Date().toISOString().split("T")[0],
+        })
+        .eq("id", warmupSchedule.id);
+    }
+
     // Update campaign stats
+    const finalStatus = warmupSchedule && warmupEmailsSent >= warmupLimit ? "paused" : "completed";
     await supabase
       .from("campaigns")
       .update({
-        status: "completed",
-        completed_at: new Date().toISOString(),
+        status: finalStatus,
+        completed_at: finalStatus === "completed" ? new Date().toISOString() : null,
         sent_count: sentCount,
       })
       .eq("id", campaignId);
 
-    console.log(`Campaign completed: ${sentCount} sent, ${failedCount} failed`);
+    // Log campaign completion
+    await supabase.from("activity_logs").insert({
+      user_id: user.id,
+      action_type: finalStatus === "completed" ? "campaign_completed" : "campaign_paused_warmup",
+      entity_type: "campaigns",
+      entity_id: campaignId,
+      metadata: { sent_count: sentCount, failed_count: failedCount },
+    });
+
+    console.log(`Campaign ${finalStatus}: ${sentCount} sent, ${failedCount} failed`);
 
     return new Response(
       JSON.stringify({
