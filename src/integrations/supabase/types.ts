@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      activity_logs: {
+        Row: {
+          action_type: string
+          created_at: string
+          entity_id: string | null
+          entity_type: string
+          id: string
+          metadata: Json | null
+          user_id: string
+        }
+        Insert: {
+          action_type: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type: string
+          id?: string
+          metadata?: Json | null
+          user_id: string
+        }
+        Update: {
+          action_type?: string
+          created_at?: string
+          entity_id?: string | null
+          entity_type?: string
+          id?: string
+          metadata?: Json | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      business_details: {
+        Row: {
+          billing_address: string | null
+          city: string | null
+          company_name: string | null
+          country: string | null
+          created_at: string
+          id: string
+          phone: string | null
+          postal_code: string | null
+          state: string | null
+          tax_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          billing_address?: string | null
+          city?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          tax_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          billing_address?: string | null
+          city?: string | null
+          company_name?: string | null
+          country?: string | null
+          created_at?: string
+          id?: string
+          phone?: string | null
+          postal_code?: string | null
+          state?: string | null
+          tax_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       campaign_contacts: {
         Row: {
           bounce_type: string | null
@@ -507,6 +582,91 @@ export type Database = {
           },
         ]
       }
+      email_inbox: {
+        Row: {
+          body_html: string | null
+          body_text: string | null
+          campaign_contact_id: string | null
+          campaign_id: string | null
+          contact_id: string | null
+          created_at: string
+          folder: string
+          from_email: string
+          from_name: string | null
+          id: string
+          in_reply_to: string | null
+          is_read: boolean
+          is_starred: boolean
+          message_id: string | null
+          received_at: string
+          subject: string | null
+          to_email: string
+          user_id: string
+        }
+        Insert: {
+          body_html?: string | null
+          body_text?: string | null
+          campaign_contact_id?: string | null
+          campaign_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          folder?: string
+          from_email: string
+          from_name?: string | null
+          id?: string
+          in_reply_to?: string | null
+          is_read?: boolean
+          is_starred?: boolean
+          message_id?: string | null
+          received_at?: string
+          subject?: string | null
+          to_email: string
+          user_id: string
+        }
+        Update: {
+          body_html?: string | null
+          body_text?: string | null
+          campaign_contact_id?: string | null
+          campaign_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          folder?: string
+          from_email?: string
+          from_name?: string | null
+          id?: string
+          in_reply_to?: string | null
+          is_read?: boolean
+          is_starred?: boolean
+          message_id?: string | null
+          received_at?: string
+          subject?: string | null
+          to_email?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "email_inbox_campaign_contact_id_fkey"
+            columns: ["campaign_contact_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_inbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_inbox_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       email_settings: {
         Row: {
           brevo_api_key: string | null
@@ -552,6 +712,51 @@ export type Database = {
           twilio_token?: string | null
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      email_warmup_schedules: {
+        Row: {
+          created_at: string
+          current_daily_limit: number
+          domain: string
+          emails_sent_today: number
+          id: string
+          increment_per_day: number
+          last_send_date: string | null
+          status: string
+          target_daily_limit: number
+          updated_at: string
+          user_id: string
+          warmup_start_date: string
+        }
+        Insert: {
+          created_at?: string
+          current_daily_limit?: number
+          domain: string
+          emails_sent_today?: number
+          id?: string
+          increment_per_day?: number
+          last_send_date?: string | null
+          status?: string
+          target_daily_limit?: number
+          updated_at?: string
+          user_id: string
+          warmup_start_date?: string
+        }
+        Update: {
+          created_at?: string
+          current_daily_limit?: number
+          domain?: string
+          emails_sent_today?: number
+          id?: string
+          increment_per_day?: number
+          last_send_date?: string | null
+          status?: string
+          target_daily_limit?: number
+          updated_at?: string
+          user_id?: string
+          warmup_start_date?: string
         }
         Relationships: []
       }
@@ -831,6 +1036,81 @@ export type Database = {
           },
         ]
       }
+      signature_templates: {
+        Row: {
+          content: string | null
+          created_at: string
+          fields: Json | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          content?: string | null
+          created_at?: string
+          fields?: Json | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          content?: string | null
+          created_at?: string
+          fields?: Json | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      signatures: {
+        Row: {
+          created_at: string
+          document_name: string
+          document_url: string | null
+          expires_at: string | null
+          id: string
+          recipient_email: string | null
+          recipient_name: string | null
+          signature_data: string | null
+          signed_at: string | null
+          status: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          document_name: string
+          document_url?: string | null
+          expires_at?: string | null
+          id?: string
+          recipient_email?: string | null
+          recipient_name?: string | null
+          signature_data?: string | null
+          signed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          document_name?: string
+          document_url?: string | null
+          expires_at?: string | null
+          id?: string
+          recipient_email?: string | null
+          recipient_name?: string | null
+          signature_data?: string | null
+          signed_at?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       subscriptions: {
         Row: {
           amount: number | null
@@ -873,6 +1153,42 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      team_members: {
+        Row: {
+          created_at: string
+          id: string
+          invited_at: string
+          joined_at: string | null
+          member_email: string
+          member_name: string | null
+          owner_id: string
+          role: string
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          member_email: string
+          member_name?: string | null
+          owner_id: string
+          role?: string
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          invited_at?: string
+          joined_at?: string | null
+          member_email?: string
+          member_name?: string | null
+          owner_id?: string
+          role?: string
+          status?: string
         }
         Relationships: []
       }
@@ -950,6 +1266,81 @@ export type Database = {
         Update: {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_settings: {
+        Row: {
+          created_at: string
+          email_notifications: boolean | null
+          id: string
+          language: string | null
+          login_notifications: boolean | null
+          marketing_emails: boolean | null
+          theme: string | null
+          two_factor_enabled: boolean | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          language?: string | null
+          login_notifications?: boolean | null
+          marketing_emails?: boolean | null
+          theme?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          email_notifications?: boolean | null
+          id?: string
+          language?: string | null
+          login_notifications?: boolean | null
+          marketing_emails?: boolean | null
+          theme?: string | null
+          two_factor_enabled?: boolean | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      workflows: {
+        Row: {
+          actions: Json | null
+          created_at: string
+          description: string | null
+          id: string
+          is_active: boolean | null
+          name: string
+          trigger_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          actions?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name: string
+          trigger_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          actions?: Json | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          is_active?: boolean | null
+          name?: string
+          trigger_type?: string
+          updated_at?: string
           user_id?: string
         }
         Relationships: []

@@ -3,13 +3,14 @@ import {
   Mail, 
   Users, 
   FileText, 
-  BarChart3, 
   Settings, 
   Zap,
   ChevronLeft,
   ChevronRight,
   PieChart,
-  LayoutDashboard
+  LayoutDashboard,
+  Inbox,
+  Flame
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -24,6 +25,8 @@ const navItems = [
   { id: 'contacts', icon: Users, label: 'Contacts' },
   { id: 'templates', icon: FileText, label: 'Templates' },
   { id: 'campaigns', icon: Mail, label: 'Campaigns' },
+  { id: 'inbox', icon: Inbox, label: 'Inbox' },
+  { id: 'warmup', icon: Flame, label: 'Email Warmup' },
   { id: 'n8n', icon: Zap, label: 'n8n Workflow' },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ];

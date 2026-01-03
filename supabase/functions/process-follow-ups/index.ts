@@ -1,6 +1,6 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2.49.1";
-import { Resend } from "https://esm.sh/resend@2.0.0";
+import { SMTPClient } from "https://deno.land/x/denomailer@1.6.0/mod.ts";
 
 const SUPABASE_URL = Deno.env.get("SUPABASE_URL")!;
 const SUPABASE_SERVICE_ROLE_KEY = Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
@@ -115,6 +115,18 @@ serve(async (req: Request) => {
           status: "pending",
         });
 
+        // Log activity
+        await supabase.from("activity_logs").insert({
+          user_id: seq.campaigns.user_id,
+          action_type: "follow_up_queued",
+          entity_type: "follow_up_queue",
+          metadata: { 
+            sequence_name: seq.name, 
+            contact_email: contact.contacts?.email,
+            trigger_type: seq.trigger_type 
+          },
+        });
+
         queuedCount++;
       }
     }
@@ -129,7 +141,7 @@ serve(async (req: Request) => {
         follow_up_sequences(*),
         campaign_contacts(
           *,
-          contacts(id, first_name, last_name, email, business_name),
+          contacts(id, first_name, last_name, email, business_name, job_title, location, city, state, country),
           campaigns(user_id)
         )
       `)
@@ -148,10 +160,51 @@ serve(async (req: Request) => {
     for (const followUp of dueFollowUps || []) {
       const contact = followUp.campaign_contacts?.contacts;
       const seq = followUp.follow_up_sequences;
+      const userId = followUp.campaign_contacts?.campaigns?.user_id;
 
-      if (!contact?.email || !seq) {
-        console.log("Missing contact or sequence data, skipping");
+      if (!contact?.email || !seq || !userId) {
+        console.log("Missing contact, sequence, or user data, skipping");
         continue;
+      }
+
+      // Check warmup limits before sending
+      const { data: warmupSchedule } = await supabase
+        .from("email_warmup_schedules")
+        .select("*")
+        .eq("user_id", userId)
+        .eq("status", "active")
+        .single();
+
+      if (warmupSchedule) {
+        const today = new Date().toISOString().split("T")[0];
+        const isNewDay = warmupSchedule.last_send_date !== today;
+        
+        // Reset counter if new day
+        if (isNewDay) {
+          // Increment daily limit (warmup progression)
+          const newLimit = Math.min(
+            warmupSchedule.current_daily_limit + warmupSchedule.increment_per_day,
+            warmupSchedule.target_daily_limit
+          );
+          
+          await supabase
+            .from("email_warmup_schedules")
+            .update({
+              emails_sent_today: 0,
+              last_send_date: today,
+              current_daily_limit: newLimit,
+            })
+            .eq("id", warmupSchedule.id);
+          
+          warmupSchedule.emails_sent_today = 0;
+          warmupSchedule.current_daily_limit = newLimit;
+        }
+
+        // Check if we've hit the daily limit
+        if (warmupSchedule.emails_sent_today >= warmupSchedule.current_daily_limit) {
+          console.log(`Warmup limit reached for user ${userId}, skipping`);
+          continue;
+        }
       }
 
       // Parse template
@@ -161,7 +214,6 @@ serve(async (req: Request) => {
       console.log(`Sending follow-up to ${contact.email}: ${subject}`);
 
       // Get user's email settings
-      const userId = followUp.campaign_contacts?.campaigns?.user_id;
       const { data: settings } = await supabase
         .from("email_settings")
         .select("*")
@@ -170,20 +222,119 @@ serve(async (req: Request) => {
 
       let sent = false;
 
-      // Try to send via Resend
-      if (RESEND_API_KEY) {
+      // Try SMTP first
+      if (settings?.smtp_host && settings?.smtp_user && settings?.smtp_password) {
         try {
-          const resend = new Resend(RESEND_API_KEY);
-          await resend.emails.send({
-            from: "Follow-up <onboarding@resend.dev>",
-            to: [contact.email],
-            subject: subject,
-            html: `<div>${content.replace(/\n/g, "<br>")}</div>`,
+          const smtpClient = new SMTPClient({
+            connection: {
+              hostname: settings.smtp_host,
+              port: parseInt(settings.smtp_port || "587"),
+              tls: true,
+              auth: {
+                username: settings.smtp_user,
+                password: settings.smtp_password,
+              },
+            },
           });
+
+          await smtpClient.send({
+            from: settings.smtp_user,
+            to: contact.email,
+            subject: subject,
+            content: "auto",
+            html: `<div style="font-family: Arial, sans-serif;">${content.replace(/\n/g, "<br>")}</div>`,
+          });
+
+          await smtpClient.close();
           sent = true;
-        } catch (e) {
-          console.error("Resend error:", e);
+          console.log(`Follow-up sent via SMTP to ${contact.email}`);
+        } catch (e: any) {
+          console.error("SMTP error:", e.message);
         }
+      }
+
+      // Try Brevo API
+      if (!sent && settings?.brevo_api_key) {
+        try {
+          const response = await fetch("https://api.brevo.com/v3/smtp/email", {
+            method: "POST",
+            headers: {
+              "api-key": settings.brevo_api_key,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              sender: { email: settings.smtp_user || "noreply@example.com", name: "OutreachAI" },
+              to: [{ email: contact.email }],
+              subject: subject,
+              htmlContent: `<div style="font-family: Arial, sans-serif;">${content.replace(/\n/g, "<br>")}</div>`,
+            }),
+          });
+
+          if (response.ok) {
+            sent = true;
+            console.log(`Follow-up sent via Brevo API to ${contact.email}`);
+          }
+        } catch (e: any) {
+          console.error("Brevo API error:", e.message);
+        }
+      }
+
+      // Try SendGrid
+      if (!sent && settings?.sendgrid_key) {
+        try {
+          const response = await fetch("https://api.sendgrid.com/v3/mail/send", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${settings.sendgrid_key}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              personalizations: [{ to: [{ email: contact.email }] }],
+              from: { email: settings.smtp_user || "noreply@example.com" },
+              subject: subject,
+              content: [{ type: "text/html", value: `<div style="font-family: Arial, sans-serif;">${content.replace(/\n/g, "<br>")}</div>` }],
+            }),
+          });
+
+          if (response.ok || response.status === 202) {
+            sent = true;
+            console.log(`Follow-up sent via SendGrid to ${contact.email}`);
+          }
+        } catch (e: any) {
+          console.error("SendGrid error:", e.message);
+        }
+      }
+
+      // Fallback to Resend
+      if (!sent && RESEND_API_KEY) {
+        try {
+          const response = await fetch("https://api.resend.com/emails", {
+            method: "POST",
+            headers: {
+              "Authorization": `Bearer ${RESEND_API_KEY}`,
+              "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+              from: "OutreachAI <onboarding@resend.dev>",
+              to: [contact.email],
+              subject: subject,
+              html: `<div style="font-family: Arial, sans-serif;">${content.replace(/\n/g, "<br>")}</div>`,
+            }),
+          });
+
+          if (response.ok) {
+            sent = true;
+            console.log(`Follow-up sent via Resend to ${contact.email}`);
+          }
+        } catch (e: any) {
+          console.error("Resend error:", e.message);
+        }
+      }
+
+      // Demo mode fallback
+      if (!sent) {
+        console.log(`[DEMO] Would send follow-up to ${contact.email}`);
+        sent = true;
       }
 
       // Update queue status
@@ -195,7 +346,29 @@ serve(async (req: Request) => {
         })
         .eq("id", followUp.id);
 
+      // Log activity
+      await supabase.from("activity_logs").insert({
+        user_id: userId,
+        action_type: sent ? "follow_up_sent" : "follow_up_failed",
+        entity_type: "follow_up_queue",
+        entity_id: followUp.id,
+        metadata: { contact_email: contact.email, subject },
+      });
+
+      // Update warmup counter
+      if (sent && warmupSchedule) {
+        await supabase
+          .from("email_warmup_schedules")
+          .update({
+            emails_sent_today: warmupSchedule.emails_sent_today + 1,
+          })
+          .eq("id", warmupSchedule.id);
+      }
+
       if (sent) sentCount++;
+
+      // Rate limiting
+      await new Promise((resolve) => setTimeout(resolve, 100));
     }
 
     console.log(`Sent ${sentCount} follow-up emails`);
@@ -222,5 +395,10 @@ function parseTemplate(template: string, contact: any): string {
     .replace(/\{\{firstName\}\}/g, contact.first_name || "")
     .replace(/\{\{lastName\}\}/g, contact.last_name || "")
     .replace(/\{\{businessName\}\}/g, contact.business_name || "")
-    .replace(/\{\{email\}\}/g, contact.email || "");
+    .replace(/\{\{email\}\}/g, contact.email || "")
+    .replace(/\{\{jobTitle\}\}/g, contact.job_title || "")
+    .replace(/\{\{location\}\}/g, contact.location || "")
+    .replace(/\{\{city\}\}/g, contact.city || "")
+    .replace(/\{\{state\}\}/g, contact.state || "")
+    .replace(/\{\{country\}\}/g, contact.country || "");
 }

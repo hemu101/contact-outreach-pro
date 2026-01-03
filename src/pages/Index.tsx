@@ -10,6 +10,8 @@ import { CampaignList } from '@/components/campaigns/CampaignList';
 import { CampaignDetails } from '@/components/campaigns/CampaignDetails';
 import { N8nWorkflow } from '@/components/n8n/N8nWorkflow';
 import { SettingsPage } from '@/components/settings/SettingsPage';
+import { EmailInbox } from '@/components/inbox/EmailInbox';
+import { EmailWarmup } from '@/components/settings/EmailWarmup';
 import { useAuth } from '@/hooks/useAuth';
 import { useContacts } from '@/hooks/useContacts';
 import { useTemplates } from '@/hooks/useTemplates';
@@ -206,6 +208,10 @@ const Index = () => {
             </div>
           </div>
         );
+      case 'inbox':
+        return <EmailInbox />;
+      case 'warmup':
+        return <EmailWarmup />;
       case 'n8n':
         return <N8nWorkflow />;
       case 'settings':
