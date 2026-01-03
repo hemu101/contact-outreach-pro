@@ -1,10 +1,13 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Mail, CheckCircle, XCircle, Clock, Eye, MousePointer, RefreshCw } from 'lucide-react';
+import { ArrowLeft, Mail, CheckCircle, XCircle, Clock, Eye, MousePointer, RefreshCw, Settings2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { supabase } from '@/integrations/supabase/client';
 import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
+import { RealTimeMonitor } from './RealTimeMonitor';
+import { FollowUpConfig } from './FollowUpConfig';
 
 interface CampaignContact {
   id: string;
@@ -188,60 +191,84 @@ export function CampaignDetails({ campaignId, onBack }: CampaignDetailsProps) {
         </div>
       </div>
 
-      {/* Contacts Table */}
-      <div className="glass-card rounded-xl p-6">
-        <h3 className="text-lg font-semibold text-foreground mb-4">
-          Email Recipients ({contacts.length})
-        </h3>
-        
-        {contacts.length === 0 ? (
-          <p className="text-center text-muted-foreground py-8">No contacts in this campaign</p>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border">
-                  <th className="text-left py-3 px-4 text-muted-foreground font-medium">Contact</th>
-                  <th className="text-left py-3 px-4 text-muted-foreground font-medium">Email</th>
-                  <th className="text-left py-3 px-4 text-muted-foreground font-medium">Status</th>
-                  <th className="text-left py-3 px-4 text-muted-foreground font-medium">Sent At</th>
-                  <th className="text-left py-3 px-4 text-muted-foreground font-medium">Opened At</th>
-                  <th className="text-left py-3 px-4 text-muted-foreground font-medium">Clicked At</th>
-                </tr>
-              </thead>
-              <tbody>
-                {contacts.map((cc) => (
-                  <tr key={cc.id} className="border-b border-border/50 hover:bg-secondary/30">
-                    <td className="py-3 px-4">
-                      <p className="font-medium text-foreground">
-                        {cc.contacts?.first_name} {cc.contacts?.last_name}
-                      </p>
-                      {cc.contacts?.business_name && (
-                        <p className="text-xs text-muted-foreground">{cc.contacts.business_name}</p>
-                      )}
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground">
-                      {cc.contacts?.email}
-                    </td>
-                    <td className="py-3 px-4">
-                      {getStatusBadge(cc)}
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground">
-                      {cc.sent_at ? format(new Date(cc.sent_at), 'PP p') : '-'}
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground">
-                      {cc.opened_at ? format(new Date(cc.opened_at), 'PP p') : '-'}
-                    </td>
-                    <td className="py-3 px-4 text-muted-foreground">
-                      {cc.clicked_at ? format(new Date(cc.clicked_at), 'PP p') : '-'}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
+      {/* Tabs for different views */}
+      <Tabs defaultValue="recipients" className="w-full">
+        <TabsList className="grid w-full grid-cols-3">
+          <TabsTrigger value="recipients">Recipients</TabsTrigger>
+          <TabsTrigger value="live">Live Monitor</TabsTrigger>
+          <TabsTrigger value="followups">
+            <Settings2 className="w-4 h-4 mr-2" />
+            Follow-ups
+          </TabsTrigger>
+        </TabsList>
+
+        <TabsContent value="recipients" className="mt-4">
+          {/* Contacts Table */}
+          <div className="glass-card rounded-xl p-6">
+            <h3 className="text-lg font-semibold text-foreground mb-4">
+              Email Recipients ({contacts.length})
+            </h3>
+            
+            {contacts.length === 0 ? (
+              <p className="text-center text-muted-foreground py-8">No contacts in this campaign</p>
+            ) : (
+              <div className="overflow-x-auto">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="border-b border-border">
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Contact</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Email</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Status</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Sent At</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Opened At</th>
+                      <th className="text-left py-3 px-4 text-muted-foreground font-medium">Clicked At</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {contacts.map((cc) => (
+                      <tr key={cc.id} className="border-b border-border/50 hover:bg-secondary/30">
+                        <td className="py-3 px-4">
+                          <p className="font-medium text-foreground">
+                            {cc.contacts?.first_name} {cc.contacts?.last_name}
+                          </p>
+                          {cc.contacts?.business_name && (
+                            <p className="text-xs text-muted-foreground">{cc.contacts.business_name}</p>
+                          )}
+                        </td>
+                        <td className="py-3 px-4 text-muted-foreground">
+                          {cc.contacts?.email}
+                        </td>
+                        <td className="py-3 px-4">
+                          {getStatusBadge(cc)}
+                        </td>
+                        <td className="py-3 px-4 text-muted-foreground">
+                          {cc.sent_at ? format(new Date(cc.sent_at), 'PP p') : '-'}
+                        </td>
+                        <td className="py-3 px-4 text-muted-foreground">
+                          {cc.opened_at ? format(new Date(cc.opened_at), 'PP p') : '-'}
+                        </td>
+                        <td className="py-3 px-4 text-muted-foreground">
+                          {cc.clicked_at ? format(new Date(cc.clicked_at), 'PP p') : '-'}
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            )}
           </div>
-        )}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="live" className="mt-4">
+          <RealTimeMonitor campaignId={campaignId} />
+        </TabsContent>
+
+        <TabsContent value="followups" className="mt-4">
+          <div className="glass-card rounded-xl p-6">
+            <FollowUpConfig campaignId={campaignId} />
+          </div>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }

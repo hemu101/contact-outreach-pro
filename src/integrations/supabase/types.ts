@@ -555,6 +555,111 @@ export type Database = {
         }
         Relationships: []
       }
+      follow_up_queue: {
+        Row: {
+          campaign_contact_id: string
+          created_at: string
+          id: string
+          scheduled_at: string
+          sent_at: string | null
+          sequence_id: string
+          status: string | null
+        }
+        Insert: {
+          campaign_contact_id: string
+          created_at?: string
+          id?: string
+          scheduled_at: string
+          sent_at?: string | null
+          sequence_id: string
+          status?: string | null
+        }
+        Update: {
+          campaign_contact_id?: string
+          created_at?: string
+          id?: string
+          scheduled_at?: string
+          sent_at?: string | null
+          sequence_id?: string
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_queue_campaign_contact_id_fkey"
+            columns: ["campaign_contact_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follow_up_queue_sequence_id_fkey"
+            columns: ["sequence_id"]
+            isOneToOne: false
+            referencedRelation: "follow_up_sequences"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      follow_up_sequences: {
+        Row: {
+          campaign_id: string | null
+          content: string | null
+          created_at: string
+          delay_hours: number
+          id: string
+          name: string
+          status: string | null
+          subject: string | null
+          template_id: string | null
+          trigger_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          campaign_id?: string | null
+          content?: string | null
+          created_at?: string
+          delay_hours?: number
+          id?: string
+          name: string
+          status?: string | null
+          subject?: string | null
+          template_id?: string | null
+          trigger_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          campaign_id?: string | null
+          content?: string | null
+          created_at?: string
+          delay_hours?: number
+          id?: string
+          name?: string
+          status?: string | null
+          subject?: string | null
+          template_id?: string | null
+          trigger_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "follow_up_sequences_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follow_up_sequences_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
