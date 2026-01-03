@@ -16,6 +16,8 @@ export type Database = {
     Tables: {
       campaign_contacts: {
         Row: {
+          bounce_type: string | null
+          bounced_at: string | null
           campaign_id: string
           clicked_at: string | null
           contact_id: string
@@ -27,6 +29,8 @@ export type Database = {
           variant: string | null
         }
         Insert: {
+          bounce_type?: string | null
+          bounced_at?: string | null
           campaign_id: string
           clicked_at?: string | null
           contact_id: string
@@ -38,6 +42,8 @@ export type Database = {
           variant?: string | null
         }
         Update: {
+          bounce_type?: string | null
+          bounced_at?: string | null
           campaign_id?: string
           clicked_at?: string | null
           contact_id?: string
@@ -222,6 +228,9 @@ export type Database = {
       }
       contacts: {
         Row: {
+          bounce_type: string | null
+          bounced: boolean | null
+          bounced_at: string | null
           business_name: string | null
           city: string | null
           country: string | null
@@ -245,6 +254,9 @@ export type Database = {
           voicemail_sent: boolean | null
         }
         Insert: {
+          bounce_type?: string | null
+          bounced?: boolean | null
+          bounced_at?: string | null
           business_name?: string | null
           city?: string | null
           country?: string | null
@@ -268,6 +280,9 @@ export type Database = {
           voicemail_sent?: boolean | null
         }
         Update: {
+          bounce_type?: string | null
+          bounced?: boolean | null
+          bounced_at?: string | null
           business_name?: string | null
           city?: string | null
           country?: string | null
