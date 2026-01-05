@@ -69,36 +69,39 @@ export function DeliverabilityTest() {
 
       if (insertError) throw insertError;
 
-      // Simulate deliverability check (in production, integrate with email testing service)
-      await new Promise(resolve => setTimeout(resolve, 2000));
+      // Call the deliverability testing edge function
+      const { data: result, error: testError } = await supabase.functions.invoke(
+        'test-deliverability',
+        {
+          body: { email, testId: test.id },
+        }
+      );
 
-      // Generate simulated results
-      const spamScore = Math.random() * 5;
-      const inboxPlacement = spamScore < 2 ? 'inbox' : spamScore < 4 ? 'promotions' : 'spam';
-      const warnings: string[] = [];
+      if (testError) {
+        // Fallback to simulated results if API fails
+        console.warn('Deliverability API error, using fallback:', testError);
+        const spamScore = Math.random() * 5;
+        const inboxPlacement = spamScore < 2 ? 'inbox' : spamScore < 4 ? 'promotions' : 'spam';
+        const warnings: string[] = ['Using simulated results - configure API for real testing'];
 
-      if (spamScore > 2) warnings.push('Spam score is elevated');
-      if (!email.includes('@gmail') && !email.includes('@outlook')) {
-        warnings.push('Consider testing with major email providers');
+        if (spamScore > 2) warnings.push('Spam score is elevated');
+        
+        await supabase
+          .from('email_deliverability_tests')
+          .update({
+            status: 'completed',
+            spam_score: spamScore,
+            inbox_placement: inboxPlacement,
+            authentication_results: {
+              spf: Math.random() > 0.2,
+              dkim: Math.random() > 0.3,
+              dmarc: Math.random() > 0.4,
+            },
+            warnings,
+            completed_at: new Date().toISOString(),
+          })
+          .eq('id', test.id);
       }
-
-      const { error: updateError } = await supabase
-        .from('email_deliverability_tests')
-        .update({
-          status: 'completed',
-          spam_score: spamScore,
-          inbox_placement: inboxPlacement,
-          authentication_results: {
-            spf: Math.random() > 0.2,
-            dkim: Math.random() > 0.3,
-            dmarc: Math.random() > 0.4,
-          },
-          warnings: warnings.length > 0 ? warnings : null,
-          completed_at: new Date().toISOString(),
-        })
-        .eq('id', test.id);
-
-      if (updateError) throw updateError;
 
       return test.id;
     },
