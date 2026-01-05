@@ -12,6 +12,8 @@ import { N8nWorkflow } from '@/components/n8n/N8nWorkflow';
 import { SettingsPage } from '@/components/settings/SettingsPage';
 import { EmailInbox } from '@/components/inbox/EmailInbox';
 import { EmailWarmup } from '@/components/settings/EmailWarmup';
+import { DeliverabilityTest } from '@/components/campaigns/DeliverabilityTest';
+import { SocialDMsPage } from '@/components/social/SocialDMsPage';
 import { useAuth } from '@/hooks/useAuth';
 import { useContacts } from '@/hooks/useContacts';
 import { useTemplates } from '@/hooks/useTemplates';
@@ -210,8 +212,12 @@ const Index = () => {
         );
       case 'inbox':
         return <EmailInbox />;
+      case 'deliverability':
+        return <DeliverabilityTest />;
       case 'warmup':
         return <EmailWarmup />;
+      case 'social-dms':
+        return <SocialDMsPage />;
       case 'n8n':
         return <N8nWorkflow />;
       case 'settings':

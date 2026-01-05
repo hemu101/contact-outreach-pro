@@ -14,7 +14,9 @@ import {
   Search, 
   RefreshCw,
   MailOpen,
-  Reply
+  Reply,
+  Link2,
+  Users
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -35,6 +37,8 @@ interface EmailMessage {
   received_at: string;
   campaign_id: string | null;
   contact_id: string | null;
+  message_id: string | null;
+  in_reply_to: string | null;
 }
 
 type FolderType = 'inbox' | 'starred' | 'sent' | 'archive' | 'trash';
@@ -322,6 +326,26 @@ export function EmailInbox() {
                     <CardDescription>
                       {format(new Date(selectedEmail.received_at), 'PPpp')}
                     </CardDescription>
+                    {/* Reply Detection Badges */}
+                    <div className="flex items-center gap-2 mt-2">
+                      {selectedEmail.campaign_id && (
+                        <Badge variant="outline" className="text-xs">
+                          <Link2 className="h-3 w-3 mr-1" />
+                          Campaign Reply
+                        </Badge>
+                      )}
+                      {selectedEmail.contact_id && (
+                        <Badge variant="outline" className="text-xs">
+                          <Users className="h-3 w-3 mr-1" />
+                          Known Contact
+                        </Badge>
+                      )}
+                      {selectedEmail.in_reply_to && (
+                        <Badge variant="secondary" className="text-xs">
+                          Thread Reply
+                        </Badge>
+                      )}
+                    </div>
                   </div>
                   <div className="flex gap-1">
                     <Button variant="outline" size="icon" onClick={() => toggleStar(selectedEmail)}>

@@ -10,7 +10,9 @@ import {
   PieChart,
   LayoutDashboard,
   Inbox,
-  Flame
+  Flame,
+  Shield,
+  Instagram
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -26,7 +28,9 @@ const navItems = [
   { id: 'templates', icon: FileText, label: 'Templates' },
   { id: 'campaigns', icon: Mail, label: 'Campaigns' },
   { id: 'inbox', icon: Inbox, label: 'Inbox' },
+  { id: 'deliverability', icon: Shield, label: 'Deliverability' },
   { id: 'warmup', icon: Flame, label: 'Email Warmup' },
+  { id: 'social-dms', icon: Instagram, label: 'Social DMs' },
   { id: 'n8n', icon: Zap, label: 'n8n Workflow' },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ];
