@@ -15,7 +15,8 @@ import {
   Loader2,
   Upload,
   CheckCircle,
-  Link
+  Link,
+  MessageSquare
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -23,6 +24,7 @@ import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
+import { DMTemplates } from './DMTemplates';
 
 interface Creator {
   id: string;
@@ -40,7 +42,7 @@ interface Creator {
 }
 
 export function SocialDMsPage() {
-  const [activeTab, setActiveTab] = useState<'instagram' | 'tiktok'>('instagram');
+  const [activeTab, setActiveTab] = useState<'instagram' | 'tiktok' | 'templates'>('instagram');
   const [profileUrl, setProfileUrl] = useState('');
   const [bulkUrls, setBulkUrls] = useState('');
   const [showBulkUpload, setShowBulkUpload] = useState(false);
@@ -48,20 +50,22 @@ export function SocialDMsPage() {
   const { toast } = useToast();
   const queryClient = useQueryClient();
 
+  const platformForQuery = activeTab === 'templates' ? 'instagram' : activeTab;
+  
   const { data: creators, isLoading } = useQuery({
-    queryKey: ['creators', user?.id, activeTab],
+    queryKey: ['creators', user?.id, platformForQuery],
     queryFn: async () => {
       const { data, error } = await supabase
         .from('creators')
         .select('*')
         .eq('user_id', user?.id)
-        .eq('platform', activeTab)
+        .eq('platform', platformForQuery)
         .order('created_at', { ascending: false });
       
       if (error) throw error;
       return data as Creator[];
     },
-    enabled: !!user,
+    enabled: !!user && activeTab !== 'templates',
   });
 
   const parseProfileUrl = (url: string, platform: string): { handle: string; name: string } | null => {
@@ -263,8 +267,8 @@ export function SocialDMsPage() {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'instagram' | 'tiktok')}>
-        <TabsList className="grid w-full max-w-[400px] grid-cols-2">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'instagram' | 'tiktok' | 'templates')}>
+        <TabsList className="grid w-full max-w-[600px] grid-cols-3">
           <TabsTrigger value="instagram" className="flex items-center gap-2">
             <Instagram className="h-4 w-4" />
             Instagram
@@ -273,178 +277,190 @@ export function SocialDMsPage() {
             <Music2 className="h-4 w-4" />
             TikTok
           </TabsTrigger>
+          <TabsTrigger value="templates" className="flex items-center gap-2">
+            <MessageSquare className="h-4 w-4" />
+            Templates
+          </TabsTrigger>
         </TabsList>
 
-        <TabsContent value={activeTab} className="space-y-4 mt-4">
-          {/* Add Creator Section */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <PlatformIcon className="h-5 w-5 text-primary" />
-                Add {activeTab === 'instagram' ? 'Instagram' : 'TikTok'} Profiles
-              </CardTitle>
-              <CardDescription>
-                Paste profile URLs or usernames to add to your outreach list
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {!showBulkUpload ? (
-                <div className="flex gap-2">
-                  <Input
-                    placeholder={`Enter ${activeTab} profile URL or username...`}
-                    value={profileUrl}
-                    onChange={(e) => setProfileUrl(e.target.value)}
-                    onKeyDown={(e) => e.key === 'Enter' && profileUrl && addCreator.mutate(profileUrl)}
-                  />
-                  <Button 
-                    onClick={() => addCreator.mutate(profileUrl)}
-                    disabled={!profileUrl || addCreator.isPending}
-                  >
-                    {addCreator.isPending ? (
-                      <Loader2 className="h-4 w-4 animate-spin" />
-                    ) : (
-                      <Plus className="h-4 w-4" />
-                    )}
-                  </Button>
-                  <Button 
-                    variant="outline"
-                    onClick={() => setShowBulkUpload(true)}
-                  >
-                    <Upload className="h-4 w-4 mr-2" />
-                    Bulk Import
-                  </Button>
-                </div>
-              ) : (
-                <div className="space-y-3">
-                  <Textarea
-                    placeholder={`Paste ${activeTab} profile URLs, one per line...\n\nExample:\nhttps://instagram.com/username\n@username\nusername`}
-                    value={bulkUrls}
-                    onChange={(e) => setBulkUrls(e.target.value)}
-                    rows={6}
-                  />
+        {/* Templates Tab */}
+        <TabsContent value="templates" className="space-y-4 mt-4">
+          <DMTemplates />
+        </TabsContent>
+
+        {/* Instagram/TikTok Tabs */}
+        {(activeTab === 'instagram' || activeTab === 'tiktok') && (
+          <TabsContent value={activeTab} className="space-y-4 mt-4">
+            {/* Add Creator Section */}
+            <Card>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <PlatformIcon className="h-5 w-5 text-primary" />
+                  Add {activeTab === 'instagram' ? 'Instagram' : 'TikTok'} Profiles
+                </CardTitle>
+                <CardDescription>
+                  Paste profile URLs or usernames to add to your outreach list
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {!showBulkUpload ? (
                   <div className="flex gap-2">
+                    <Input
+                      placeholder={`Enter ${activeTab} profile URL or username...`}
+                      value={profileUrl}
+                      onChange={(e) => setProfileUrl(e.target.value)}
+                      onKeyDown={(e) => e.key === 'Enter' && profileUrl && addCreator.mutate(profileUrl)}
+                    />
                     <Button 
-                      onClick={handleBulkImport}
-                      disabled={addBulkCreators.isPending}
+                      onClick={() => addCreator.mutate(profileUrl)}
+                      disabled={!profileUrl || addCreator.isPending}
                     >
-                      {addBulkCreators.isPending ? (
-                        <>
-                          <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                          Importing...
-                        </>
+                      {addCreator.isPending ? (
+                        <Loader2 className="h-4 w-4 animate-spin" />
                       ) : (
-                        <>
-                          <Upload className="mr-2 h-4 w-4" />
-                          Import All
-                        </>
+                        <Plus className="h-4 w-4" />
                       )}
                     </Button>
                     <Button 
                       variant="outline"
-                      onClick={() => {
-                        setShowBulkUpload(false);
-                        setBulkUrls('');
-                      }}
+                      onClick={() => setShowBulkUpload(true)}
                     >
-                      Cancel
+                      <Upload className="h-4 w-4 mr-2" />
+                      Bulk Import
                     </Button>
                   </div>
-                </div>
-              )}
-            </CardContent>
-          </Card>
-
-          {/* Creators List */}
-          <Card>
-            <CardHeader>
-              <div className="flex items-center justify-between">
-                <div>
-                  <CardTitle>Your {activeTab === 'instagram' ? 'Instagram' : 'TikTok'} Contacts</CardTitle>
-                  <CardDescription>
-                    {creators?.length || 0} profiles added
-                  </CardDescription>
-                </div>
-              </div>
-            </CardHeader>
-            <CardContent>
-              {isLoading ? (
-                <div className="flex items-center justify-center py-8">
-                  <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
-                </div>
-              ) : creators && creators.length > 0 ? (
-                <ScrollArea className="h-[400px]">
-                  <div className="space-y-2">
-                    {creators.map((creator) => (
-                      <div
-                        key={creator.id}
-                        className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                ) : (
+                  <div className="space-y-3">
+                    <Textarea
+                      placeholder={`Paste ${activeTab} profile URLs, one per line...\n\nExample:\nhttps://instagram.com/username\n@username\nusername`}
+                      value={bulkUrls}
+                      onChange={(e) => setBulkUrls(e.target.value)}
+                      rows={6}
+                    />
+                    <div className="flex gap-2">
+                      <Button 
+                        onClick={handleBulkImport}
+                        disabled={addBulkCreators.isPending}
                       >
-                        <div className="flex items-center gap-3">
-                          <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
-                            <PlatformIcon className="h-5 w-5 text-primary" />
-                          </div>
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-medium">{creator.name}</span>
-                              {creator.verified && (
-                                <CheckCircle className="h-4 w-4 text-blue-500" />
-                              )}
-                            </div>
-                            <p className="text-sm text-muted-foreground">@{creator.handle}</p>
-                          </div>
-                        </div>
-
-                        <div className="flex items-center gap-2">
-                          {creator.followers && (
-                            <Badge variant="secondary">{creator.followers} followers</Badge>
-                          )}
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            asChild
-                          >
-                            <a 
-                              href={getPlatformUrl(creator.handle, creator.platform || activeTab)} 
-                              target="_blank" 
-                              rel="noopener noreferrer"
-                            >
-                              <ExternalLink className="h-4 w-4" />
-                            </a>
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => deleteCreator.mutate(creator.id)}
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </div>
-                    ))}
+                        {addBulkCreators.isPending ? (
+                          <>
+                            <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                            Importing...
+                          </>
+                        ) : (
+                          <>
+                            <Upload className="mr-2 h-4 w-4" />
+                            Import All
+                          </>
+                        )}
+                      </Button>
+                      <Button 
+                        variant="outline"
+                        onClick={() => {
+                          setShowBulkUpload(false);
+                          setBulkUrls('');
+                        }}
+                      >
+                        Cancel
+                      </Button>
+                    </div>
                   </div>
-                </ScrollArea>
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <Link className="h-8 w-8 mx-auto mb-2 opacity-50" />
-                  <p>No {activeTab} profiles added yet</p>
-                  <p className="text-sm">Add profile URLs above to start building your list</p>
-                </div>
-              )}
-            </CardContent>
-          </Card>
+                )}
+              </CardContent>
+            </Card>
 
-          {/* Info Card */}
-          <Card className="bg-muted/50">
-            <CardContent className="pt-6">
-              <h4 className="font-medium mb-2">Coming Soon: DM Automation</h4>
-              <p className="text-sm text-muted-foreground">
-                We're building automated DM sending for {activeTab === 'instagram' ? 'Instagram' : 'TikTok'}. 
-                For now, you can collect and organize your outreach contacts here. 
-                DM templates and automation will be available in a future update.
-              </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
+            {/* Creators List */}
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <div>
+                    <CardTitle>Your {activeTab === 'instagram' ? 'Instagram' : 'TikTok'} Contacts</CardTitle>
+                    <CardDescription>
+                      {creators?.length || 0} profiles added
+                    </CardDescription>
+                  </div>
+                </div>
+              </CardHeader>
+              <CardContent>
+                {isLoading ? (
+                  <div className="flex items-center justify-center py-8">
+                    <Loader2 className="h-6 w-6 animate-spin text-muted-foreground" />
+                  </div>
+                ) : creators && creators.length > 0 ? (
+                  <ScrollArea className="h-[400px]">
+                    <div className="space-y-2">
+                      {creators.map((creator) => (
+                        <div
+                          key={creator.id}
+                          className="flex items-center justify-between p-3 rounded-lg border hover:bg-accent/50 transition-colors"
+                        >
+                          <div className="flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-full bg-gradient-to-br from-primary/20 to-accent/20 flex items-center justify-center">
+                              <PlatformIcon className="h-5 w-5 text-primary" />
+                            </div>
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium">{creator.name}</span>
+                                {creator.verified && (
+                                  <CheckCircle className="h-4 w-4 text-blue-500" />
+                                )}
+                              </div>
+                              <p className="text-sm text-muted-foreground">@{creator.handle}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center gap-2">
+                            {creator.followers && (
+                              <Badge variant="secondary">{creator.followers} followers</Badge>
+                            )}
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              asChild
+                            >
+                              <a 
+                                href={getPlatformUrl(creator.handle, creator.platform || activeTab)} 
+                                target="_blank" 
+                                rel="noopener noreferrer"
+                              >
+                                <ExternalLink className="h-4 w-4" />
+                              </a>
+                            </Button>
+                            <Button
+                              variant="ghost"
+                              size="icon"
+                              onClick={() => deleteCreator.mutate(creator.id)}
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </Button>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  </ScrollArea>
+                ) : (
+                  <div className="text-center py-8 text-muted-foreground">
+                    <Link className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No {activeTab} profiles added yet</p>
+                    <p className="text-sm">Add profile URLs above to start building your list</p>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Info Card */}
+            <Card className="bg-muted/50">
+              <CardContent className="pt-6">
+                <h4 className="font-medium mb-2">Coming Soon: DM Automation</h4>
+                <p className="text-sm text-muted-foreground">
+                  We're building automated DM sending for {activeTab === 'instagram' ? 'Instagram' : 'TikTok'}. 
+                  For now, you can collect and organize your outreach contacts here. 
+                  DM templates and automation will be available in a future update.
+                </p>
+              </CardContent>
+            </Card>
+          </TabsContent>
+        )}
       </Tabs>
     </div>
   );

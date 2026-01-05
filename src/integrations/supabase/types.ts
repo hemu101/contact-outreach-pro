@@ -323,7 +323,10 @@ export type Database = {
           phone: string | null
           state: string | null
           status: string | null
+          tags: string[] | null
           tiktok: string | null
+          unsubscribed: boolean | null
+          unsubscribed_at: string | null
           updated_at: string
           user_id: string
           voicemail_sent: boolean | null
@@ -349,7 +352,10 @@ export type Database = {
           phone?: string | null
           state?: string | null
           status?: string | null
+          tags?: string[] | null
           tiktok?: string | null
+          unsubscribed?: boolean | null
+          unsubscribed_at?: string | null
           updated_at?: string
           user_id: string
           voicemail_sent?: boolean | null
@@ -375,7 +381,10 @@ export type Database = {
           phone?: string | null
           state?: string | null
           status?: string | null
+          tags?: string[] | null
           tiktok?: string | null
+          unsubscribed?: boolean | null
+          unsubscribed_at?: string | null
           updated_at?: string
           user_id?: string
           voicemail_sent?: boolean | null
