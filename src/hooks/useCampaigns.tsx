@@ -78,6 +78,19 @@ export function useCampaigns() {
         if (contactsError) throw contactsError;
       }
 
+      // Log campaign creation
+      await supabase.from('activity_logs').insert({
+        user_id: user.id,
+        action_type: 'campaign_created',
+        entity_type: 'campaign',
+        entity_id: newCampaign.id,
+        metadata: { 
+          name: campaign.name,
+          contacts_count: contactIds.length,
+          use_timezone: campaign.use_recipient_timezone,
+        },
+      });
+
       return newCampaign;
     },
     onSuccess: () => {

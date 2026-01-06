@@ -218,6 +218,7 @@ export type Database = {
           id: string
           name: string
           open_count: number | null
+          optimal_send_hour: number | null
           scheduled_at: string | null
           sent_count: number | null
           started_at: string | null
@@ -225,6 +226,7 @@ export type Database = {
           template_id: string | null
           total_contacts: number | null
           updated_at: string
+          use_recipient_timezone: boolean | null
           user_id: string
           variant_a_clicks: number | null
           variant_a_content: string | null
@@ -245,6 +247,7 @@ export type Database = {
           id?: string
           name: string
           open_count?: number | null
+          optimal_send_hour?: number | null
           scheduled_at?: string | null
           sent_count?: number | null
           started_at?: string | null
@@ -252,6 +255,7 @@ export type Database = {
           template_id?: string | null
           total_contacts?: number | null
           updated_at?: string
+          use_recipient_timezone?: boolean | null
           user_id: string
           variant_a_clicks?: number | null
           variant_a_content?: string | null
@@ -272,6 +276,7 @@ export type Database = {
           id?: string
           name?: string
           open_count?: number | null
+          optimal_send_hour?: number | null
           scheduled_at?: string | null
           sent_count?: number | null
           started_at?: string | null
@@ -279,6 +284,7 @@ export type Database = {
           template_id?: string | null
           total_contacts?: number | null
           updated_at?: string
+          use_recipient_timezone?: boolean | null
           user_id?: string
           variant_a_clicks?: number | null
           variant_a_content?: string | null
@@ -325,6 +331,7 @@ export type Database = {
           status: string | null
           tags: string[] | null
           tiktok: string | null
+          timezone: string | null
           unsubscribed: boolean | null
           unsubscribed_at: string | null
           updated_at: string
@@ -354,6 +361,7 @@ export type Database = {
           status?: string | null
           tags?: string[] | null
           tiktok?: string | null
+          timezone?: string | null
           unsubscribed?: boolean | null
           unsubscribed_at?: string | null
           updated_at?: string
@@ -383,6 +391,7 @@ export type Database = {
           status?: string | null
           tags?: string[] | null
           tiktok?: string | null
+          timezone?: string | null
           unsubscribed?: boolean | null
           unsubscribed_at?: string | null
           updated_at?: string
@@ -507,6 +516,113 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      dm_campaign_contacts: {
+        Row: {
+          created_at: string
+          creator_id: string
+          dm_campaign_id: string
+          error_message: string | null
+          id: string
+          replied_at: string | null
+          sent_at: string | null
+          status: string | null
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          dm_campaign_id: string
+          error_message?: string | null
+          id?: string
+          replied_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          dm_campaign_id?: string
+          error_message?: string | null
+          id?: string
+          replied_at?: string | null
+          sent_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dm_campaign_contacts_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "dm_campaign_contacts_dm_campaign_id_fkey"
+            columns: ["dm_campaign_id"]
+            isOneToOne: false
+            referencedRelation: "dm_campaigns"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      dm_campaigns: {
+        Row: {
+          completed_at: string | null
+          created_at: string
+          id: string
+          name: string
+          platform: string
+          reply_count: number | null
+          scheduled_at: string | null
+          sent_count: number | null
+          started_at: string | null
+          status: string | null
+          template_id: string | null
+          total_contacts: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          platform: string
+          reply_count?: number | null
+          scheduled_at?: string | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string | null
+          template_id?: string | null
+          total_contacts?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          completed_at?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          platform?: string
+          reply_count?: number | null
+          scheduled_at?: string | null
+          sent_count?: number | null
+          started_at?: string | null
+          status?: string | null
+          template_id?: string | null
+          total_contacts?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "dm_campaigns_template_id_fkey"
+            columns: ["template_id"]
+            isOneToOne: false
+            referencedRelation: "templates"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       email_deliverability_tests: {
         Row: {
@@ -908,6 +1024,33 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      page_views: {
+        Row: {
+          created_at: string
+          id: string
+          metadata: Json | null
+          page_name: string
+          path: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          page_name: string
+          path?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          metadata?: Json | null
+          page_name?: string
+          path?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       portfolio_items: {
         Row: {
