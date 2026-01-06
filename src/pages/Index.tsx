@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { Sidebar } from '@/components/layout/Sidebar';
 import { Dashboard } from '@/components/dashboard/Dashboard';
 import { AnalyticsDashboard } from '@/components/dashboard/AnalyticsDashboard';
+import { UnifiedAnalytics } from '@/components/dashboard/UnifiedAnalytics';
 import { ContactsPage } from '@/components/contacts/ContactsPage';
 import { RichTemplateEditor } from '@/components/templates/RichTemplateEditor';
 import { CampaignBuilder } from '@/components/campaigns/CampaignBuilder';
@@ -115,6 +116,8 @@ const Index = () => {
         variant_a_content: campaign.abTesting?.variantA?.content || null,
         variant_b_subject: campaign.abTesting?.variantB?.subject || null,
         variant_b_content: campaign.abTesting?.variantB?.content || null,
+        use_recipient_timezone: campaign.useRecipientTimezone || false,
+        optimal_send_hour: campaign.optimalSendHour || 9,
       },
       contactIds: campaign.contacts.map((c: any) => c.id),
     });
@@ -175,7 +178,7 @@ const Index = () => {
       case 'dashboard':
         return <Dashboard stats={stats} activities={[]} onQuickAction={handleQuickAction} />;
       case 'analytics':
-        return <AnalyticsDashboard campaigns={campaigns} />;
+        return <UnifiedAnalytics campaigns={campaigns} />;
       case 'contacts':
         return (
           <ContactsPage 

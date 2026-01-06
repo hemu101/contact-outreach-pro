@@ -10,6 +10,8 @@ import { cn } from '@/lib/utils';
 import { EmailPreview } from './EmailPreview';
 import { ContactFilter } from './ContactFilter';
 import { ABTestingConfig } from './ABTestingConfig';
+import { TimezoneScheduler } from './TimezoneScheduler';
+import { usePageTracking } from '@/hooks/usePageTracking';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Contact = Tables<'contacts'>;
@@ -33,6 +35,12 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
   const [abTestingEnabled, setAbTestingEnabled] = useState(false);
   const [variantA, setVariantA] = useState({ subject: '', content: '' });
   const [variantB, setVariantB] = useState({ subject: '', content: '' });
+
+  // Timezone scheduling state
+  const [useRecipientTimezone, setUseRecipientTimezone] = useState(false);
+  const [optimalSendHour, setOptimalSendHour] = useState(9);
+
+  usePageTracking('campaign-builder');
 
   const handleSelectAllContacts = () => {
     if (selectedContacts.length === contacts.length) {
@@ -104,6 +112,8 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
         variantA,
         variantB,
       } : undefined,
+      useRecipientTimezone,
+      optimalSendHour,
     };
 
     onCreateCampaign(campaign);
@@ -115,6 +125,8 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
     setAbTestingEnabled(false);
     setVariantA({ subject: '', content: '' });
     setVariantB({ subject: '', content: '' });
+    setUseRecipientTimezone(false);
+    setOptimalSendHour(9);
   };
 
   const templatesByType = {
@@ -272,6 +284,15 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
             variantB={variantB}
             onVariantAChange={setVariantA}
             onVariantBChange={setVariantB}
+          />
+
+          {/* Timezone Scheduler */}
+          <TimezoneScheduler
+            useRecipientTimezone={useRecipientTimezone}
+            onUseRecipientTimezoneChange={setUseRecipientTimezone}
+            optimalSendHour={optimalSendHour}
+            onOptimalSendHourChange={setOptimalSendHour}
+            contactCount={selectedContacts.length}
           />
         </div>
 
