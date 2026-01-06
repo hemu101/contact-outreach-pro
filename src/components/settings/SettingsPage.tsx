@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { useEmailSettings } from '@/hooks/useEmailSettings';
 import { DeliverabilityTest } from '@/components/campaigns/DeliverabilityTest';
+import { TestEmailSend } from '@/components/campaigns/TestEmailSend';
 
 export function SettingsPage() {
   const { settings, isLoading, saveSettings } = useEmailSettings();
@@ -264,6 +265,9 @@ export function SettingsPage() {
           Save Settings
         </Button>
       </div>
+
+      {/* Test Email Section */}
+      <TestEmailSend />
     </div>
   );
 }
