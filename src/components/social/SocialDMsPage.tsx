@@ -16,7 +16,8 @@ import {
   Upload,
   CheckCircle,
   Link,
-  MessageSquare
+  MessageSquare,
+  Key
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -25,6 +26,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { DMTemplates } from './DMTemplates';
+import { DMAccountSetup } from './DMAccountSetup';
 
 interface Creator {
   id: string;
@@ -42,7 +44,7 @@ interface Creator {
 }
 
 export function SocialDMsPage() {
-  const [activeTab, setActiveTab] = useState<'instagram' | 'tiktok' | 'templates'>('instagram');
+  const [activeTab, setActiveTab] = useState<'instagram' | 'tiktok' | 'templates' | 'accounts'>('instagram');
   const [profileUrl, setProfileUrl] = useState('');
   const [bulkUrls, setBulkUrls] = useState('');
   const [showBulkUpload, setShowBulkUpload] = useState(false);
@@ -267,8 +269,8 @@ export function SocialDMsPage() {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'instagram' | 'tiktok' | 'templates')}>
-        <TabsList className="grid w-full max-w-[600px] grid-cols-3">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'instagram' | 'tiktok' | 'templates' | 'accounts')}>
+        <TabsList className="grid w-full max-w-[800px] grid-cols-4">
           <TabsTrigger value="instagram" className="flex items-center gap-2">
             <Instagram className="h-4 w-4" />
             Instagram
@@ -281,11 +283,20 @@ export function SocialDMsPage() {
             <MessageSquare className="h-4 w-4" />
             Templates
           </TabsTrigger>
+          <TabsTrigger value="accounts" className="flex items-center gap-2">
+            <Key className="h-4 w-4" />
+            Accounts
+          </TabsTrigger>
         </TabsList>
 
         {/* Templates Tab */}
         <TabsContent value="templates" className="space-y-4 mt-4">
           <DMTemplates />
+        </TabsContent>
+
+        {/* Accounts Tab */}
+        <TabsContent value="accounts" className="space-y-4 mt-4">
+          <DMAccountSetup />
         </TabsContent>
 
         {/* Instagram/TikTok Tabs */}

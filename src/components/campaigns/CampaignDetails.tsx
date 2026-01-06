@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { ArrowLeft, Mail, CheckCircle, XCircle, Clock, Eye, MousePointer, RefreshCw, Settings2 } from 'lucide-react';
+import { ArrowLeft, Mail, CheckCircle, XCircle, Clock, Eye, MousePointer, RefreshCw, Settings2, FlaskConical, ListOrdered } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -8,7 +8,8 @@ import { cn } from '@/lib/utils';
 import { format } from 'date-fns';
 import { RealTimeMonitor } from './RealTimeMonitor';
 import { FollowUpConfig } from './FollowUpConfig';
-
+import { EmailQueue } from './EmailQueue';
+import { ABTestingResults } from './ABTestingResults';
 interface CampaignContact {
   id: string;
   status: string | null;
@@ -36,6 +37,19 @@ interface CampaignData {
   sent_count: number | null;
   open_count: number | null;
   click_count: number | null;
+  ab_testing_enabled: boolean | null;
+  variant_a_subject: string | null;
+  variant_a_content: string | null;
+  variant_a_sent: number | null;
+  variant_a_opens: number | null;
+  variant_a_clicks: number | null;
+  variant_b_subject: string | null;
+  variant_b_content: string | null;
+  variant_b_sent: number | null;
+  variant_b_opens: number | null;
+  variant_b_clicks: number | null;
+  use_recipient_timezone: boolean | null;
+  optimal_send_hour: number | null;
   templates: {
     name: string;
     subject: string | null;
@@ -193,11 +207,21 @@ export function CampaignDetails({ campaignId, onBack }: CampaignDetailsProps) {
 
       {/* Tabs for different views */}
       <Tabs defaultValue="recipients" className="w-full">
-        <TabsList className="grid w-full grid-cols-3">
+        <TabsList className="grid w-full grid-cols-5">
           <TabsTrigger value="recipients">Recipients</TabsTrigger>
+          <TabsTrigger value="queue">
+            <ListOrdered className="w-4 h-4 mr-1" />
+            Queue
+          </TabsTrigger>
           <TabsTrigger value="live">Live Monitor</TabsTrigger>
+          {campaign.ab_testing_enabled && (
+            <TabsTrigger value="ab-results">
+              <FlaskConical className="w-4 h-4 mr-1" />
+              A/B Results
+            </TabsTrigger>
+          )}
           <TabsTrigger value="followups">
-            <Settings2 className="w-4 h-4 mr-2" />
+            <Settings2 className="w-4 h-4 mr-1" />
             Follow-ups
           </TabsTrigger>
         </TabsList>
@@ -259,9 +283,39 @@ export function CampaignDetails({ campaignId, onBack }: CampaignDetailsProps) {
           </div>
         </TabsContent>
 
+        <TabsContent value="queue" className="mt-4">
+          <EmailQueue 
+            campaignId={campaignId}
+            useRecipientTimezone={campaign.use_recipient_timezone || false}
+            optimalSendHour={campaign.optimal_send_hour || 9}
+            onComplete={fetchCampaignData}
+          />
+        </TabsContent>
+
         <TabsContent value="live" className="mt-4">
           <RealTimeMonitor campaignId={campaignId} />
         </TabsContent>
+
+        {campaign.ab_testing_enabled && (
+          <TabsContent value="ab-results" className="mt-4">
+            <ABTestingResults
+              variantA={{
+                subject: campaign.variant_a_subject || '',
+                content: campaign.variant_a_content || '',
+                sent: campaign.variant_a_sent || 0,
+                opens: campaign.variant_a_opens || 0,
+                clicks: campaign.variant_a_clicks || 0,
+              }}
+              variantB={{
+                subject: campaign.variant_b_subject || '',
+                content: campaign.variant_b_content || '',
+                sent: campaign.variant_b_sent || 0,
+                opens: campaign.variant_b_opens || 0,
+                clicks: campaign.variant_b_clicks || 0,
+              }}
+            />
+          </TabsContent>
+        )}
 
         <TabsContent value="followups" className="mt-4">
           <div className="glass-card rounded-xl p-6">
