@@ -1,9 +1,21 @@
-import { useState } from 'react';
-import { Globe, Clock, Users, Zap } from 'lucide-react';
+import { useMemo } from 'react';
+import { Globe, Clock, Users, Zap, Sparkles, MapPin } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { useTimezoneDetection } from '@/hooks/useTimezoneDetection';
+
+interface Contact {
+  id: string;
+  city?: string | null;
+  state?: string | null;
+  country?: string | null;
+  location?: string | null;
+  timezone?: string | null;
+}
 
 interface TimezoneSchedulerProps {
   useRecipientTimezone: boolean;
@@ -11,21 +23,10 @@ interface TimezoneSchedulerProps {
   optimalSendHour: number;
   onOptimalSendHourChange: (hour: number) => void;
   contactCount: number;
+  contacts?: Contact[];
+  onUpdateContactTimezones?: (timezones: Map<string, string>) => void;
   timezoneBreakdown?: Record<string, number>;
 }
-
-const COMMON_TIMEZONES = [
-  { value: 'UTC', label: 'UTC', offset: 0 },
-  { value: 'America/New_York', label: 'Eastern (ET)', offset: -5 },
-  { value: 'America/Chicago', label: 'Central (CT)', offset: -6 },
-  { value: 'America/Denver', label: 'Mountain (MT)', offset: -7 },
-  { value: 'America/Los_Angeles', label: 'Pacific (PT)', offset: -8 },
-  { value: 'Europe/London', label: 'London (GMT)', offset: 0 },
-  { value: 'Europe/Paris', label: 'Paris (CET)', offset: 1 },
-  { value: 'Asia/Tokyo', label: 'Tokyo (JST)', offset: 9 },
-  { value: 'Asia/Shanghai', label: 'Shanghai (CST)', offset: 8 },
-  { value: 'Australia/Sydney', label: 'Sydney (AEST)', offset: 10 },
-];
 
 const SEND_HOURS = [
   { value: 6, label: '6:00 AM - Early Morning' },
@@ -44,9 +45,41 @@ export function TimezoneScheduler({
   optimalSendHour,
   onOptimalSendHourChange,
   contactCount,
+  contacts = [],
+  onUpdateContactTimezones,
   timezoneBreakdown = {},
 }: TimezoneSchedulerProps) {
-  const timezoneCount = Object.keys(timezoneBreakdown).length || 1;
+  const { detectTimezones, getTimezoneBreakdown } = useTimezoneDetection();
+
+  // Calculate how many contacts have missing timezones
+  const contactsWithoutTimezone = useMemo(() => 
+    contacts.filter(c => !c.timezone).length,
+    [contacts]
+  );
+
+  // Calculate detectable contacts
+  const detectableContacts = useMemo(() => {
+    const detected = detectTimezones(contacts.filter(c => !c.timezone));
+    return detected.size;
+  }, [contacts, detectTimezones]);
+
+  // Calculate timezone breakdown from contacts
+  const breakdown = useMemo(() => {
+    if (Object.keys(timezoneBreakdown).length > 0) {
+      return Object.entries(timezoneBreakdown)
+        .map(([timezone, count]) => ({ timezone, count }))
+        .sort((a, b) => b.count - a.count);
+    }
+    return getTimezoneBreakdown(contacts);
+  }, [timezoneBreakdown, contacts, getTimezoneBreakdown]);
+
+  const timezoneCount = breakdown.filter(b => b.timezone !== 'Unknown').length || 1;
+
+  const handleAutoDetect = () => {
+    if (!onUpdateContactTimezones) return;
+    const detected = detectTimezones(contacts);
+    onUpdateContactTimezones(detected);
+  };
 
   return (
     <Card className="glass-card">
@@ -60,6 +93,25 @@ export function TimezoneScheduler({
         </CardDescription>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Auto-detect timezone banner */}
+        {contactsWithoutTimezone > 0 && detectableContacts > 0 && onUpdateContactTimezones && (
+          <div className="flex items-center justify-between p-4 rounded-lg bg-primary/10 border border-primary/20">
+            <div className="flex items-center gap-3">
+              <Sparkles className="w-5 h-5 text-primary" />
+              <div>
+                <p className="text-sm font-medium">Auto-detect Timezones</p>
+                <p className="text-xs text-muted-foreground">
+                  {detectableContacts} of {contactsWithoutTimezone} contacts can be detected from location data
+                </p>
+              </div>
+            </div>
+            <Button size="sm" onClick={handleAutoDetect}>
+              <MapPin className="w-4 h-4 mr-1" />
+              Detect
+            </Button>
+          </div>
+        )}
+
         {/* Toggle for recipient timezone */}
         <div className="flex items-center justify-between p-4 rounded-lg bg-secondary/50">
           <div className="space-y-0.5">
@@ -121,6 +173,25 @@ export function TimezoneScheduler({
                 <p className="text-sm font-medium text-foreground">{timezoneCount}</p>
                 <p className="text-xs text-muted-foreground">Timezones</p>
               </div>
+            </div>
+          </div>
+        )}
+
+        {/* Timezone breakdown */}
+        {useRecipientTimezone && breakdown.length > 0 && (
+          <div className="space-y-2">
+            <Label className="text-sm">Timezone Distribution</Label>
+            <div className="flex flex-wrap gap-2">
+              {breakdown.slice(0, 6).map(({ timezone, count }) => (
+                <Badge key={timezone} variant="secondary" className="text-xs">
+                  {timezone.split('/').pop()?.replace('_', ' ') || timezone}: {count}
+                </Badge>
+              ))}
+              {breakdown.length > 6 && (
+                <Badge variant="outline" className="text-xs">
+                  +{breakdown.length - 6} more
+                </Badge>
+              )}
             </div>
           </div>
         )}

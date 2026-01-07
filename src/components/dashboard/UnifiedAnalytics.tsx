@@ -12,6 +12,7 @@ import { format, subDays, startOfDay } from 'date-fns';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { usePageTracking } from '@/hooks/usePageTracking';
+import { SendTimeHeatmap } from './SendTimeHeatmap';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Campaign = Tables<'campaigns'>;
@@ -304,6 +305,9 @@ export function UnifiedAnalytics({ campaigns }: UnifiedAnalyticsProps) {
           )}
         </div>
       </div>
+
+      {/* Send Time Heatmap */}
+      <SendTimeHeatmap />
 
       {/* Page Usage */}
       <div className="glass-card rounded-xl p-6">
