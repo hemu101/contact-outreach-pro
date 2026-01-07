@@ -430,6 +430,30 @@ export type Database = {
         }
         Relationships: []
       }
+      country_timezones: {
+        Row: {
+          country_code: string
+          country_name: string
+          id: string
+          timezone: string
+          utc_offset: number
+        }
+        Insert: {
+          country_code: string
+          country_name: string
+          id?: string
+          timezone: string
+          utc_offset: number
+        }
+        Update: {
+          country_code?: string
+          country_name?: string
+          id?: string
+          timezone?: string
+          utc_offset?: number
+        }
+        Relationships: []
+      }
       creators: {
         Row: {
           avatar: string | null
@@ -1260,6 +1284,75 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      social_accounts: {
+        Row: {
+          active_hours_end: number
+          active_hours_start: number
+          avatar_url: string | null
+          cooldown_until: string | null
+          created_at: string
+          daily_limit: number
+          display_name: string | null
+          error_message: string | null
+          id: string
+          is_primary: boolean
+          last_checked_at: string | null
+          last_message_at: string | null
+          messages_sent_today: number
+          platform: string
+          send_delay_max: number
+          send_delay_min: number
+          status: string
+          updated_at: string
+          user_id: string
+          username: string
+        }
+        Insert: {
+          active_hours_end?: number
+          active_hours_start?: number
+          avatar_url?: string | null
+          cooldown_until?: string | null
+          created_at?: string
+          daily_limit?: number
+          display_name?: string | null
+          error_message?: string | null
+          id?: string
+          is_primary?: boolean
+          last_checked_at?: string | null
+          last_message_at?: string | null
+          messages_sent_today?: number
+          platform: string
+          send_delay_max?: number
+          send_delay_min?: number
+          status?: string
+          updated_at?: string
+          user_id: string
+          username: string
+        }
+        Update: {
+          active_hours_end?: number
+          active_hours_start?: number
+          avatar_url?: string | null
+          cooldown_until?: string | null
+          created_at?: string
+          daily_limit?: number
+          display_name?: string | null
+          error_message?: string | null
+          id?: string
+          is_primary?: boolean
+          last_checked_at?: string | null
+          last_message_at?: string | null
+          messages_sent_today?: number
+          platform?: string
+          send_delay_max?: number
+          send_delay_min?: number
+          status?: string
+          updated_at?: string
+          user_id?: string
+          username?: string
         }
         Relationships: []
       }
