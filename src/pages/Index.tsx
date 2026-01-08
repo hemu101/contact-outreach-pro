@@ -6,9 +6,7 @@ import { AnalyticsDashboard } from '@/components/dashboard/AnalyticsDashboard';
 import { UnifiedAnalytics } from '@/components/dashboard/UnifiedAnalytics';
 import { ContactsPage } from '@/components/contacts/ContactsPage';
 import { RichTemplateEditor } from '@/components/templates/RichTemplateEditor';
-import { CampaignBuilder } from '@/components/campaigns/CampaignBuilder';
-import { CampaignList } from '@/components/campaigns/CampaignList';
-import { CampaignDetails } from '@/components/campaigns/CampaignDetails';
+import { CampaignsPage } from '@/components/campaigns/CampaignsPage';
 import { N8nWorkflow } from '@/components/n8n/N8nWorkflow';
 import { SettingsPage } from '@/components/settings/SettingsPage';
 import { EmailInbox } from '@/components/inbox/EmailInbox';
@@ -25,13 +23,12 @@ import { Toaster } from '@/components/ui/toaster';
 
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
   const { user, loading, signOut } = useAuth();
   const navigate = useNavigate();
   
   const { contacts, createManyContacts, deleteContact, updateContact } = useContacts();
   const { templates, createTemplate, updateTemplate } = useTemplates();
-  const { campaigns, createCampaign, launchCampaign, deleteCampaign } = useCampaigns();
+  const { campaigns } = useCampaigns();
 
   useEffect(() => {
     if (!loading && !user) {
@@ -191,27 +188,11 @@ const Index = () => {
       case 'templates':
         return <RichTemplateEditor templates={uiTemplates} onSave={handleSaveTemplate} />;
       case 'campaigns':
-        if (selectedCampaignId) {
-          return <CampaignDetails campaignId={selectedCampaignId} onBack={() => setSelectedCampaignId(null)} />;
-        }
         return (
-          <div className="space-y-6">
-            <CampaignBuilder 
-              contacts={contacts} 
-              templates={uiTemplates} 
-              campaigns={[]}
-              onCreateCampaign={handleCreateCampaign}
-            />
-            <div className="mt-8">
-              <h2 className="text-2xl font-bold text-foreground mb-4">Your Campaigns</h2>
-              <CampaignList 
-                campaigns={campaigns}
-                onViewCampaign={(id) => setSelectedCampaignId(id)}
-                onLaunchCampaign={(id) => launchCampaign.mutate(id)}
-                onDeleteCampaign={(id) => deleteCampaign.mutate(id)}
-              />
-            </div>
-          </div>
+          <CampaignsPage 
+            contacts={contacts} 
+            templates={uiTemplates}
+          />
         );
       case 'inbox':
         return <EmailInbox />;
