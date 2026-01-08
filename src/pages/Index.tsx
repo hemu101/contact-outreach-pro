@@ -28,7 +28,7 @@ const Index = () => {
   
   const { contacts, createManyContacts, deleteContact, updateContact } = useContacts();
   const { templates, createTemplate, updateTemplate } = useTemplates();
-  const { campaigns } = useCampaigns();
+  const { campaigns, createCampaign } = useCampaigns();
 
   useEffect(() => {
     if (!loading && !user) {
