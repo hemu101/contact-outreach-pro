@@ -12,7 +12,8 @@ import {
   Inbox,
   Flame,
   Shield,
-  Instagram
+  Instagram,
+  Calendar
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

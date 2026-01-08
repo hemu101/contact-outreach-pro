@@ -44,6 +44,78 @@ export type Database = {
         }
         Relationships: []
       }
+      ads_campaigns: {
+        Row: {
+          ad_creative: Json | null
+          budget: number | null
+          clicks: number | null
+          cpc: number | null
+          created_at: string
+          ctr: number | null
+          end_date: string | null
+          id: string
+          impressions: number | null
+          name: string
+          objective: string | null
+          platforms: string[] | null
+          reach: number | null
+          result_type: string | null
+          results: number | null
+          spent: number | null
+          start_date: string | null
+          status: string
+          target_audience: Json | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          ad_creative?: Json | null
+          budget?: number | null
+          clicks?: number | null
+          cpc?: number | null
+          created_at?: string
+          ctr?: number | null
+          end_date?: string | null
+          id?: string
+          impressions?: number | null
+          name: string
+          objective?: string | null
+          platforms?: string[] | null
+          reach?: number | null
+          result_type?: string | null
+          results?: number | null
+          spent?: number | null
+          start_date?: string | null
+          status?: string
+          target_audience?: Json | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          ad_creative?: Json | null
+          budget?: number | null
+          clicks?: number | null
+          cpc?: number | null
+          created_at?: string
+          ctr?: number | null
+          end_date?: string | null
+          id?: string
+          impressions?: number | null
+          name?: string
+          objective?: string | null
+          platforms?: string[] | null
+          reach?: number | null
+          result_type?: string | null
+          results?: number | null
+          spent?: number | null
+          start_date?: string | null
+          status?: string
+          target_audience?: Json | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_details: {
         Row: {
           billing_address: string | null
@@ -399,6 +471,136 @@ export type Database = {
           voicemail_sent?: boolean | null
         }
         Relationships: []
+      }
+      content_comments: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          post_id: string
+          user_id: string
+        }
+        Insert: {
+          content: string
+          created_at?: string
+          id?: string
+          post_id: string
+          user_id: string
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          post_id?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_comments_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "content_posts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      content_posts: {
+        Row: {
+          comments_count: number | null
+          content: string | null
+          created_at: string
+          id: string
+          likes_count: number | null
+          media_urls: string[] | null
+          platforms: string[] | null
+          published_at: string | null
+          scheduled_for: string | null
+          shares_count: number | null
+          status: string
+          thumbnail_url: string | null
+          title: string
+          type: string
+          updated_at: string
+          user_id: string
+          views_count: number | null
+        }
+        Insert: {
+          comments_count?: number | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          likes_count?: number | null
+          media_urls?: string[] | null
+          platforms?: string[] | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          shares_count?: number | null
+          status?: string
+          thumbnail_url?: string | null
+          title: string
+          type?: string
+          updated_at?: string
+          user_id: string
+          views_count?: number | null
+        }
+        Update: {
+          comments_count?: number | null
+          content?: string | null
+          created_at?: string
+          id?: string
+          likes_count?: number | null
+          media_urls?: string[] | null
+          platforms?: string[] | null
+          published_at?: string | null
+          scheduled_for?: string | null
+          shares_count?: number | null
+          status?: string
+          thumbnail_url?: string | null
+          title?: string
+          type?: string
+          updated_at?: string
+          user_id?: string
+          views_count?: number | null
+        }
+        Relationships: []
+      }
+      content_reports: {
+        Row: {
+          created_at: string
+          description: string | null
+          id: string
+          post_id: string
+          reason: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          post_id: string
+          reason: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          description?: string | null
+          id?: string
+          post_id?: string
+          reason?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "content_reports_post_id_fkey"
+            columns: ["post_id"]
+            isOneToOne: false
+            referencedRelation: "content_posts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       conversations: {
         Row: {
