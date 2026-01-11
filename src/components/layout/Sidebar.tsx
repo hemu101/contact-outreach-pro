@@ -13,7 +13,7 @@ import {
   Flame,
   Shield,
   Instagram,
-  Calendar
+  Library
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 

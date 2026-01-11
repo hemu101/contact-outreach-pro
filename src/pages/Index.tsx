@@ -6,6 +6,7 @@ import { AnalyticsDashboard } from '@/components/dashboard/AnalyticsDashboard';
 import { UnifiedAnalytics } from '@/components/dashboard/UnifiedAnalytics';
 import { ContactsPage } from '@/components/contacts/ContactsPage';
 import { RichTemplateEditor } from '@/components/templates/RichTemplateEditor';
+import { TemplatesLibraryPage } from '@/components/templates/TemplatesLibraryPage';
 import { CampaignsPage } from '@/components/campaigns/CampaignsPage';
 import { N8nWorkflow } from '@/components/n8n/N8nWorkflow';
 import { SettingsPage } from '@/components/settings/SettingsPage';
@@ -186,12 +187,12 @@ const Index = () => {
           />
         );
       case 'templates':
-        return <RichTemplateEditor templates={uiTemplates} onSave={handleSaveTemplate} />;
+        return <TemplatesLibraryPage />;
       case 'campaigns':
         return (
           <CampaignsPage 
             contacts={contacts} 
-            templates={uiTemplates}
+            templates={templates}
           />
         );
       case 'inbox':

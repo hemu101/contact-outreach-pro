@@ -13,11 +13,11 @@ import { usePageTracking } from '@/hooks/usePageTracking';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Contact = Tables<'contacts'>;
-type Template = { id: string; name: string; type: string; subject?: string; body: string };
+type DBTemplate = Tables<'templates'>;
 
 interface CampaignsPageProps {
   contacts: Contact[];
-  templates: Template[];
+  templates: DBTemplate[];
 }
 
 type ViewMode = 'list' | 'calendar';
