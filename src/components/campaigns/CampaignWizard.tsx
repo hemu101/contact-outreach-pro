@@ -19,7 +19,9 @@ import {
   UserPlus,
   Eye,
   Search,
-  Filter
+  Filter,
+  GripVertical,
+  Trash2
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -27,15 +29,32 @@ import { Textarea } from '@/components/ui/textarea';
 import { Badge } from '@/components/ui/badge';
 import { Checkbox } from '@/components/ui/checkbox';
 import { cn } from '@/lib/utils';
+import {
+  DndContext,
+  closestCenter,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+  DragEndEvent,
+} from '@dnd-kit/core';
+import {
+  arrayMove,
+  SortableContext,
+  sortableKeyboardCoordinates,
+  useSortable,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 import type { Tables } from '@/integrations/supabase/types';
 
 type Contact = Tables<'contacts'>;
-type Template = { id: string; name: string; type: string; subject?: string | null; content: string };
+type DBTemplate = Tables<'templates'>;
 
 interface CampaignWizardProps {
   mode: 'ai' | 'manual';
   contacts: Contact[];
-  templates: Template[];
+  templates: DBTemplate[];
   onComplete: (data: WizardData) => void;
   onBack: () => void;
 }
@@ -55,6 +74,7 @@ interface WizardData {
 }
 
 interface CampaignStep {
+  id: string;
   type: 'email' | 'linkedin_message' | 'linkedin_voice' | 'ai_voice' | 'whatsapp' | 'call' | 'manual_task' | 'linkedin_invite' | 'linkedin_visit' | 'api_call';
   delay?: number;
   condition?: string;
@@ -96,6 +116,61 @@ const otherSteps = [
   { type: 'api_call', name: 'Call an API', description: 'Call an API', icon: Globe },
 ];
 
+// Sortable step item component
+interface SortableStepItemProps {
+  step: CampaignStep;
+  stepInfo: typeof automaticSteps[0] | undefined;
+  index: number;
+  onRemove: () => void;
+}
+
+function SortableStepItem({ step, stepInfo, index, onRemove }: SortableStepItemProps) {
+  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({ id: step.id });
+  
+  const style = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+  
+  const Icon = stepInfo?.icon || Mail;
+  
+  return (
+    <div 
+      ref={setNodeRef} 
+      style={style}
+      className={cn(
+        "flex items-center gap-3 p-3 rounded-xl border bg-card transition-all",
+        isDragging ? "border-primary shadow-lg z-50 opacity-90" : "border-border"
+      )}
+    >
+      <div className="flex items-center gap-2">
+        <span className="w-6 h-6 rounded-full bg-primary/20 flex items-center justify-center text-xs font-medium text-primary">
+          {index + 1}
+        </span>
+        <button 
+          {...attributes} 
+          {...listeners}
+          className="cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground"
+        >
+          <GripVertical className="w-4 h-4" />
+        </button>
+      </div>
+      <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+        <Icon className="w-4 h-4 text-primary" />
+      </div>
+      <div className="flex-1">
+        <span className="font-medium text-foreground text-sm">{stepInfo?.name || step.type}</span>
+        {step.delay && (
+          <span className="text-xs text-muted-foreground ml-2">+{step.delay}d delay</span>
+        )}
+      </div>
+      <Button variant="ghost" size="icon" className="h-8 w-8" onClick={onRemove}>
+        <Trash2 className="w-4 h-4 text-muted-foreground hover:text-destructive" />
+      </Button>
+    </div>
+  );
+}
+
 export function CampaignWizard({ mode, contacts, templates, onComplete, onBack }: CampaignWizardProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const [searchQuery, setSearchQuery] = useState('');
@@ -109,7 +184,7 @@ export function CampaignWizard({ mode, contacts, templates, onComplete, onBack }
     painPoints: [],
     valuePropositions: [],
     copywritingRules: '',
-    selectedSteps: [{ type: 'email' }],
+    selectedSteps: [{ id: 'step-1', type: 'email' }],
     selectedTemplate: null,
   });
   const [newPainPoint, setNewPainPoint] = useState('');
@@ -192,9 +267,43 @@ export function CampaignWizard({ mode, contacts, templates, onComplete, onBack }
       if (exists) {
         return { ...prev, selectedSteps: prev.selectedSteps.filter(s => s.type !== stepType) };
       }
-      return { ...prev, selectedSteps: [...prev.selectedSteps, { type: stepType as CampaignStep['type'] }] };
+      const newStep: CampaignStep = { id: `step-${Date.now()}`, type: stepType as CampaignStep['type'] };
+      return { ...prev, selectedSteps: [...prev.selectedSteps, newStep] };
     });
   };
+  
+  const removeStep = (stepId: string) => {
+    setData(prev => ({
+      ...prev,
+      selectedSteps: prev.selectedSteps.filter(s => s.id !== stepId)
+    }));
+  };
+  
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    })
+  );
+  
+  const handleDragEnd = (event: DragEndEvent) => {
+    const { active, over } = event;
+    if (over && active.id !== over.id) {
+      setData(prev => {
+        const oldIndex = prev.selectedSteps.findIndex(s => s.id === active.id);
+        const newIndex = prev.selectedSteps.findIndex(s => s.id === over.id);
+        return {
+          ...prev,
+          selectedSteps: arrayMove(prev.selectedSteps, oldIndex, newIndex)
+        };
+      });
+    }
+  };
+  
+  const allStepTypes = [...automaticSteps, ...manualSteps, ...otherSteps].reduce((acc, s) => {
+    acc[s.type] = s;
+    return acc;
+  }, {} as Record<string, typeof automaticSteps[0]>);
 
   const getFilteredContacts = () => {
     if (!searchQuery.trim()) return contacts;
@@ -577,113 +686,124 @@ export function CampaignWizard({ mode, contacts, templates, onComplete, onBack }
             </div>
             
             {stepTab === 'steps' ? (
-              <div className="grid grid-cols-2 gap-8">
-                <div>
-                  <h4 className="text-sm font-medium text-muted-foreground mb-4">Automatic Steps</h4>
-                  <div className="space-y-2">
-                    {automaticSteps.map(step => {
-                      const Icon = step.icon;
-                      const isSelected = data.selectedSteps.some(s => s.type === step.type);
-                      return (
-                        <button
-                          key={step.type}
-                          onClick={() => toggleStep(step.type)}
-                          className={cn(
-                            "w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left",
-                            isSelected
-                              ? "bg-primary/5 border-primary"
-                              : "bg-card border-border hover:border-primary/50"
-                          )}
-                        >
-                          <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
-                            <Icon className="w-5 h-5 text-primary" />
-                          </div>
-                          <div className="flex-1">
-                            <span className="font-medium text-foreground">{step.name}</span>
-                            <p className="text-xs text-muted-foreground">{step.description}</p>
-                          </div>
-                          {step.beta && (
-                            <Badge variant="secondary" className="text-xs bg-pink-500/10 text-pink-500">Beta</Badge>
-                          )}
-                        </button>
-                      );
-                    })}
+              <div className="space-y-6">
+                {/* Selected Steps - Sortable List */}
+                {data.selectedSteps.length > 0 && (
+                  <div className="mb-6">
+                    <h4 className="text-sm font-medium text-foreground mb-3">Your Sequence ({data.selectedSteps.length} steps)</h4>
+                    <p className="text-xs text-muted-foreground mb-3">Drag to reorder steps</p>
+                    <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+                      <SortableContext items={data.selectedSteps.map(s => s.id)} strategy={verticalListSortingStrategy}>
+                        <div className="space-y-2">
+                          {data.selectedSteps.map((step, idx) => {
+                            const stepInfo = allStepTypes[step.type];
+                            const Icon = stepInfo?.icon || Mail;
+                            return (
+                              <SortableStepItem 
+                                key={step.id} 
+                                step={step} 
+                                stepInfo={stepInfo}
+                                index={idx}
+                                onRemove={() => removeStep(step.id)} 
+                              />
+                            );
+                          })}
+                        </div>
+                      </SortableContext>
+                    </DndContext>
                   </div>
-                </div>
+                )}
                 
-                <div className="space-y-8">
+                <div className="grid grid-cols-2 gap-8">
                   <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-4">Manual Execution</h4>
+                    <h4 className="text-sm font-medium text-muted-foreground mb-4">Add Automatic Steps</h4>
                     <div className="space-y-2">
-                      {manualSteps.map(step => {
+                      {automaticSteps.map(step => {
                         const Icon = step.icon;
-                        const isSelected = data.selectedSteps.some(s => s.type === step.type);
                         return (
                           <button
                             key={step.type}
                             onClick={() => toggleStep(step.type)}
-                            className={cn(
-                              "w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left",
-                              isSelected
-                                ? "bg-primary/5 border-primary"
-                                : "bg-card border-border hover:border-primary/50"
-                            )}
+                            className="w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left bg-card border-border hover:border-primary/50"
                           >
-                            <div className="w-10 h-10 rounded-lg bg-orange-500/10 flex items-center justify-center">
-                              <Icon className="w-5 h-5 text-orange-500" />
+                            <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
+                              <Icon className="w-4 h-4 text-primary" />
                             </div>
                             <div className="flex-1">
-                              <span className="font-medium text-foreground">{step.name}</span>
+                              <span className="font-medium text-foreground text-sm">{step.name}</span>
                               <p className="text-xs text-muted-foreground">{step.description}</p>
                             </div>
+                            {step.beta && (
+                              <Badge variant="secondary" className="text-xs bg-pink-500/10 text-pink-500">Beta</Badge>
+                            )}
                           </button>
                         );
                       })}
                     </div>
                   </div>
                   
-                  <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-4">Other steps</h4>
-                    <div className="space-y-2">
-                      {otherSteps.map(step => {
-                        const Icon = step.icon;
-                        const isSelected = data.selectedSteps.some(s => s.type === step.type);
-                        return (
-                          <button
-                            key={step.type}
-                            onClick={() => toggleStep(step.type)}
-                            className={cn(
-                              "w-full flex items-center gap-3 p-4 rounded-xl border-2 transition-all text-left",
-                              isSelected
-                                ? "bg-primary/5 border-primary"
-                                : "bg-card border-border hover:border-primary/50"
-                            )}
-                          >
-                            <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                              <Icon className="w-5 h-5 text-blue-500" />
-                            </div>
-                            <div className="flex-1">
-                              <span className="font-medium text-foreground">{step.name}</span>
-                              <p className="text-xs text-muted-foreground">{step.description}</p>
-                            </div>
-                          </button>
-                        );
-                      })}
+                  <div className="space-y-6">
+                    <div>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-4">Add Manual Steps</h4>
+                      <div className="space-y-2">
+                        {manualSteps.map(step => {
+                          const Icon = step.icon;
+                          return (
+                            <button
+                              key={step.type}
+                              onClick={() => toggleStep(step.type)}
+                              className="w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left bg-card border-border hover:border-primary/50"
+                            >
+                              <div className="w-9 h-9 rounded-lg bg-orange-500/10 flex items-center justify-center">
+                                <Icon className="w-4 h-4 text-orange-500" />
+                              </div>
+                              <div className="flex-1">
+                                <span className="font-medium text-foreground text-sm">{step.name}</span>
+                                <p className="text-xs text-muted-foreground">{step.description}</p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
                     </div>
-                  </div>
-                  
-                  <div>
-                    <h4 className="text-sm font-medium text-muted-foreground mb-4">Select Template</h4>
-                    <select
-                      value={data.selectedTemplate || ''}
-                      onChange={(e) => setData(prev => ({ ...prev, selectedTemplate: e.target.value || null }))}
-                      className="w-full h-11 px-3 rounded-lg bg-background border border-input text-foreground"
-                    >
-                      <option value="">Choose a template...</option>
-                      {templates.map(t => (
-                        <option key={t.id} value={t.id}>{t.name} ({t.type})</option>
-                      ))}
-                    </select>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-4">Other Steps</h4>
+                      <div className="space-y-2">
+                        {otherSteps.map(step => {
+                          const Icon = step.icon;
+                          return (
+                            <button
+                              key={step.type}
+                              onClick={() => toggleStep(step.type)}
+                              className="w-full flex items-center gap-3 p-3 rounded-xl border-2 transition-all text-left bg-card border-border hover:border-primary/50"
+                            >
+                              <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                                <Icon className="w-4 h-4 text-blue-500" />
+                              </div>
+                              <div className="flex-1">
+                                <span className="font-medium text-foreground text-sm">{step.name}</span>
+                                <p className="text-xs text-muted-foreground">{step.description}</p>
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                    
+                    <div>
+                      <h4 className="text-sm font-medium text-muted-foreground mb-4">Select Template</h4>
+                      <select
+                        value={data.selectedTemplate || ''}
+                        onChange={(e) => setData(prev => ({ ...prev, selectedTemplate: e.target.value || null }))}
+                        className="w-full h-11 px-3 rounded-lg bg-background border border-input text-foreground"
+                      >
+                        <option value="">Choose a template...</option>
+                        {templates.map(t => (
+                          <option key={t.id} value={t.id}>{t.name} ({t.type})</option>
+                        ))}
+                      </select>
+                    </div>
                   </div>
                 </div>
               </div>

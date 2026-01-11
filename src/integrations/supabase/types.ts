@@ -218,6 +218,66 @@ export type Database = {
           },
         ]
       }
+      campaign_invitations: {
+        Row: {
+          brand_user_id: string
+          budget_offered: number | null
+          campaign_id: string | null
+          created_at: string
+          creator_id: string | null
+          deadline: string | null
+          deliverables: Json | null
+          id: string
+          message: string | null
+          responded_at: string | null
+          status: string | null
+          updated_at: string
+        }
+        Insert: {
+          brand_user_id: string
+          budget_offered?: number | null
+          campaign_id?: string | null
+          created_at?: string
+          creator_id?: string | null
+          deadline?: string | null
+          deliverables?: Json | null
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Update: {
+          brand_user_id?: string
+          budget_offered?: number | null
+          campaign_id?: string | null
+          created_at?: string
+          creator_id?: string | null
+          deadline?: string | null
+          deliverables?: Json | null
+          id?: string
+          message?: string | null
+          responded_at?: string | null
+          status?: string | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_invitations_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "ads_campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_invitations_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       campaign_send_logs: {
         Row: {
           campaign_contact_id: string
@@ -655,6 +715,54 @@ export type Database = {
           utc_offset?: number
         }
         Relationships: []
+      }
+      creator_earnings: {
+        Row: {
+          amount: number
+          campaign_invitation_id: string | null
+          created_at: string
+          creator_id: string
+          currency: string | null
+          id: string
+          paid_at: string | null
+          status: string | null
+        }
+        Insert: {
+          amount: number
+          campaign_invitation_id?: string | null
+          created_at?: string
+          creator_id: string
+          currency?: string | null
+          id?: string
+          paid_at?: string | null
+          status?: string | null
+        }
+        Update: {
+          amount?: number
+          campaign_invitation_id?: string | null
+          created_at?: string
+          creator_id?: string
+          currency?: string | null
+          id?: string
+          paid_at?: string | null
+          status?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_earnings_campaign_invitation_id_fkey"
+            columns: ["campaign_invitation_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_invitations"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_earnings_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       creators: {
         Row: {
@@ -1414,6 +1522,39 @@ export type Database = {
           },
         ]
       }
+      saved_filters: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          is_default: boolean | null
+          name: string
+          page: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          is_default?: boolean | null
+          name: string
+          page: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          page?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       signature_templates: {
         Row: {
           content: string | null
@@ -1815,7 +1956,7 @@ export type Database = {
       }
     }
     Enums: {
-      app_role: "admin" | "moderator" | "user"
+      app_role: "admin" | "moderator" | "user" | "creator" | "brand"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -1943,7 +2084,7 @@ export type CompositeTypes<
 export const Constants = {
   public: {
     Enums: {
-      app_role: ["admin", "moderator", "user"],
+      app_role: ["admin", "moderator", "user", "creator", "brand"],
     },
   },
 } as const
