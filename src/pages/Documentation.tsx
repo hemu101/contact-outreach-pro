@@ -3,7 +3,7 @@ import {
   Book, Zap, Database, Mail, Users, FileText, 
   Play, Settings, Code, ChevronRight, ExternalLink,
   CheckCircle, AlertCircle, Workflow, PieChart, Edit3, 
-  Upload, MousePointer, ArrowLeft
+  Upload, MousePointer, ArrowLeft, Shield, Clock, MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
@@ -15,8 +15,10 @@ const sections = [
   { id: 'inline-editing', label: 'Inline Editing', icon: Edit3 },
   { id: 'templates', label: 'Templates', icon: FileText },
   { id: 'campaigns', label: 'Campaigns', icon: Mail },
+  { id: 'social-dm', label: 'Social DM Outreach', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics Dashboard', icon: PieChart },
   { id: 'n8n-automation', label: 'n8n Automation', icon: Workflow },
+  { id: 'database-logging', label: 'Database Logging', icon: Database },
   { id: 'api-setup', label: 'API Setup', icon: Code },
   { id: 'troubleshooting', label: 'Troubleshooting', icon: Settings },
 ];
@@ -69,8 +71,10 @@ export default function Documentation() {
           {activeSection === 'inline-editing' && <InlineEditingDocs />}
           {activeSection === 'templates' && <TemplatesDocs />}
           {activeSection === 'campaigns' && <CampaignsDocs />}
+          {activeSection === 'social-dm' && <SocialDMDocs />}
           {activeSection === 'analytics' && <AnalyticsDocs />}
           {activeSection === 'n8n-automation' && <N8nDocs />}
+          {activeSection === 'database-logging' && <DatabaseLoggingDocs />}
           {activeSection === 'api-setup' && <ApiSetupDocs />}
           {activeSection === 'troubleshooting' && <TroubleshootingDocs />}
         </main>
@@ -125,7 +129,7 @@ function GettingStarted() {
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-success" />
-            Resend API key for email sending
+            Brevo/SendGrid API key for email sending
           </li>
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-success" />
@@ -138,12 +142,13 @@ function GettingStarted() {
         <h2 className="text-2xl font-semibold text-foreground mb-4">Initial Setup Checklist</h2>
         <div className="space-y-3">
           <ChecklistItem>Create your account and verify email</ChecklistItem>
-          <ChecklistItem>Set up Resend API key (Settings → API Keys)</ChecklistItem>
+          <ChecklistItem>Set up Brevo/SendGrid API key (Settings → API Keys)</ChecklistItem>
           <ChecklistItem>Import your first batch of contacts via CSV</ChecklistItem>
           <ChecklistItem>Create at least one email template</ChecklistItem>
           <ChecklistItem>Create a test campaign with 1-2 contacts</ChecklistItem>
           <ChecklistItem>Verify emails are being received</ChecklistItem>
           <ChecklistItem>Set up n8n for automation (optional)</ChecklistItem>
+          <ChecklistItem>Connect social accounts for DM outreach (optional)</ChecklistItem>
         </div>
       </div>
     </div>
@@ -161,9 +166,9 @@ function ContactsDocs() {
           Your CSV file should have the following columns (header row required):
         </p>
         <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-          <pre className="text-foreground">First Name,Last Name,Business Name,Email,Phone,Instagram,TikTok</pre>
-          <pre className="text-muted-foreground">John,Smith,Acme Corp,john@acme.com,+1234567890,@johnsmith,@johnsmith_tt</pre>
-          <pre className="text-muted-foreground">Jane,Doe,Tech Inc,jane@tech.io,,,@janedoe_tt</pre>
+          <pre className="text-foreground">First Name,Last Name,Business Name,Email,Phone,Instagram,TikTok,Timezone</pre>
+          <pre className="text-muted-foreground">John,Smith,Acme Corp,john@acme.com,+1234567890,@johnsmith,@johnsmith_tt,America/New_York</pre>
+          <pre className="text-muted-foreground">Jane,Doe,Tech Inc,jane@tech.io,,,@janedoe_tt,Europe/London</pre>
         </div>
         <div className="mt-4 p-4 bg-warning/10 rounded-lg border border-warning/30">
           <p className="text-sm text-warning flex items-center gap-2">
@@ -220,6 +225,11 @@ function ContactsDocs() {
             <span className="w-3 h-3 rounded-full bg-destructive" />
             <span className="font-medium text-foreground">Failed</span>
             <span className="text-muted-foreground">- Delivery failed (check email address)</span>
+          </li>
+          <li className="flex items-center gap-3">
+            <span className="w-3 h-3 rounded-full bg-blue-500" />
+            <span className="font-medium text-foreground">Bounced</span>
+            <span className="text-muted-foreground">- Email bounced (invalid address)</span>
           </li>
         </ul>
       </div>
@@ -294,6 +304,31 @@ function TemplatesDocs() {
       <h1 className="text-4xl font-bold text-foreground">Templates</h1>
       
       <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Template Library</h2>
+        <p className="text-muted-foreground mb-4">
+          Access the Template Library from the sidebar to manage all your templates in one place:
+        </p>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-success" />
+            <strong className="text-foreground">Use Template</strong> - Click to apply template to a campaign
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-success" />
+            <strong className="text-foreground">Duplicate</strong> - Create a copy to customize
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-success" />
+            <strong className="text-foreground">Edit</strong> - Modify existing templates
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-success" />
+            <strong className="text-foreground">Delete</strong> - Remove unused templates
+          </li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
         <h2 className="text-2xl font-semibold text-foreground mb-4">Available Variables</h2>
         <p className="text-muted-foreground mb-4">
           Use these variables in your templates. They will be replaced with actual contact data:
@@ -314,6 +349,14 @@ function TemplatesDocs() {
           <div className="bg-secondary/50 rounded-lg p-3">
             <code className="text-primary">{"{{email}}"}</code>
             <p className="text-sm text-muted-foreground mt-1">Contact's email address</p>
+          </div>
+          <div className="bg-secondary/50 rounded-lg p-3">
+            <code className="text-primary">{"{{handle}}"}</code>
+            <p className="text-sm text-muted-foreground mt-1">Social media handle</p>
+          </div>
+          <div className="bg-secondary/50 rounded-lg p-3">
+            <code className="text-primary">{"{{platform}}"}</code>
+            <p className="text-sm text-muted-foreground mt-1">Platform name (Instagram/TikTok)</p>
           </div>
         </div>
       </div>
@@ -339,23 +382,6 @@ function TemplatesDocs() {
           </div>
         </div>
       </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Example Email Template</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm">
-          <p className="text-muted-foreground mb-2">Subject: Partnership Opportunity with {"{{businessName}}"}</p>
-          <hr className="border-border my-2" />
-          <p className="text-foreground">Hi {"{{firstName}}"},</p>
-          <br />
-          <p className="text-foreground">I hope this email finds you well. I came across {"{{businessName}}"} and was impressed by your work.</p>
-          <br />
-          <p className="text-foreground">I'd love to discuss a potential collaboration that could benefit both our businesses.</p>
-          <br />
-          <p className="text-foreground">Would you be available for a quick call this week?</p>
-          <br />
-          <p className="text-foreground">Best regards,<br />Your Name</p>
-        </div>
-      </div>
     </div>
   );
 }
@@ -366,25 +392,23 @@ function CampaignsDocs() {
       <h1 className="text-4xl font-bold text-foreground">Campaigns</h1>
       
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Creating a Campaign</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Campaign Wizard</h2>
+        <p className="text-muted-foreground mb-4">Create campaigns using the step-by-step wizard:</p>
         <ol className="space-y-4 list-decimal list-inside">
           <li className="text-muted-foreground">
-            <strong className="text-foreground">Navigate to Campaigns tab</strong> - Click "Campaigns" in the sidebar
+            <strong className="text-foreground">Company Info</strong> - Enter your company name and select mode (AI or Manual)
           </li>
           <li className="text-muted-foreground">
-            <strong className="text-foreground">Enter campaign name</strong> - Give your campaign a descriptive name
+            <strong className="text-foreground">Lead Selection</strong> - Choose how to import leads (CSV, existing contacts, or manual)
           </li>
           <li className="text-muted-foreground">
-            <strong className="text-foreground">Select contacts</strong> - Choose which contacts to include using checkboxes
+            <strong className="text-foreground">Review Leads</strong> - Preview and select contacts for the campaign
           </li>
           <li className="text-muted-foreground">
-            <strong className="text-foreground">Choose template</strong> - Select an email template for the campaign
+            <strong className="text-foreground">Build Sequence</strong> - Add email, DM, and follow-up steps with drag-and-drop reordering
           </li>
           <li className="text-muted-foreground">
-            <strong className="text-foreground">Set schedule (optional)</strong> - Schedule for later or launch immediately
-          </li>
-          <li className="text-muted-foreground">
-            <strong className="text-foreground">Launch campaign</strong> - Click "Launch Campaign" to start sending
+            <strong className="text-foreground">Launch</strong> - Review and launch your campaign
           </li>
         </ol>
       </div>
@@ -402,11 +426,11 @@ function CampaignsDocs() {
           </li>
           <li className="flex items-center gap-3">
             <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-sm">running</span>
-            <span className="text-muted-foreground">Currently sending emails</span>
+            <span className="text-muted-foreground">Currently sending messages</span>
           </li>
           <li className="flex items-center gap-3">
             <span className="px-2 py-1 rounded-full bg-success/10 text-success text-sm">completed</span>
-            <span className="text-muted-foreground">All emails have been sent</span>
+            <span className="text-muted-foreground">All messages have been sent</span>
           </li>
         </ul>
       </div>
@@ -439,6 +463,82 @@ function CampaignsDocs() {
   );
 }
 
+function SocialDMDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Social DM Outreach</h1>
+      
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Multi-Account Setup</h2>
+        <p className="text-muted-foreground mb-4">
+          Connect multiple Instagram and TikTok accounts to distribute your outreach and avoid rate limits:
+        </p>
+        <ul className="space-y-3 text-muted-foreground">
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Account Rotation</strong> - Messages are distributed across accounts automatically
+            </div>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Primary Account</strong> - Set one account as primary for each platform
+            </div>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Individual Limits</strong> - Configure daily limits per account
+            </div>
+          </li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Anti-Block Protection</h2>
+        <div className="space-y-4">
+          <div className="p-4 border border-border rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Clock className="w-4 h-4 text-primary" />
+              <h3 className="font-semibold text-foreground">Active Hours</h3>
+            </div>
+            <p className="text-muted-foreground text-sm">Set sending hours (e.g., 9 AM - 9 PM) to mimic human behavior</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Shield className="w-4 h-4 text-primary" />
+              <h3 className="font-semibold text-foreground">Message Delays</h3>
+            </div>
+            <p className="text-muted-foreground text-sm">Random delays between 30s-10min to avoid detection</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <div className="flex items-center gap-2 mb-2">
+              <Users className="w-4 h-4 text-primary" />
+              <h3 className="font-semibold text-foreground">Daily Limits</h3>
+            </div>
+            <p className="text-muted-foreground text-sm">Recommended: 30-50 DMs per account per day</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6 border-warning/50">
+        <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
+          <AlertCircle className="w-5 h-5 text-warning" />
+          Important Considerations
+        </h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li>• Instagram/TikTok don't have official DM APIs - use third-party tools carefully</li>
+          <li>• Always warm up new accounts before high-volume sending</li>
+          <li>• Vary your message content to avoid spam detection</li>
+          <li>• Monitor account status daily for rate limit warnings</li>
+          <li>• Keep daily sends under 50 per account to stay safe</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
 function AnalyticsDocs() {
   return (
     <div className="space-y-8 animate-fade-in">
@@ -449,7 +549,7 @@ function AnalyticsDocs() {
         <div className="grid grid-cols-2 gap-4">
           <div className="p-4 border border-border rounded-lg">
             <h3 className="font-semibold text-foreground mb-2">📤 Total Sent</h3>
-            <p className="text-muted-foreground text-sm">Total number of emails successfully delivered across all campaigns.</p>
+            <p className="text-muted-foreground text-sm">Total number of messages successfully delivered across all campaigns.</p>
           </div>
           <div className="p-4 border border-border rounded-lg">
             <h3 className="font-semibold text-foreground mb-2">👁️ Open Rate</h3>
@@ -460,37 +560,10 @@ function AnalyticsDocs() {
             <p className="text-muted-foreground text-sm">Percentage of opened emails where links were clicked. Formula: (Clicks / Opens) × 100</p>
           </div>
           <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">📊 Delivery Rate</h3>
-            <p className="text-muted-foreground text-sm">Percentage of total contacts that received emails. Formula: (Sent / Total) × 100</p>
+            <h3 className="font-semibold text-foreground mb-2">📊 Reply Rate</h3>
+            <p className="text-muted-foreground text-sm">Percentage of DMs that received a reply.</p>
           </div>
         </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Charts & Visualizations</h2>
-        <ul className="space-y-3 text-muted-foreground">
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Campaign Performance Bar Chart</strong>
-              <p className="text-sm">Compare sent, opens, and clicks across your recent campaigns.</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Engagement Pie Chart</strong>
-              <p className="text-sm">Visual breakdown of opened vs clicked vs not opened emails.</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Campaign Table</strong>
-              <p className="text-sm">Detailed list of all campaigns with individual metrics.</p>
-            </div>
-          </li>
-        </ul>
       </div>
 
       <div className="glass-card rounded-xl p-6 border-primary/30">
@@ -505,13 +578,8 @@ function AnalyticsDocs() {
             <p className="text-sm text-muted-foreground">2-5% of opens is typical. Above 10% indicates highly engaged recipients.</p>
           </div>
           <div>
-            <h3 className="font-medium text-foreground">Improving Metrics</h3>
-            <ul className="text-sm text-muted-foreground list-disc list-inside mt-2">
-              <li>Write compelling subject lines</li>
-              <li>Personalize with variables like {"{{firstName}}"}</li>
-              <li>Send at optimal times (Tue-Thu, 10am-2pm)</li>
-              <li>Keep emails concise and action-oriented</li>
-            </ul>
+            <h3 className="font-medium text-foreground">Good DM Reply Rates</h3>
+            <p className="text-sm text-muted-foreground">5-15% is typical for cold DM outreach. Personalization helps significantly.</p>
           </div>
         </div>
       </div>
@@ -522,32 +590,70 @@ function AnalyticsDocs() {
 function N8nDocs() {
   return (
     <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">n8n Automation</h1>
+      <h1 className="text-4xl font-bold text-foreground">n8n Automation v2.0</h1>
       
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">What is n8n?</h2>
-        <p className="text-muted-foreground">
-          n8n is a powerful workflow automation tool that connects apps and services.
-          Export our workflow template to automate multi-channel outreach with advanced scheduling.
-        </p>
-        <Button className="mt-4" variant="outline" asChild>
-          <a href="https://n8n.io" target="_blank" rel="noopener noreferrer">
-            Visit n8n <ExternalLink className="w-4 h-4 ml-2" />
-          </a>
-        </Button>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Enhanced Workflow Features</h2>
+        <ul className="space-y-3 text-muted-foreground">
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Supabase Integration</strong> - All actions logged directly to your database
+            </div>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Rate Limiting</strong> - Built-in limits prevent account blocks
+            </div>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Error Handling</strong> - Automatic retry and error logging
+            </div>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Multi-Channel</strong> - Email, DM, and Voicemail support
+            </div>
+          </li>
+        </ul>
       </div>
 
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Complete Setup Guide</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database Tables Used</h2>
+        <div className="space-y-3 font-mono text-sm">
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="text-primary">campaign_contacts</span>
+            <span className="text-muted-foreground"> - Delivery status (sent_at, opened_at, clicked_at)</span>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="text-primary">campaign_send_logs</span>
+            <span className="text-muted-foreground"> - Detailed send events and errors</span>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="text-primary">activity_logs</span>
+            <span className="text-muted-foreground"> - Full audit trail of all actions</span>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="text-primary">email_events</span>
+            <span className="text-muted-foreground"> - Open/click tracking events</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Setup Steps</h2>
         <ol className="space-y-4">
           <li className="flex items-start gap-3">
             <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 flex-shrink-0">
               <span className="text-xs text-primary font-bold">1</span>
             </div>
             <div>
-              <strong className="text-foreground">Install n8n</strong>
-              <p className="text-sm text-muted-foreground">Choose between self-hosting with Docker or n8n Cloud. For beginners, n8n Cloud is easier.</p>
-              <code className="block mt-2 p-2 bg-secondary/50 rounded text-xs">docker run -it --rm -p 5678:5678 n8nio/n8n</code>
+              <strong className="text-foreground">Download Workflow</strong>
+              <p className="text-sm text-muted-foreground">Go to n8n tab and click "Download" to get the JSON file</p>
             </div>
           </li>
           <li className="flex items-start gap-3">
@@ -555,8 +661,8 @@ function N8nDocs() {
               <span className="text-xs text-primary font-bold">2</span>
             </div>
             <div>
-              <strong className="text-foreground">Export Workflow from App</strong>
-              <p className="text-sm text-muted-foreground">Go to the n8n tab in the app and click "Download Workflow JSON".</p>
+              <strong className="text-foreground">Import to n8n</strong>
+              <p className="text-sm text-muted-foreground">Add Workflow → Import from File → Select JSON</p>
             </div>
           </li>
           <li className="flex items-start gap-3">
@@ -564,8 +670,8 @@ function N8nDocs() {
               <span className="text-xs text-primary font-bold">3</span>
             </div>
             <div>
-              <strong className="text-foreground">Import into n8n</strong>
-              <p className="text-sm text-muted-foreground">In n8n, click "Add Workflow" → "Import from File" and select the downloaded JSON.</p>
+              <strong className="text-foreground">Add Supabase Credentials</strong>
+              <p className="text-sm text-muted-foreground">Credentials → Supabase → Use your project URL and service role key</p>
             </div>
           </li>
           <li className="flex items-start gap-3">
@@ -573,14 +679,8 @@ function N8nDocs() {
               <span className="text-xs text-primary font-bold">4</span>
             </div>
             <div>
-              <strong className="text-foreground">Configure Credentials</strong>
-              <p className="text-sm text-muted-foreground">Set up the following credentials in n8n:</p>
-              <ul className="mt-2 space-y-1 text-sm text-muted-foreground list-disc list-inside">
-                <li>SMTP or SendGrid for email sending</li>
-                <li>Twilio for SMS/voice (optional)</li>
-                <li>Google Sheets for logging (optional)</li>
-                <li>Supabase for database access</li>
-              </ul>
+              <strong className="text-foreground">Configure Email Provider</strong>
+              <p className="text-sm text-muted-foreground">Add Brevo, SendGrid, or SMTP credentials</p>
             </div>
           </li>
           <li className="flex items-start gap-3">
@@ -588,34 +688,65 @@ function N8nDocs() {
               <span className="text-xs text-primary font-bold">5</span>
             </div>
             <div>
-              <strong className="text-foreground">Configure Schedule Trigger</strong>
-              <p className="text-sm text-muted-foreground">Set up when the workflow should run (e.g., every hour, daily at 9am).</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-xs text-primary font-bold">6</span>
-            </div>
-            <div>
-              <strong className="text-foreground">Test and Activate</strong>
-              <p className="text-sm text-muted-foreground">Run the workflow manually first, then toggle it to "Active" for automatic execution.</p>
+              <strong className="text-foreground">Activate Workflow</strong>
+              <p className="text-sm text-muted-foreground">Toggle Active to enable scheduled execution</p>
             </div>
           </li>
         </ol>
       </div>
+    </div>
+  );
+}
 
-      <div className="glass-card rounded-xl p-6 border-warning/50">
-        <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
-          <AlertCircle className="w-6 h-6 text-warning" />
-          Important Considerations
-        </h2>
+function DatabaseLoggingDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Database Logging</h1>
+      
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Comprehensive Audit Trail</h2>
+        <p className="text-muted-foreground mb-4">
+          All actions in the platform are logged to your Supabase database for complete visibility:
+        </p>
+        <div className="space-y-4">
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">📊 activity_logs</h3>
+            <p className="text-muted-foreground text-sm">Every user action: campaign creation, contact imports, template edits</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">📧 campaign_send_logs</h3>
+            <p className="text-muted-foreground text-sm">Detailed send events: success, failures, error codes, timestamps</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">👁️ email_events</h3>
+            <p className="text-muted-foreground text-sm">Tracking events: opens, clicks, IP addresses, user agents</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">📱 page_views</h3>
+            <p className="text-muted-foreground text-sm">User navigation tracking for analytics</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Log Retention</h2>
         <ul className="space-y-2 text-muted-foreground">
-          <li>• Email providers have daily sending limits (Resend free tier: 100/day)</li>
-          <li>• Add delays between emails to avoid spam flags (recommended: 30-60 seconds)</li>
-          <li>• Instagram/TikTok DMs require their official APIs (limited access)</li>
-          <li>• Always include unsubscribe options in marketing emails (CAN-SPAM compliance)</li>
-          <li>• Test with small batches (5-10 contacts) before large campaigns</li>
-          <li>• Monitor your sender reputation with tools like mail-tester.com</li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-success" />
+            All logs are retained indefinitely (no auto-deletion)
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-success" />
+            Export logs via Supabase dashboard or API
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-success" />
+            Query logs for custom reports and analytics
+          </li>
+          <li className="flex items-center gap-2">
+            <CheckCircle className="w-4 h-4 text-success" />
+            RLS ensures users only see their own data
+          </li>
         </ul>
       </div>
     </div>
@@ -628,49 +759,33 @@ function ApiSetupDocs() {
       <h1 className="text-4xl font-bold text-foreground">API Setup</h1>
       
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Resend (Email) - Required</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Brevo (Email) - Recommended</h2>
         <ol className="space-y-3 list-decimal list-inside text-muted-foreground">
-          <li>Sign up at <a href="https://resend.com" target="_blank" className="text-primary hover:underline">resend.com</a></li>
-          <li>Verify your domain at <a href="https://resend.com/domains" target="_blank" className="text-primary hover:underline">resend.com/domains</a>
-            <p className="ml-6 text-sm mt-1">Add the DNS records shown to your domain provider</p>
-          </li>
-          <li>Create API key at <a href="https://resend.com/api-keys" target="_blank" className="text-primary hover:underline">resend.com/api-keys</a></li>
-          <li>Add RESEND_API_KEY to Supabase Edge Function secrets:
-            <p className="ml-6 text-sm mt-1">Dashboard → Settings → Edge Functions → Add Secret</p>
-          </li>
+          <li>Sign up at <a href="https://brevo.com" target="_blank" className="text-primary hover:underline">brevo.com</a></li>
+          <li>Go to Settings → SMTP & API → Create API Key</li>
+          <li>Add BREVO_API_KEY to your settings or Supabase secrets</li>
+          <li>Free tier: 300 emails/day</li>
         </ol>
-        <div className="mt-4 p-4 bg-success/10 rounded-lg border border-success/30">
-          <p className="text-sm text-success">Free tier includes 100 emails/day - perfect for testing!</p>
-        </div>
       </div>
 
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Twilio (Voice/SMS) - Optional</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">SendGrid (Alternative)</h2>
+        <ol className="space-y-3 list-decimal list-inside text-muted-foreground">
+          <li>Sign up at <a href="https://sendgrid.com" target="_blank" className="text-primary hover:underline">sendgrid.com</a></li>
+          <li>Verify your sender domain</li>
+          <li>Create API key at Settings → API Keys</li>
+          <li>Free tier: 100 emails/day</li>
+        </ol>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Twilio (Voice/SMS)</h2>
         <ol className="space-y-3 list-decimal list-inside text-muted-foreground">
           <li>Sign up at <a href="https://twilio.com" target="_blank" className="text-primary hover:underline">twilio.com</a></li>
           <li>Get Account SID and Auth Token from Console</li>
           <li>Purchase a phone number ($1/month for US numbers)</li>
-          <li>Configure credentials in n8n workflow</li>
+          <li>Add credentials to n8n workflow or app settings</li>
         </ol>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Supabase Configuration</h2>
-        <p className="text-muted-foreground mb-4">Your Supabase project is already connected. These secrets are auto-configured:</p>
-        <ul className="space-y-2 text-muted-foreground">
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            SUPABASE_URL
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            SUPABASE_ANON_KEY
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            SUPABASE_SERVICE_ROLE_KEY
-          </li>
-        </ul>
       </div>
     </div>
   );
@@ -688,83 +803,62 @@ function TroubleshootingDocs() {
           <div className="border-b border-border pb-4">
             <h3 className="text-lg font-medium text-foreground mb-2">❌ Emails not sending</h3>
             <ul className="space-y-1 text-muted-foreground text-sm">
-              <li>• Verify RESEND_API_KEY is set in Supabase secrets</li>
-              <li>• Check domain verification status at resend.com/domains</li>
+              <li>• Verify API key is set correctly in settings</li>
+              <li>• Check domain verification status with your provider</li>
               <li>• Review Edge Function logs in Supabase dashboard</li>
               <li>• Ensure the "from" email matches your verified domain</li>
             </ul>
           </div>
           
           <div className="border-b border-border pb-4">
+            <h3 className="text-lg font-medium text-foreground mb-2">❌ DMs not sending</h3>
+            <ul className="space-y-1 text-muted-foreground text-sm">
+              <li>• Check account status in DM Account Setup</li>
+              <li>• Verify daily limit hasn't been reached</li>
+              <li>• Check for rate limit warnings or errors</li>
+              <li>• Ensure active hours are configured correctly</li>
+            </ul>
+          </div>
+          
+          <div className="border-b border-border pb-4">
             <h3 className="text-lg font-medium text-foreground mb-2">❌ CSV import fails</h3>
             <ul className="space-y-1 text-muted-foreground text-sm">
-              <li>• Ensure CSV has proper headers (First Name, Last Name, Email, etc.)</li>
+              <li>• Ensure CSV has proper headers</li>
               <li>• Check for special characters or encoding issues (use UTF-8)</li>
-              <li>• Verify email format is valid (name@domain.com)</li>
+              <li>• Verify email format is valid</li>
               <li>• Remove any blank rows from the CSV</li>
             </ul>
           </div>
           
           <div className="border-b border-border pb-4">
-            <h3 className="text-lg font-medium text-foreground mb-2">❌ Open tracking not working</h3>
+            <h3 className="text-lg font-medium text-foreground mb-2">❌ n8n workflow errors</h3>
             <ul className="space-y-1 text-muted-foreground text-sm">
-              <li>• Some email clients block tracking pixels (Apple Mail, Outlook)</li>
-              <li>• Gmail may proxy images, affecting accuracy</li>
-              <li>• This is expected behavior for privacy-focused clients</li>
-              <li>• Focus on click tracking for more reliable data</li>
-            </ul>
-          </div>
-          
-          <div className="border-b border-border pb-4">
-            <h3 className="text-lg font-medium text-foreground mb-2">❌ Can't see my contacts/campaigns</h3>
-            <ul className="space-y-1 text-muted-foreground text-sm">
-              <li>• Make sure you're logged in with the correct account</li>
-              <li>• Data is user-specific due to Row Level Security</li>
-              <li>• Try refreshing the page or logging out and back in</li>
-            </ul>
-          </div>
-          
-          <div>
-            <h3 className="text-lg font-medium text-foreground mb-2">❌ n8n workflow not running</h3>
-            <ul className="space-y-1 text-muted-foreground text-sm">
-              <li>• Check if workflow is set to "Active"</li>
-              <li>• Verify all credentials are configured correctly</li>
-              <li>• Check n8n execution logs for error messages</li>
-              <li>• Ensure trigger is set up correctly</li>
+              <li>• Check Supabase credentials are correct</li>
+              <li>• Verify table names match your schema</li>
+              <li>• Review execution logs in n8n for specific errors</li>
+              <li>• Ensure rate limit settings aren't too aggressive</li>
             </ul>
           </div>
         </div>
       </div>
 
-      <div className="glass-card rounded-xl p-6">
+      <div className="glass-card rounded-xl p-6 border-primary/30">
         <h2 className="text-2xl font-semibold text-foreground mb-4">Getting Help</h2>
-        <ul className="space-y-3 text-muted-foreground">
-          <li className="flex items-center gap-2">
-            <ExternalLink className="w-4 h-4" />
-            <a href="https://supabase.com/dashboard" target="_blank" className="text-primary hover:underline">Supabase Dashboard</a>
-            - Check logs and database
-          </li>
-          <li className="flex items-center gap-2">
-            <ExternalLink className="w-4 h-4" />
-            <a href="https://resend.com/emails" target="_blank" className="text-primary hover:underline">Resend Dashboard</a>
-            - View sent emails and errors
-          </li>
-          <li className="flex items-center gap-2">
-            <ExternalLink className="w-4 h-4" />
-            <a href="https://docs.n8n.io" target="_blank" className="text-primary hover:underline">n8n Documentation</a>
-            - Workflow automation help
-          </li>
-        </ul>
+        <p className="text-muted-foreground">
+          For additional support, check the Supabase dashboard for function logs, 
+          or review the activity_logs table for detailed error information.
+        </p>
       </div>
     </div>
   );
 }
 
+// Helper Components
 function Step({ number, title, children }: { number: number; title: string; children: React.ReactNode }) {
   return (
-    <div className="flex gap-4">
-      <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center">
-        <span className="text-primary font-bold">{number}</span>
+    <div className="flex items-start gap-4">
+      <div className="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0">
+        <span className="text-sm text-primary font-bold">{number}</span>
       </div>
       <div>
         <h3 className="font-semibold text-foreground">{title}</h3>
@@ -776,11 +870,11 @@ function Step({ number, title, children }: { number: number; title: string; chil
 
 function ChecklistItem({ children }: { children: React.ReactNode }) {
   return (
-    <label className="flex items-center gap-3 cursor-pointer group">
-      <div className="w-5 h-5 rounded border border-border group-hover:border-primary transition-colors flex items-center justify-center">
-        <CheckCircle className="w-4 h-4 text-primary opacity-0 group-hover:opacity-50 transition-opacity" />
+    <div className="flex items-center gap-3">
+      <div className="w-5 h-5 rounded border border-border flex items-center justify-center">
+        <CheckCircle className="w-3 h-3 text-transparent" />
       </div>
-      <span className="text-muted-foreground group-hover:text-foreground transition-colors">{children}</span>
-    </label>
+      <span className="text-muted-foreground">{children}</span>
+    </div>
   );
 }

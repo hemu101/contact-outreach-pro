@@ -14,7 +14,9 @@ import {
   Edit,
   Trash2,
   MoreHorizontal,
-  Sparkles
+  Sparkles,
+  Play,
+  Check
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -24,11 +26,23 @@ import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
+  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogFooter,
+  DialogHeader,
+  DialogTitle,
+} from '@/components/ui/dialog';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
+import { Label } from '@/components/ui/label';
+import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useTemplates } from '@/hooks/useTemplates';
+import { useToast } from '@/hooks/use-toast';
 import { PageTemplateBuilder } from './PageTemplateBuilder';
 
 interface TemplatesLibraryPageProps {
@@ -90,7 +104,84 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
   const [searchQuery, setSearchQuery] = useState('');
   const [showPageBuilder, setShowPageBuilder] = useState(false);
   const [selectedPageTemplate, setSelectedPageTemplate] = useState<string | null>(null);
-  const { templates: emailTemplates, deleteTemplate } = useTemplates();
+  const { templates: emailTemplates, deleteTemplate, createTemplate, updateTemplate } = useTemplates();
+  const { toast } = useToast();
+
+  // Template editor modal state
+  const [showEditor, setShowEditor] = useState(false);
+  const [editingTemplate, setEditingTemplate] = useState<{
+    id?: string;
+    name: string;
+    subject: string;
+    content: string;
+    type: string;
+  } | null>(null);
+
+  const handleUseTemplate = (templateId: string, templateName: string) => {
+    onSelectTemplate?.(templateId);
+    toast({ 
+      title: 'Template selected', 
+      description: `"${templateName}" will be used for your campaign` 
+    });
+  };
+
+  const handleDuplicateTemplate = async (template: typeof emailTemplates[0]) => {
+    createTemplate.mutate({
+      name: `${template.name} (Copy)`,
+      subject: template.subject,
+      content: template.content,
+      type: template.type,
+    });
+  };
+
+  const handleEditTemplate = (template: typeof emailTemplates[0]) => {
+    setEditingTemplate({
+      id: template.id,
+      name: template.name,
+      subject: template.subject || '',
+      content: template.content,
+      type: template.type,
+    });
+    setShowEditor(true);
+  };
+
+  const handleCreateTemplate = () => {
+    setEditingTemplate({
+      name: '',
+      subject: '',
+      content: '',
+      type: 'email',
+    });
+    setShowEditor(true);
+  };
+
+  const handleSaveTemplate = () => {
+    if (!editingTemplate) return;
+
+    if (editingTemplate.id) {
+      updateTemplate.mutate({
+        id: editingTemplate.id,
+        name: editingTemplate.name,
+        subject: editingTemplate.subject,
+        content: editingTemplate.content,
+        type: editingTemplate.type,
+      });
+    } else {
+      createTemplate.mutate({
+        name: editingTemplate.name,
+        subject: editingTemplate.subject,
+        content: editingTemplate.content,
+        type: editingTemplate.type,
+      });
+    }
+    setShowEditor(false);
+    setEditingTemplate(null);
+  };
+
+  const handleCopySnippet = (content: string, name: string) => {
+    navigator.clipboard.writeText(content);
+    toast({ title: 'Copied!', description: `"${name}" copied to clipboard` });
+  };
 
   if (showPageBuilder) {
     return (
@@ -123,6 +214,8 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
           onClick={() => {
             if (activeTab === 'pages') {
               setShowPageBuilder(true);
+            } else if (activeTab === 'emails') {
+              handleCreateTemplate();
             }
           }}
         >
@@ -208,6 +301,10 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => handleUseTemplate(template.id, template.name)}>
+                          <Play className="w-4 h-4 mr-2" />
+                          Use Template
+                        </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Copy className="w-4 h-4 mr-2" />
                           Duplicate
@@ -215,6 +312,11 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                         <DropdownMenuItem>
                           <Edit className="w-4 h-4 mr-2" />
                           Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-destructive">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -227,9 +329,10 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                     <span className="text-xs text-muted-foreground">{template.steps} steps</span>
                     <Button 
                       size="sm" 
-                      variant="outline"
-                      onClick={() => onSelectTemplate?.(template.id)}
+                      variant="gradient"
+                      onClick={() => handleUseTemplate(template.id, template.name)}
                     >
+                      <Play className="w-3 h-3 mr-1" />
                       Use Template
                     </Button>
                   </div>
@@ -246,7 +349,7 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
               <Mail className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
               <h3 className="font-semibold text-foreground mb-2">No email templates yet</h3>
               <p className="text-sm text-muted-foreground mb-4">Create your first email template to get started.</p>
-              <Button variant="gradient">
+              <Button variant="gradient" onClick={handleCreateTemplate}>
                 <Plus className="w-4 h-4 mr-2" />
                 Create Email Template
               </Button>
@@ -267,14 +370,19 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleUseTemplate(template.id, template.name)}>
+                            <Play className="w-4 h-4 mr-2" />
+                            Use Template
+                          </DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleDuplicateTemplate(template)}>
                             <Copy className="w-4 h-4 mr-2" />
                             Duplicate
                           </DropdownMenuItem>
-                          <DropdownMenuItem>
+                          <DropdownMenuItem onClick={() => handleEditTemplate(template)}>
                             <Edit className="w-4 h-4 mr-2" />
                             Edit
                           </DropdownMenuItem>
+                          <DropdownMenuSeparator />
                           <DropdownMenuItem 
                             className="text-destructive"
                             onClick={() => deleteTemplate.mutate(template.id)}
@@ -289,9 +397,19 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                     <p className="text-sm text-muted-foreground line-clamp-2 mb-3">
                       {template.subject}
                     </p>
-                    <Badge variant="secondary" className="text-xs">
-                      {template.type}
-                    </Badge>
+                    <div className="flex items-center justify-between">
+                      <Badge variant="secondary" className="text-xs">
+                        {template.type}
+                      </Badge>
+                      <Button 
+                        size="sm" 
+                        variant="gradient"
+                        onClick={() => handleUseTemplate(template.id, template.name)}
+                      >
+                        <Play className="w-3 h-3 mr-1" />
+                        Use
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -317,17 +435,36 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem>
+                          <Play className="w-4 h-4 mr-2" />
+                          Use Schedule
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
+                          <Copy className="w-4 h-4 mr-2" />
+                          Duplicate
+                        </DropdownMenuItem>
+                        <DropdownMenuItem>
                           <Edit className="w-4 h-4 mr-2" />
                           Edit
+                        </DropdownMenuItem>
+                        <DropdownMenuSeparator />
+                        <DropdownMenuItem className="text-destructive">
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
                   </div>
                   <h3 className="font-semibold text-foreground mb-1">{template.name}</h3>
                   <p className="text-sm text-muted-foreground mb-2">{template.description}</p>
-                  <Badge variant="secondary" className="text-xs">
-                    {template.timezone}
-                  </Badge>
+                  <div className="flex items-center justify-between">
+                    <Badge variant="secondary" className="text-xs">
+                      {template.timezone}
+                    </Badge>
+                    <Button size="sm" variant="outline">
+                      <Play className="w-3 h-3 mr-1" />
+                      Use
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -357,14 +494,15 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                         </Button>
                       </DropdownMenuTrigger>
                       <DropdownMenuContent align="end">
-                        <DropdownMenuItem>
+                        <DropdownMenuItem onClick={() => handleCopySnippet(template.content, template.name)}>
                           <Copy className="w-4 h-4 mr-2" />
-                          Copy
+                          Copy to Clipboard
                         </DropdownMenuItem>
                         <DropdownMenuItem>
                           <Edit className="w-4 h-4 mr-2" />
                           Edit
                         </DropdownMenuItem>
+                        <DropdownMenuSeparator />
                         <DropdownMenuItem className="text-destructive">
                           <Trash2 className="w-4 h-4 mr-2" />
                           Delete
@@ -376,6 +514,16 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                   <p className="text-sm text-muted-foreground font-mono bg-muted/50 p-3 rounded-lg">
                     {template.content}
                   </p>
+                  <div className="mt-3 flex justify-end">
+                    <Button 
+                      size="sm" 
+                      variant="outline"
+                      onClick={() => handleCopySnippet(template.content, template.name)}
+                    >
+                      <Copy className="w-3 h-3 mr-1" />
+                      Copy
+                    </Button>
+                  </div>
                 </CardContent>
               </Card>
             ))}
@@ -432,6 +580,79 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
           </div>
         </TabsContent>
       </Tabs>
+
+      {/* Template Editor Modal */}
+      <Dialog open={showEditor} onOpenChange={setShowEditor}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>
+              {editingTemplate?.id ? 'Edit Template' : 'Create New Template'}
+            </DialogTitle>
+            <DialogDescription>
+              Create or modify your email template with personalization variables.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="template-name">Template Name</Label>
+              <Input
+                id="template-name"
+                placeholder="e.g., Welcome Email"
+                value={editingTemplate?.name || ''}
+                onChange={(e) => setEditingTemplate(prev => prev ? { ...prev, name: e.target.value } : null)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="template-subject">Subject Line</Label>
+              <Input
+                id="template-subject"
+                placeholder="e.g., Hi {{firstName}}, let's connect!"
+                value={editingTemplate?.subject || ''}
+                onChange={(e) => setEditingTemplate(prev => prev ? { ...prev, subject: e.target.value } : null)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="template-content">Email Content</Label>
+              <Textarea
+                id="template-content"
+                placeholder="Hi {{firstName}},&#10;&#10;I noticed your work at {{businessName}}..."
+                className="min-h-[200px] font-mono"
+                value={editingTemplate?.content || ''}
+                onChange={(e) => setEditingTemplate(prev => prev ? { ...prev, content: e.target.value } : null)}
+              />
+            </div>
+            <div className="flex flex-wrap gap-2">
+              <span className="text-xs text-muted-foreground">Variables:</span>
+              {['{{firstName}}', '{{lastName}}', '{{businessName}}', '{{email}}'].map(v => (
+                <Badge 
+                  key={v} 
+                  variant="outline" 
+                  className="cursor-pointer hover:bg-secondary"
+                  onClick={() => setEditingTemplate(prev => prev ? { 
+                    ...prev, 
+                    content: prev.content + v 
+                  } : null)}
+                >
+                  {v}
+                </Badge>
+              ))}
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditor(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="gradient" 
+              onClick={handleSaveTemplate}
+              disabled={!editingTemplate?.name || !editingTemplate?.content}
+            >
+              <Check className="w-4 h-4 mr-2" />
+              {editingTemplate?.id ? 'Save Changes' : 'Create Template'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
