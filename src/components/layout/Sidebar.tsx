@@ -28,7 +28,7 @@ const navItems = [
   { id: 'contacts', icon: Users, label: 'Contacts' },
   { id: 'templates', icon: FileText, label: 'Templates' },
   { id: 'campaigns', icon: Mail, label: 'Campaigns' },
-  { id: 'inbox', icon: Inbox, label: 'Inbox' },
+  { id: 'unified-inbox', icon: Inbox, label: 'Unified Inbox' },
   { id: 'deliverability', icon: Shield, label: 'Deliverability' },
   { id: 'warmup', icon: Flame, label: 'Email Warmup' },
   { id: 'social-dms', icon: Instagram, label: 'Social DMs' },

@@ -10,10 +10,11 @@ import { TemplatesLibraryPage } from '@/components/templates/TemplatesLibraryPag
 import { CampaignsPage } from '@/components/campaigns/CampaignsPage';
 import { N8nWorkflow } from '@/components/n8n/N8nWorkflow';
 import { SettingsPage } from '@/components/settings/SettingsPage';
-import { EmailInbox } from '@/components/inbox/EmailInbox';
+import { UnifiedInbox } from '@/components/inbox/UnifiedInbox';
 import { EmailWarmup } from '@/components/settings/EmailWarmup';
 import { DeliverabilityTest } from '@/components/campaigns/DeliverabilityTest';
 import { SocialDMsPage } from '@/components/social/SocialDMsPage';
+import { CRMWebhookIntegration } from '@/components/settings/CRMWebhookIntegration';
 import { useAuth } from '@/hooks/useAuth';
 import { useContacts } from '@/hooks/useContacts';
 import { useTemplates } from '@/hooks/useTemplates';
@@ -21,7 +22,6 @@ import { useCampaigns } from '@/hooks/useCampaigns';
 import { Loader2, LogOut, Book } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
-
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { user, loading, signOut } = useAuth();
@@ -195,8 +195,8 @@ const Index = () => {
             templates={templates}
           />
         );
-      case 'inbox':
-        return <EmailInbox />;
+      case 'unified-inbox':
+        return <UnifiedInbox />;
       case 'deliverability':
         return <DeliverabilityTest />;
       case 'warmup':
