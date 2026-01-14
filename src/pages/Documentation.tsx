@@ -19,6 +19,7 @@ const sections = [
   { id: 'analytics', label: 'Analytics Dashboard', icon: PieChart },
   { id: 'n8n-automation', label: 'n8n Automation', icon: Workflow },
   { id: 'database-logging', label: 'Database Logging', icon: Database },
+  { id: 'db-migration', label: 'PostgreSQL Migration', icon: Database },
   { id: 'api-setup', label: 'API Setup', icon: Code },
   { id: 'troubleshooting', label: 'Troubleshooting', icon: Settings },
 ];
@@ -75,6 +76,7 @@ export default function Documentation() {
           {activeSection === 'analytics' && <AnalyticsDocs />}
           {activeSection === 'n8n-automation' && <N8nDocs />}
           {activeSection === 'database-logging' && <DatabaseLoggingDocs />}
+          {activeSection === 'db-migration' && <DatabaseMigrationDocs />}
           {activeSection === 'api-setup' && <ApiSetupDocs />}
           {activeSection === 'troubleshooting' && <TroubleshootingDocs />}
         </main>
@@ -746,6 +748,268 @@ function DatabaseLoggingDocs() {
           <li className="flex items-center gap-2">
             <CheckCircle className="w-4 h-4 text-success" />
             RLS ensures users only see their own data
+          </li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function DatabaseMigrationDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">PostgreSQL Migration</h1>
+      
+      <div className="glass-card rounded-xl p-6 border-warning/50">
+        <div className="flex items-center gap-2 mb-4">
+          <AlertCircle className="w-5 h-5 text-warning" />
+          <h2 className="text-2xl font-semibold text-foreground">Before You Begin</h2>
+        </div>
+        <p className="text-muted-foreground mb-4">
+          Migrating from Supabase to a self-hosted PostgreSQL database requires careful planning. 
+          Ensure you have a backup and test the migration in a staging environment first.
+        </p>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-warning" />
+            Auth users are stored in Supabase's auth schema - you'll need an alternative auth system
+          </li>
+          <li className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-warning" />
+            RLS policies use auth.uid() - these need to be adapted for your auth system
+          </li>
+          <li className="flex items-center gap-2">
+            <AlertCircle className="w-4 h-4 text-warning" />
+            Edge Functions need to be rewritten as standard backend APIs
+          </li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 1: Export Schema</h2>
+        <p className="text-muted-foreground mb-4">
+          Export your database schema from Supabase using pg_dump:
+        </p>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+          <pre className="text-foreground">{`# Get your database connection string from Supabase Dashboard
+# Settings → Database → Connection string
+
+pg_dump \\
+  --schema=public \\
+  --schema-only \\
+  --no-owner \\
+  --no-privileges \\
+  "postgresql://postgres:[PASSWORD]@db.[PROJECT_ID].supabase.co:5432/postgres" \\
+  > schema.sql`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 2: Export Data</h2>
+        <p className="text-muted-foreground mb-4">
+          Export your data (without schema) for the public tables:
+        </p>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+          <pre className="text-foreground">{`pg_dump \\
+  --schema=public \\
+  --data-only \\
+  --no-owner \\
+  --no-privileges \\
+  "postgresql://postgres:[PASSWORD]@db.[PROJECT_ID].supabase.co:5432/postgres" \\
+  > data.sql`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 3: Modify Schema for Standard PostgreSQL</h2>
+        <p className="text-muted-foreground mb-4">
+          Update the schema to work without Supabase-specific features:
+        </p>
+        <div className="space-y-4">
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">Remove RLS Policies</h3>
+            <div className="bg-secondary/50 rounded-lg p-3 font-mono text-xs overflow-x-auto">
+              <pre className="text-foreground">{`-- Remove all RLS-related statements
+-- DELETE: ALTER TABLE ... ENABLE ROW LEVEL SECURITY;
+-- DELETE: CREATE POLICY ... ON ... USING (auth.uid() = ...);
+
+-- Or keep RLS but replace auth.uid() with your auth system:
+-- CREATE POLICY "user_access" ON contacts
+-- USING (user_id = current_setting('app.current_user_id')::uuid);`}</pre>
+            </div>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">Remove Supabase Functions</h3>
+            <div className="bg-secondary/50 rounded-lg p-3 font-mono text-xs overflow-x-auto">
+              <pre className="text-foreground">{`-- Replace auth.uid() references
+-- Before: WHERE user_id = auth.uid()
+-- After:  WHERE user_id = $1  (use parameterized queries)
+
+-- Remove functions that reference auth schema:
+-- has_role(), handle_new_user(), etc.`}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 4: Import to New PostgreSQL</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+          <pre className="text-foreground">{`# Create new database
+createdb outreachflow
+
+# Import schema
+psql -d outreachflow -f schema_modified.sql
+
+# Import data
+psql -d outreachflow -f data.sql
+
+# Verify data
+psql -d outreachflow -c "SELECT COUNT(*) FROM contacts;"`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 5: Update Application Code</h2>
+        <p className="text-muted-foreground mb-4">
+          Replace Supabase client with a standard PostgreSQL client:
+        </p>
+        <div className="space-y-4">
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">Install PostgreSQL Client</h3>
+            <div className="bg-secondary/50 rounded-lg p-3 font-mono text-xs">
+              <pre className="text-foreground">{`npm install pg
+# or for TypeScript
+npm install @types/pg`}</pre>
+            </div>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">Create Database Connection</h3>
+            <div className="bg-secondary/50 rounded-lg p-3 font-mono text-xs overflow-x-auto">
+              <pre className="text-foreground">{`// db.ts
+import { Pool } from 'pg';
+
+export const pool = new Pool({
+  connectionString: process.env.DATABASE_URL,
+  ssl: process.env.NODE_ENV === 'production'
+});
+
+// Query example
+export async function getContacts(userId: string) {
+  const result = await pool.query(
+    'SELECT * FROM contacts WHERE user_id = $1',
+    [userId]
+  );
+  return result.rows;
+}`}</pre>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 6: Replace Edge Functions</h2>
+        <p className="text-muted-foreground mb-4">
+          Convert Supabase Edge Functions to Express/Node.js endpoints:
+        </p>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+          <pre className="text-foreground">{`// server.js - Express equivalent of Edge Functions
+import express from 'express';
+import { pool } from './db';
+
+const app = express();
+app.use(express.json());
+
+// Before: supabase/functions/send-campaign-emails/index.ts
+// After: 
+app.post('/api/send-campaign-emails', async (req, res) => {
+  const { campaignId } = req.body;
+  
+  // Your email sending logic here
+  const contacts = await pool.query(
+    'SELECT * FROM campaign_contacts WHERE campaign_id = $1',
+    [campaignId]
+  );
+  
+  // Send emails...
+  res.json({ success: true });
+});
+
+app.listen(3001);`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Tables to Migrate</h2>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="font-mono text-primary">contacts</span>
+            <p className="text-muted-foreground text-xs mt-1">All contact records</p>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="font-mono text-primary">templates</span>
+            <p className="text-muted-foreground text-xs mt-1">Email/DM templates</p>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="font-mono text-primary">campaigns</span>
+            <p className="text-muted-foreground text-xs mt-1">Campaign definitions</p>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="font-mono text-primary">campaign_contacts</span>
+            <p className="text-muted-foreground text-xs mt-1">Campaign recipients & status</p>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="font-mono text-primary">email_events</span>
+            <p className="text-muted-foreground text-xs mt-1">Open/click tracking</p>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="font-mono text-primary">activity_logs</span>
+            <p className="text-muted-foreground text-xs mt-1">Audit trail</p>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="font-mono text-primary">social_accounts</span>
+            <p className="text-muted-foreground text-xs mt-1">DM account settings</p>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg">
+            <span className="font-mono text-primary">email_settings</span>
+            <p className="text-muted-foreground text-xs mt-1">API credentials</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6 border-primary/30">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Authentication Alternatives</h2>
+        <p className="text-muted-foreground mb-4">
+          After migration, you'll need to implement your own authentication:
+        </p>
+        <ul className="space-y-3">
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">NextAuth.js</strong>
+              <p className="text-sm text-muted-foreground">Full-featured auth for Next.js apps</p>
+            </div>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Passport.js</strong>
+              <p className="text-sm text-muted-foreground">Flexible authentication for Express</p>
+            </div>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Auth0 / Clerk</strong>
+              <p className="text-sm text-muted-foreground">Managed auth services (similar to Supabase Auth)</p>
+            </div>
+          </li>
+          <li className="flex items-start gap-3">
+            <CheckCircle className="w-4 h-4 text-success mt-1" />
+            <div>
+              <strong className="text-foreground">Custom JWT</strong>
+              <p className="text-sm text-muted-foreground">Roll your own with bcrypt + jsonwebtoken</p>
+            </div>
           </li>
         </ul>
       </div>

@@ -17,7 +17,8 @@ import {
   CheckCircle,
   Link,
   MessageSquare,
-  Key
+  Key,
+  FlaskConical
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -27,6 +28,7 @@ import { format } from 'date-fns';
 import { Textarea } from '@/components/ui/textarea';
 import { DMTemplates } from './DMTemplates';
 import { DMAccountSetup } from './DMAccountSetup';
+import { DMABTesting } from './DMABTesting';
 
 interface Creator {
   id: string;
@@ -44,7 +46,7 @@ interface Creator {
 }
 
 export function SocialDMsPage() {
-  const [activeTab, setActiveTab] = useState<'instagram' | 'tiktok' | 'templates' | 'accounts'>('instagram');
+  const [activeTab, setActiveTab] = useState<'instagram' | 'tiktok' | 'templates' | 'accounts' | 'ab-testing'>('instagram');
   const [profileUrl, setProfileUrl] = useState('');
   const [bulkUrls, setBulkUrls] = useState('');
   const [showBulkUpload, setShowBulkUpload] = useState(false);
@@ -269,8 +271,8 @@ export function SocialDMsPage() {
         </p>
       </div>
 
-      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'instagram' | 'tiktok' | 'templates' | 'accounts')}>
-        <TabsList className="grid w-full max-w-[800px] grid-cols-4">
+      <Tabs value={activeTab} onValueChange={(v) => setActiveTab(v as 'instagram' | 'tiktok' | 'templates' | 'accounts' | 'ab-testing')}>
+        <TabsList className="grid w-full max-w-[1000px] grid-cols-5">
           <TabsTrigger value="instagram" className="flex items-center gap-2">
             <Instagram className="h-4 w-4" />
             Instagram
@@ -287,6 +289,10 @@ export function SocialDMsPage() {
             <Key className="h-4 w-4" />
             Accounts
           </TabsTrigger>
+          <TabsTrigger value="ab-testing" className="flex items-center gap-2">
+            <FlaskConical className="h-4 w-4" />
+            A/B Testing
+          </TabsTrigger>
         </TabsList>
 
         {/* Templates Tab */}
@@ -297,6 +303,11 @@ export function SocialDMsPage() {
         {/* Accounts Tab */}
         <TabsContent value="accounts" className="space-y-4 mt-4">
           <DMAccountSetup />
+        </TabsContent>
+
+        {/* A/B Testing Tab */}
+        <TabsContent value="ab-testing" className="space-y-4 mt-4">
+          <DMABTesting />
         </TabsContent>
 
         {/* Instagram/TikTok Tabs */}
