@@ -42,6 +42,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useTemplates } from '@/hooks/useTemplates';
+import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { PageTemplateBuilder } from './PageTemplateBuilder';
 
@@ -104,7 +105,8 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
   const [searchQuery, setSearchQuery] = useState('');
   const [showPageBuilder, setShowPageBuilder] = useState(false);
   const [selectedPageTemplate, setSelectedPageTemplate] = useState<string | null>(null);
-  const { templates: emailTemplates, deleteTemplate, createTemplate, updateTemplate } = useTemplates();
+  const { templates: emailTemplates, isLoading: templatesLoading, deleteTemplate, createTemplate, updateTemplate } = useTemplates();
+  const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
   // Template editor modal state
@@ -344,7 +346,18 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
 
         {/* Email Templates */}
         <TabsContent value="emails" className="space-y-6">
-          {emailTemplates.length === 0 ? (
+          {authLoading || templatesLoading ? (
+            <div className="text-center py-12">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-muted-foreground">Loading templates...</p>
+            </div>
+          ) : !user ? (
+            <div className="text-center py-12">
+              <Mail className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="font-semibold text-foreground mb-2">Login Required</h3>
+              <p className="text-sm text-muted-foreground mb-4">Please log in to view and manage your email templates.</p>
+            </div>
+          ) : emailTemplates.length === 0 ? (
             <div className="text-center py-12">
               <Mail className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
               <h3 className="font-semibold text-foreground mb-2">No email templates yet</h3>
