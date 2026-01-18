@@ -18,12 +18,13 @@ type DBTemplate = Tables<'templates'>;
 interface CampaignsPageProps {
   contacts: Contact[];
   templates: DBTemplate[];
+  onBrowseTemplates?: () => void;
 }
 
 type ViewMode = 'list' | 'calendar';
 type CreationMode = 'select' | 'ai' | 'manual' | null;
 
-export function CampaignsPage({ contacts, templates }: CampaignsPageProps) {
+export function CampaignsPage({ contacts, templates, onBrowseTemplates }: CampaignsPageProps) {
   const [viewMode, setViewMode] = useState<ViewMode>('list');
   const [creationMode, setCreationMode] = useState<CreationMode>(null);
   const [selectedCampaignId, setSelectedCampaignId] = useState<string | null>(null);
@@ -49,7 +50,7 @@ export function CampaignsPage({ contacts, templates }: CampaignsPageProps) {
 
   const handleBrowseTemplates = () => {
     setShowCreateDialog(false);
-    // Navigate to templates - this would be handled by parent
+    onBrowseTemplates?.();
   };
 
   if (selectedCampaignId) {

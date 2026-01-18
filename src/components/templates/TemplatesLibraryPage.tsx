@@ -16,7 +16,8 @@ import {
   MoreHorizontal,
   Sparkles,
   Play,
-  Check
+  Check,
+  Eye
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,6 +46,8 @@ import { useTemplates } from '@/hooks/useTemplates';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { PageTemplateBuilder } from './PageTemplateBuilder';
+import { TemplatePreviewModal } from './TemplatePreviewModal';
+import type { Tables } from '@/integrations/supabase/types';
 
 interface TemplatesLibraryPageProps {
   onSelectTemplate?: (templateId: string) => void;
@@ -118,6 +121,15 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
     content: string;
     type: string;
   } | null>(null);
+
+  // Template preview modal state
+  const [showPreview, setShowPreview] = useState(false);
+  const [previewTemplate, setPreviewTemplate] = useState<Tables<'templates'> | null>(null);
+
+  const handlePreviewTemplate = (template: Tables<'templates'>) => {
+    setPreviewTemplate(template);
+    setShowPreview(true);
+  };
 
   const handleUseTemplate = (templateId: string, templateName: string) => {
     onSelectTemplate?.(templateId);
@@ -383,6 +395,10 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                           </Button>
                         </DropdownMenuTrigger>
                         <DropdownMenuContent align="end">
+                          <DropdownMenuItem onClick={() => handlePreviewTemplate(template)}>
+                            <Eye className="w-4 h-4 mr-2" />
+                            Preview
+                          </DropdownMenuItem>
                           <DropdownMenuItem onClick={() => handleUseTemplate(template.id, template.name)}>
                             <Play className="w-4 h-4 mr-2" />
                             Use Template
@@ -666,6 +682,19 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
           </DialogFooter>
         </DialogContent>
       </Dialog>
+
+      {/* Template Preview Modal */}
+      <TemplatePreviewModal
+        open={showPreview}
+        onOpenChange={setShowPreview}
+        template={previewTemplate}
+        onUseTemplate={(templateId) => {
+          const template = emailTemplates.find(t => t.id === templateId);
+          if (template) {
+            handleUseTemplate(templateId, template.name);
+          }
+        }}
+      />
     </div>
   );
 }
