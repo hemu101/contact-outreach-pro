@@ -193,6 +193,7 @@ const Index = () => {
           <CampaignsPage 
             contacts={contacts} 
             templates={templates}
+            onBrowseTemplates={() => setActiveTab('templates')}
           />
         );
       case 'unified-inbox':
