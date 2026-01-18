@@ -43,6 +43,7 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { cn } from '@/lib/utils';
 import { useTemplates } from '@/hooks/useTemplates';
+import { useCampaignTemplates, CampaignTemplate } from '@/hooks/useCampaignTemplates';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { PageTemplateBuilder } from './PageTemplateBuilder';
@@ -53,41 +54,8 @@ interface TemplatesLibraryPageProps {
   onSelectTemplate?: (templateId: string) => void;
 }
 
-// Sample campaign templates
-const campaignTemplates = [
-  { 
-    id: '1', 
-    name: 'Cold Outreach - SaaS', 
-    description: 'Multi-step sequence for B2B SaaS companies',
-    steps: 5,
-    category: 'Sales',
-    featured: true 
-  },
-  { 
-    id: '2', 
-    name: 'Link Building Outreach', 
-    description: 'Perfect for SEO and content marketing teams',
-    steps: 3,
-    category: 'Marketing',
-    featured: false 
-  },
-  { 
-    id: '3', 
-    name: 'Influencer Outreach', 
-    description: 'Connect with influencers for brand collaborations',
-    steps: 4,
-    category: 'Marketing',
-    featured: true 
-  },
-  { 
-    id: '4', 
-    name: 'Product Launch', 
-    description: 'Announce your new product to prospects',
-    steps: 6,
-    category: 'Sales',
-    featured: false 
-  },
-];
+// Category options for campaign templates
+const campaignCategories = ['All', 'Sales', 'Marketing', 'Recruiting'];
 
 // Sample schedule templates
 const scheduleTemplates = [
@@ -108,11 +76,19 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
   const [searchQuery, setSearchQuery] = useState('');
   const [showPageBuilder, setShowPageBuilder] = useState(false);
   const [selectedPageTemplate, setSelectedPageTemplate] = useState<string | null>(null);
+  const [selectedCategory, setSelectedCategory] = useState('All');
   const { templates: emailTemplates, isLoading: templatesLoading, deleteTemplate, createTemplate, updateTemplate } = useTemplates();
+  const { 
+    templates: campaignTemplates, 
+    isLoading: campaignTemplatesLoading, 
+    createTemplate: createCampaignTemplate,
+    updateTemplate: updateCampaignTemplate,
+    deleteTemplate: deleteCampaignTemplate 
+  } = useCampaignTemplates();
   const { user, loading: authLoading } = useAuth();
   const { toast } = useToast();
 
-  // Template editor modal state
+  // Email template editor modal state
   const [showEditor, setShowEditor] = useState(false);
   const [editingTemplate, setEditingTemplate] = useState<{
     id?: string;
@@ -120,6 +96,17 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
     subject: string;
     content: string;
     type: string;
+  } | null>(null);
+
+  // Campaign template editor modal state
+  const [showCampaignEditor, setShowCampaignEditor] = useState(false);
+  const [editingCampaignTemplate, setEditingCampaignTemplate] = useState<{
+    id?: string;
+    name: string;
+    description: string;
+    category: string;
+    steps: number;
+    featured: boolean;
   } | null>(null);
 
   // Template preview modal state
@@ -192,6 +179,74 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
     setEditingTemplate(null);
   };
 
+  // Campaign template handlers
+  const handleCreateCampaignTemplate = () => {
+    setEditingCampaignTemplate({
+      name: '',
+      description: '',
+      category: 'Sales',
+      steps: 1,
+      featured: false,
+    });
+    setShowCampaignEditor(true);
+  };
+
+  const handleEditCampaignTemplate = (template: CampaignTemplate) => {
+    setEditingCampaignTemplate({
+      id: template.id,
+      name: template.name,
+      description: template.description || '',
+      category: template.category || 'Sales',
+      steps: template.steps || 1,
+      featured: template.featured || false,
+    });
+    setShowCampaignEditor(true);
+  };
+
+  const handleDuplicateCampaignTemplate = (template: CampaignTemplate) => {
+    createCampaignTemplate.mutate({
+      name: `${template.name} (Copy)`,
+      description: template.description,
+      category: template.category,
+      steps: template.steps,
+      sequence_data: template.sequence_data,
+      featured: false,
+    });
+  };
+
+  const handleSaveCampaignTemplate = () => {
+    if (!editingCampaignTemplate) return;
+
+    if (editingCampaignTemplate.id) {
+      updateCampaignTemplate.mutate({
+        id: editingCampaignTemplate.id,
+        name: editingCampaignTemplate.name,
+        description: editingCampaignTemplate.description,
+        category: editingCampaignTemplate.category,
+        steps: editingCampaignTemplate.steps,
+        featured: editingCampaignTemplate.featured,
+      });
+    } else {
+      createCampaignTemplate.mutate({
+        name: editingCampaignTemplate.name,
+        description: editingCampaignTemplate.description,
+        category: editingCampaignTemplate.category,
+        steps: editingCampaignTemplate.steps,
+        featured: editingCampaignTemplate.featured,
+      });
+    }
+    setShowCampaignEditor(false);
+    setEditingCampaignTemplate(null);
+  };
+
+  // Filter campaign templates by category
+  const filteredCampaignTemplates = campaignTemplates.filter(template => {
+    const matchesCategory = selectedCategory === 'All' || template.category === selectedCategory;
+    const matchesSearch = template.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
+      (template.description?.toLowerCase().includes(searchQuery.toLowerCase()));
+    return matchesCategory && matchesSearch;
+  });
+
   const handleCopySnippet = (content: string, name: string) => {
     navigator.clipboard.writeText(content);
     toast({ title: 'Copied!', description: `"${name}" copied to clipboard` });
@@ -230,6 +285,8 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
               setShowPageBuilder(true);
             } else if (activeTab === 'emails') {
               handleCreateTemplate();
+            } else if (activeTab === 'campaigns') {
+              handleCreateCampaignTemplate();
             }
           }}
         >
@@ -244,9 +301,11 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
           <TabsTrigger value="campaigns" className="flex items-center gap-2">
             <FileText className="w-4 h-4" />
             Campaigns
-            <Badge variant="secondary" className="ml-1 text-xs">
-              +100
-            </Badge>
+            {campaignTemplates.length > 0 && (
+              <Badge variant="secondary" className="ml-1 text-xs">
+                {campaignTemplates.length}
+              </Badge>
+            )}
           </TabsTrigger>
           <TabsTrigger value="emails" className="flex items-center gap-2">
             <Mail className="w-4 h-4" />
@@ -288,72 +347,108 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
 
         {/* Campaign Templates */}
         <TabsContent value="campaigns" className="space-y-6">
-          <div className="flex items-center gap-3 mb-4">
-            <Badge variant="secondary" className="px-3 py-1">All</Badge>
-            <Badge variant="outline" className="px-3 py-1 cursor-pointer hover:bg-secondary">Sales</Badge>
-            <Badge variant="outline" className="px-3 py-1 cursor-pointer hover:bg-secondary">Marketing</Badge>
-            <Badge variant="outline" className="px-3 py-1 cursor-pointer hover:bg-secondary">Recruiting</Badge>
-          </div>
-          
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-            {campaignTemplates.map(template => (
-              <Card key={template.id} className="hover:border-primary/50 transition-all cursor-pointer group">
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div className="flex items-center gap-2">
-                      {template.featured && (
-                        <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
-                      )}
-                      <Badge variant="secondary" className="text-xs">
-                        {template.category}
-                      </Badge>
-                    </div>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
-                          <MoreHorizontal className="w-4 h-4" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end">
-                        <DropdownMenuItem onClick={() => handleUseTemplate(template.id, template.name)}>
-                          <Play className="w-4 h-4 mr-2" />
-                          Use Template
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Copy className="w-4 h-4 mr-2" />
-                          Duplicate
-                        </DropdownMenuItem>
-                        <DropdownMenuItem>
-                          <Edit className="w-4 h-4 mr-2" />
-                          Edit
-                        </DropdownMenuItem>
-                        <DropdownMenuSeparator />
-                        <DropdownMenuItem className="text-destructive">
-                          <Trash2 className="w-4 h-4 mr-2" />
-                          Delete
-                        </DropdownMenuItem>
-                      </DropdownMenuContent>
-                    </DropdownMenu>
-                  </div>
-                </CardHeader>
-                <CardContent>
-                  <h3 className="font-semibold text-foreground mb-1">{template.name}</h3>
-                  <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
-                  <div className="flex items-center justify-between">
-                    <span className="text-xs text-muted-foreground">{template.steps} steps</span>
-                    <Button 
-                      size="sm" 
-                      variant="gradient"
-                      onClick={() => handleUseTemplate(template.id, template.name)}
-                    >
-                      <Play className="w-3 h-3 mr-1" />
-                      Use Template
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-          </div>
+          {authLoading || campaignTemplatesLoading ? (
+            <div className="text-center py-12">
+              <div className="w-8 h-8 border-4 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+              <p className="text-muted-foreground">Loading campaign templates...</p>
+            </div>
+          ) : !user ? (
+            <div className="text-center py-12">
+              <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+              <h3 className="font-semibold text-foreground mb-2">Login Required</h3>
+              <p className="text-sm text-muted-foreground mb-4">Please log in to view and manage your campaign templates.</p>
+            </div>
+          ) : (
+            <>
+              <div className="flex items-center gap-3 mb-4">
+                {campaignCategories.map(category => (
+                  <Badge 
+                    key={category}
+                    variant={selectedCategory === category ? "secondary" : "outline"} 
+                    className="px-3 py-1 cursor-pointer hover:bg-secondary"
+                    onClick={() => setSelectedCategory(category)}
+                  >
+                    {category}
+                  </Badge>
+                ))}
+              </div>
+              
+              {filteredCampaignTemplates.length === 0 ? (
+                <div className="text-center py-12">
+                  <FileText className="w-12 h-12 mx-auto mb-4 text-muted-foreground opacity-50" />
+                  <h3 className="font-semibold text-foreground mb-2">No campaign templates yet</h3>
+                  <p className="text-sm text-muted-foreground mb-4">Create your first campaign template to get started.</p>
+                  <Button variant="gradient" onClick={handleCreateCampaignTemplate}>
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Campaign Template
+                  </Button>
+                </div>
+              ) : (
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {filteredCampaignTemplates.map(template => (
+                    <Card key={template.id} className="hover:border-primary/50 transition-all cursor-pointer group">
+                      <CardHeader className="pb-3">
+                        <div className="flex items-start justify-between">
+                          <div className="flex items-center gap-2">
+                            {template.featured && (
+                              <Star className="w-4 h-4 text-yellow-500 fill-yellow-500" />
+                            )}
+                            <Badge variant="secondary" className="text-xs">
+                              {template.category}
+                            </Badge>
+                          </div>
+                          <DropdownMenu>
+                            <DropdownMenuTrigger asChild>
+                              <Button variant="ghost" size="icon" className="h-8 w-8 opacity-0 group-hover:opacity-100">
+                                <MoreHorizontal className="w-4 h-4" />
+                              </Button>
+                            </DropdownMenuTrigger>
+                            <DropdownMenuContent align="end">
+                              <DropdownMenuItem onClick={() => handleUseTemplate(template.id, template.name)}>
+                                <Play className="w-4 h-4 mr-2" />
+                                Use Template
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleDuplicateCampaignTemplate(template)}>
+                                <Copy className="w-4 h-4 mr-2" />
+                                Duplicate
+                              </DropdownMenuItem>
+                              <DropdownMenuItem onClick={() => handleEditCampaignTemplate(template)}>
+                                <Edit className="w-4 h-4 mr-2" />
+                                Edit
+                              </DropdownMenuItem>
+                              <DropdownMenuSeparator />
+                              <DropdownMenuItem 
+                                className="text-destructive"
+                                onClick={() => deleteCampaignTemplate.mutate(template.id)}
+                              >
+                                <Trash2 className="w-4 h-4 mr-2" />
+                                Delete
+                              </DropdownMenuItem>
+                            </DropdownMenuContent>
+                          </DropdownMenu>
+                        </div>
+                      </CardHeader>
+                      <CardContent>
+                        <h3 className="font-semibold text-foreground mb-1">{template.name}</h3>
+                        <p className="text-sm text-muted-foreground mb-3">{template.description}</p>
+                        <div className="flex items-center justify-between">
+                          <span className="text-xs text-muted-foreground">{template.steps} steps</span>
+                          <Button 
+                            size="sm" 
+                            variant="gradient"
+                            onClick={() => handleUseTemplate(template.id, template.name)}
+                          >
+                            <Play className="w-3 h-3 mr-1" />
+                            Use Template
+                          </Button>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </>
+          )}
         </TabsContent>
 
         {/* Email Templates */}
@@ -695,6 +790,91 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
           }
         }}
       />
+
+      {/* Campaign Template Editor Modal */}
+      <Dialog open={showCampaignEditor} onOpenChange={setShowCampaignEditor}>
+        <DialogContent className="max-w-lg">
+          <DialogHeader>
+            <DialogTitle>
+              {editingCampaignTemplate?.id ? 'Edit Campaign Template' : 'Create Campaign Template'}
+            </DialogTitle>
+            <DialogDescription>
+              Define a reusable campaign sequence template.
+            </DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4 py-4">
+            <div className="space-y-2">
+              <Label htmlFor="campaign-name">Template Name</Label>
+              <Input
+                id="campaign-name"
+                placeholder="e.g., Cold Outreach Sequence"
+                value={editingCampaignTemplate?.name || ''}
+                onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, name: e.target.value } : null)}
+              />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="campaign-description">Description</Label>
+              <Textarea
+                id="campaign-description"
+                placeholder="Brief description of when to use this template..."
+                value={editingCampaignTemplate?.description || ''}
+                onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, description: e.target.value } : null)}
+              />
+            </div>
+            <div className="grid grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="campaign-category">Category</Label>
+                <select
+                  id="campaign-category"
+                  className="flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+                  value={editingCampaignTemplate?.category || 'Sales'}
+                  onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, category: e.target.value } : null)}
+                >
+                  <option value="Sales">Sales</option>
+                  <option value="Marketing">Marketing</option>
+                  <option value="Recruiting">Recruiting</option>
+                </select>
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="campaign-steps">Number of Steps</Label>
+                <Input
+                  id="campaign-steps"
+                  type="number"
+                  min={1}
+                  max={20}
+                  value={editingCampaignTemplate?.steps || 1}
+                  onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, steps: parseInt(e.target.value) || 1 } : null)}
+                />
+              </div>
+            </div>
+            <div className="flex items-center gap-2">
+              <input
+                type="checkbox"
+                id="campaign-featured"
+                checked={editingCampaignTemplate?.featured || false}
+                onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, featured: e.target.checked } : null)}
+                className="h-4 w-4 rounded border-gray-300"
+              />
+              <Label htmlFor="campaign-featured" className="text-sm font-normal">
+                Mark as featured template
+              </Label>
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowCampaignEditor(false)}>
+              Cancel
+            </Button>
+            <Button 
+              variant="gradient" 
+              onClick={handleSaveCampaignTemplate}
+              disabled={!editingCampaignTemplate?.name}
+            >
+              <Check className="w-4 h-4 mr-2" />
+              {editingCampaignTemplate?.id ? 'Save Changes' : 'Create Template'}
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
