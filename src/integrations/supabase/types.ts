@@ -478,6 +478,102 @@ export type Database = {
           },
         ]
       }
+      collaboration_contracts: {
+        Row: {
+          brand_signature: string | null
+          brand_signed_at: string | null
+          brand_user_id: string
+          cancellation_terms: string | null
+          created_at: string
+          creator_id: string | null
+          creator_signature: string | null
+          creator_signed_at: string | null
+          deliverables: Json | null
+          description: string | null
+          end_date: string | null
+          exclusivity_clause: string | null
+          expires_at: string | null
+          id: string
+          invitation_id: string | null
+          payment_amount: number | null
+          payment_currency: string | null
+          payment_terms: string | null
+          start_date: string | null
+          status: string | null
+          terms: string
+          title: string
+          updated_at: string
+          usage_rights: string | null
+        }
+        Insert: {
+          brand_signature?: string | null
+          brand_signed_at?: string | null
+          brand_user_id: string
+          cancellation_terms?: string | null
+          created_at?: string
+          creator_id?: string | null
+          creator_signature?: string | null
+          creator_signed_at?: string | null
+          deliverables?: Json | null
+          description?: string | null
+          end_date?: string | null
+          exclusivity_clause?: string | null
+          expires_at?: string | null
+          id?: string
+          invitation_id?: string | null
+          payment_amount?: number | null
+          payment_currency?: string | null
+          payment_terms?: string | null
+          start_date?: string | null
+          status?: string | null
+          terms: string
+          title: string
+          updated_at?: string
+          usage_rights?: string | null
+        }
+        Update: {
+          brand_signature?: string | null
+          brand_signed_at?: string | null
+          brand_user_id?: string
+          cancellation_terms?: string | null
+          created_at?: string
+          creator_id?: string | null
+          creator_signature?: string | null
+          creator_signed_at?: string | null
+          deliverables?: Json | null
+          description?: string | null
+          end_date?: string | null
+          exclusivity_clause?: string | null
+          expires_at?: string | null
+          id?: string
+          invitation_id?: string | null
+          payment_amount?: number | null
+          payment_currency?: string | null
+          payment_terms?: string | null
+          start_date?: string | null
+          status?: string | null
+          terms?: string
+          title?: string
+          updated_at?: string
+          usage_rights?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "collaboration_contracts_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "collaboration_contracts_invitation_id_fkey"
+            columns: ["invitation_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           bounce_type: string | null
@@ -700,6 +796,95 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      contract_activity: {
+        Row: {
+          action: string
+          contract_id: string
+          created_at: string
+          details: Json | null
+          id: string
+          ip_address: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          action: string
+          contract_id: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          action?: string
+          contract_id?: string
+          created_at?: string
+          details?: Json | null
+          id?: string
+          ip_address?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contract_activity_contract_id_fkey"
+            columns: ["contract_id"]
+            isOneToOne: false
+            referencedRelation: "collaboration_contracts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      contract_templates: {
+        Row: {
+          cancellation_template: string | null
+          created_at: string
+          deliverables_template: Json | null
+          description: string | null
+          exclusivity_template: string | null
+          id: string
+          is_default: boolean | null
+          name: string
+          payment_terms_template: string | null
+          terms_template: string
+          updated_at: string
+          usage_rights_template: string | null
+          user_id: string
+        }
+        Insert: {
+          cancellation_template?: string | null
+          created_at?: string
+          deliverables_template?: Json | null
+          description?: string | null
+          exclusivity_template?: string | null
+          id?: string
+          is_default?: boolean | null
+          name: string
+          payment_terms_template?: string | null
+          terms_template: string
+          updated_at?: string
+          usage_rights_template?: string | null
+          user_id: string
+        }
+        Update: {
+          cancellation_template?: string | null
+          created_at?: string
+          deliverables_template?: Json | null
+          description?: string | null
+          exclusivity_template?: string | null
+          id?: string
+          is_default?: boolean | null
+          name?: string
+          payment_terms_template?: string | null
+          terms_template?: string
+          updated_at?: string
+          usage_rights_template?: string | null
+          user_id?: string
+        }
+        Relationships: []
       }
       conversations: {
         Row: {
