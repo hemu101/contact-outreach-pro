@@ -15,8 +15,11 @@ const sections = [
   { id: 'inline-editing', label: 'Inline Editing', icon: Edit3 },
   { id: 'templates', label: 'Templates', icon: FileText },
   { id: 'campaigns', label: 'Campaigns', icon: Mail },
+  { id: 'unified-inbox', label: 'Unified Inbox', icon: Mail },
   { id: 'social-dm', label: 'Social DM Outreach', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics Dashboard', icon: PieChart },
+  { id: 'db-schema', label: 'Database Schema', icon: Database },
+  { id: 'backup-scripts', label: 'Backup SQL Scripts', icon: Code },
   { id: 'n8n-automation', label: 'n8n Automation', icon: Workflow },
   { id: 'database-logging', label: 'Database Logging', icon: Database },
   { id: 'db-migration', label: 'PostgreSQL Migration', icon: Database },
@@ -72,8 +75,11 @@ export default function Documentation() {
           {activeSection === 'inline-editing' && <InlineEditingDocs />}
           {activeSection === 'templates' && <TemplatesDocs />}
           {activeSection === 'campaigns' && <CampaignsDocs />}
+          {activeSection === 'unified-inbox' && <UnifiedInboxDocs />}
           {activeSection === 'social-dm' && <SocialDMDocs />}
           {activeSection === 'analytics' && <AnalyticsDocs />}
+          {activeSection === 'db-schema' && <DatabaseSchemaDocs />}
+          {activeSection === 'backup-scripts' && <BackupScriptsDocs />}
           {activeSection === 'n8n-automation' && <N8nDocs />}
           {activeSection === 'database-logging' && <DatabaseLoggingDocs />}
           {activeSection === 'db-migration' && <DatabaseMigrationDocs />}
@@ -1112,6 +1118,224 @@ function TroubleshootingDocs() {
           For additional support, check the Supabase dashboard for function logs, 
           or review the activity_logs table for detailed error information.
         </p>
+      </div>
+    </div>
+  );
+}
+
+function UnifiedInboxDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Unified Inbox</h1>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Overview</h2>
+        <p className="text-muted-foreground mb-4">
+          The Unified Inbox consolidates all inbound replies from email campaigns and social DM outreach into a single view. Filter by channel, status, or campaign.
+        </p>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Auto-matching</strong> — Replies linked to campaigns &amp; contacts</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Read tracking</strong> — Messages marked read when opened</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Star &amp; Archive</strong> — Organize with stars and archiving</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Reply inline</strong> — Compose replies directly</li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Sources</h2>
+        <div className="space-y-4">
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">📧 email_inbox table</h3>
+            <p className="text-muted-foreground text-sm">Inbound emails matched via <code className="text-primary">inbound-email-webhook</code>. Linked to campaigns and contacts via foreign keys.</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-2">💬 dm_campaign_contacts table</h3>
+            <p className="text-muted-foreground text-sm">DM replies tracked via <code className="text-primary">replied_at</code> timestamp. Joins with <code className="text-primary">creators</code> and <code className="text-primary">dm_campaigns</code>.</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Filters</h2>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { label: 'All', desc: 'Every message across all channels' },
+            { label: 'Unread', desc: 'Messages not yet opened' },
+            { label: 'Starred', desc: 'Flagged messages' },
+            { label: 'Campaigns', desc: 'Replies linked to a campaign' },
+            { label: 'Email', desc: 'Email channel only' },
+            { label: 'Instagram', desc: 'Instagram DM replies' },
+            { label: 'TikTok', desc: 'TikTok DM replies' },
+          ].map(f => (
+            <div key={f.label} className="bg-secondary/50 rounded-lg p-3">
+              <code className="text-primary">{f.label}</code>
+              <p className="text-sm text-muted-foreground mt-1">{f.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DatabaseSchemaDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Database Schema Reference</h1>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Core Tables</h2>
+        <div className="space-y-4">
+          {[
+            { name: 'contacts', cols: 'id, user_id, first_name, last_name, email, business_name, phone, instagram, tiktok, linkedin, timezone, status, tags[], bounced, unsubscribed' },
+            { name: 'templates', cols: 'id, user_id, name, subject, content, type (email|instagram|tiktok|linkedin|voicemail)' },
+            { name: 'campaigns', cols: 'id, user_id, name, status, template_id, scheduled_at, sent_count, open_count, click_count, ab_testing fields' },
+            { name: 'campaign_contacts', cols: 'id, campaign_id, contact_id, status, sent_at, opened_at, clicked_at, bounced_at, variant' },
+            { name: 'campaign_templates', cols: 'id, user_id, name, description, category, steps, featured, sequence_data (jsonb)' },
+            { name: 'email_inbox', cols: 'id, user_id, from_email, from_name, subject, body_text, body_html, is_read, is_starred, folder, campaign_id, contact_id' },
+            { name: 'dm_campaigns', cols: 'id, user_id, name, platform, status, template_id, sent_count, reply_count' },
+            { name: 'dm_campaign_contacts', cols: 'id, dm_campaign_id, creator_id, status, sent_at, replied_at' },
+            { name: 'creators', cols: 'id, user_id, name, handle, platform, followers, engagement, category[], verified' },
+            { name: 'email_settings', cols: 'id, user_id, smtp_host, smtp_port, smtp_user, smtp_password, brevo_api_key, sendgrid_key' },
+            { name: 'follow_up_sequences', cols: 'id, user_id, campaign_id, name, trigger_type, delay_hours, subject, content' },
+            { name: 'email_warmup_schedules', cols: 'id, user_id, domain, current_daily_limit, target_daily_limit, increment_per_day, status' },
+            { name: 'activity_logs', cols: 'id, user_id, entity_type, entity_id, action_type, metadata (jsonb)' },
+            { name: 'profiles', cols: 'id (= auth.uid), email, full_name, avatar_url' },
+          ].map(t => (
+            <div key={t.name} className="p-4 border border-border rounded-lg">
+              <h3 className="font-semibold text-foreground font-mono">{t.name}</h3>
+              <p className="text-sm text-muted-foreground mt-1 font-mono">{t.cols}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Key Relationships</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm text-foreground overflow-x-auto">
+          <pre>{`campaigns.template_id → templates.id
+campaign_contacts.campaign_id → campaigns.id
+campaign_contacts.contact_id → contacts.id
+email_inbox.campaign_id → campaigns.id
+email_inbox.contact_id → contacts.id
+dm_campaigns.template_id → templates.id
+dm_campaign_contacts.dm_campaign_id → dm_campaigns.id
+dm_campaign_contacts.creator_id → creators.id
+follow_up_sequences.campaign_id → campaigns.id
+email_events.campaign_contact_id → campaign_contacts.id`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">RLS Policy Pattern</h2>
+        <p className="text-muted-foreground mb-3">All user-owned tables use Row-Level Security:</p>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm text-foreground">
+          <pre>{`-- SELECT / UPDATE / DELETE
+USING (auth.uid() = user_id)
+-- INSERT
+WITH CHECK (auth.uid() = user_id)`}</pre>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BackupScriptsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Backup SQL Scripts</h1>
+      <p className="text-muted-foreground">Copy these scripts to recreate the schema. Run in the Supabase SQL Editor.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Core Outreach Tables</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[400px] overflow-y-auto">
+          <pre>{`-- contacts
+CREATE TABLE IF NOT EXISTS public.contacts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, first_name text, last_name text, email text,
+  business_name text, phone text, instagram text, tiktok text, linkedin text,
+  timezone text DEFAULT 'UTC', status text DEFAULT 'pending',
+  tags text[] DEFAULT '{}', bounced boolean DEFAULT false,
+  unsubscribed boolean DEFAULT false, email_sent boolean DEFAULT false,
+  dm_sent boolean DEFAULT false, voicemail_sent boolean DEFAULT false,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
+
+-- templates
+CREATE TABLE IF NOT EXISTS public.templates (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, name text NOT NULL,
+  subject text, content text, type text DEFAULT 'email',
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+
+-- campaigns
+CREATE TABLE IF NOT EXISTS public.campaigns (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, name text NOT NULL,
+  status text DEFAULT 'draft', template_id uuid REFERENCES public.templates(id),
+  scheduled_at timestamptz, total_contacts int DEFAULT 0,
+  sent_count int DEFAULT 0, open_count int DEFAULT 0, click_count int DEFAULT 0,
+  ab_testing_enabled boolean DEFAULT false,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+
+-- email_inbox
+CREATE TABLE IF NOT EXISTS public.email_inbox (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, from_email text NOT NULL, to_email text NOT NULL,
+  subject text, body_text text, body_html text,
+  is_read boolean DEFAULT false, is_starred boolean DEFAULT false,
+  folder text DEFAULT 'inbox',
+  campaign_id uuid REFERENCES public.campaigns(id),
+  contact_id uuid REFERENCES public.contacts(id),
+  received_at timestamptz DEFAULT now(), created_at timestamptz DEFAULT now()
+);`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Sample Templates Trigger</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[250px] overflow-y-auto">
+          <pre>{`CREATE OR REPLACE FUNCTION public.create_sample_templates_for_user()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+BEGIN
+  INSERT INTO public.templates (user_id, name, subject, content, type) VALUES
+  (NEW.id, 'Welcome Introduction', 'Quick intro', '...', 'email'),
+  (NEW.id, 'Instagram Introduction', NULL, '...', 'instagram'),
+  (NEW.id, 'TikTok Creator Outreach', NULL, '...', 'tiktok'),
+  (NEW.id, 'LinkedIn Professional Intro', NULL, '...', 'linkedin');
+  RETURN NEW;
+END; $$;
+
+CREATE TRIGGER on_auth_user_created_templates
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.create_sample_templates_for_user();`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Functions</h2>
+        <div className="space-y-3">
+          {[
+            { name: 'send-campaign-emails', desc: 'Sends emails via Brevo/SendGrid with tracking' },
+            { name: 'track-email', desc: 'Records open & click events' },
+            { name: 'inbound-email-webhook', desc: 'Processes inbound emails, matches to campaigns' },
+            { name: 'match-email-replies', desc: 'Matches replies to campaign contacts' },
+            { name: 'process-follow-ups', desc: 'Processes scheduled follow-up sequences' },
+            { name: 'process-scheduled-campaigns', desc: 'Launches scheduled campaigns' },
+            { name: 'test-deliverability', desc: 'Tests email deliverability & spam score' },
+          ].map(fn => (
+            <div key={fn.name} className="p-3 border border-border rounded-lg flex items-start gap-3">
+              <Code className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <div>
+                <span className="font-mono text-foreground text-sm">{fn.name}</span>
+                <p className="text-xs text-muted-foreground">{fn.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     </div>
   );
