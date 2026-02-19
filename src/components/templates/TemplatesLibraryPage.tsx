@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { 
+import { useState, useCallback } from 'react';
+import {
   FileText, 
   Mail, 
   Clock, 
@@ -48,6 +48,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
 import { PageTemplateBuilder } from './PageTemplateBuilder';
 import { TemplatePreviewModal } from './TemplatePreviewModal';
+import { SequenceBuilder, type SequenceStep } from './SequenceBuilder';
 import type { Tables } from '@/integrations/supabase/types';
 
 interface TemplatesLibraryPageProps {
@@ -107,6 +108,7 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
     category: string;
     steps: number;
     featured: boolean;
+    sequence_data: SequenceStep[];
   } | null>(null);
 
   // Template preview modal state
@@ -187,11 +189,13 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
       category: 'Sales',
       steps: 1,
       featured: false,
+      sequence_data: [],
     });
     setShowCampaignEditor(true);
   };
 
   const handleEditCampaignTemplate = (template: CampaignTemplate) => {
+    const seqData = Array.isArray(template.sequence_data) ? template.sequence_data as SequenceStep[] : [];
     setEditingCampaignTemplate({
       id: template.id,
       name: template.name,
@@ -199,6 +203,7 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
       category: template.category || 'Sales',
       steps: template.steps || 1,
       featured: template.featured || false,
+      sequence_data: seqData,
     });
     setShowCampaignEditor(true);
   };
@@ -217,22 +222,27 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
   const handleSaveCampaignTemplate = () => {
     if (!editingCampaignTemplate) return;
 
+    const sequenceData = editingCampaignTemplate.sequence_data;
+    const stepCount = sequenceData.length || editingCampaignTemplate.steps;
+
     if (editingCampaignTemplate.id) {
       updateCampaignTemplate.mutate({
         id: editingCampaignTemplate.id,
         name: editingCampaignTemplate.name,
         description: editingCampaignTemplate.description,
         category: editingCampaignTemplate.category,
-        steps: editingCampaignTemplate.steps,
+        steps: stepCount,
         featured: editingCampaignTemplate.featured,
+        sequence_data: sequenceData,
       });
     } else {
       createCampaignTemplate.mutate({
         name: editingCampaignTemplate.name,
         description: editingCampaignTemplate.description,
         category: editingCampaignTemplate.category,
-        steps: editingCampaignTemplate.steps,
+        steps: stepCount,
         featured: editingCampaignTemplate.featured,
+        sequence_data: sequenceData,
       });
     }
     setShowCampaignEditor(false);
@@ -793,35 +803,26 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
 
       {/* Campaign Template Editor Modal */}
       <Dialog open={showCampaignEditor} onOpenChange={setShowCampaignEditor}>
-        <DialogContent className="max-w-lg">
+        <DialogContent className="max-w-3xl max-h-[90vh] overflow-y-auto">
           <DialogHeader>
             <DialogTitle>
               {editingCampaignTemplate?.id ? 'Edit Campaign Template' : 'Create Campaign Template'}
             </DialogTitle>
             <DialogDescription>
-              Define a reusable campaign sequence template.
+              Define a reusable campaign sequence with drag-and-drop steps.
             </DialogDescription>
           </DialogHeader>
-          <div className="space-y-4 py-4">
-            <div className="space-y-2">
-              <Label htmlFor="campaign-name">Template Name</Label>
-              <Input
-                id="campaign-name"
-                placeholder="e.g., Cold Outreach Sequence"
-                value={editingCampaignTemplate?.name || ''}
-                onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, name: e.target.value } : null)}
-              />
-            </div>
-            <div className="space-y-2">
-              <Label htmlFor="campaign-description">Description</Label>
-              <Textarea
-                id="campaign-description"
-                placeholder="Brief description of when to use this template..."
-                value={editingCampaignTemplate?.description || ''}
-                onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, description: e.target.value } : null)}
-              />
-            </div>
-            <div className="grid grid-cols-2 gap-4">
+          <div className="space-y-5 py-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div className="space-y-2">
+                <Label htmlFor="campaign-name">Template Name</Label>
+                <Input
+                  id="campaign-name"
+                  placeholder="e.g., Cold Outreach Sequence"
+                  value={editingCampaignTemplate?.name || ''}
+                  onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, name: e.target.value } : null)}
+                />
+              </div>
               <div className="space-y-2">
                 <Label htmlFor="campaign-category">Category</Label>
                 <select
@@ -835,17 +836,16 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                   <option value="Recruiting">Recruiting</option>
                 </select>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="campaign-steps">Number of Steps</Label>
-                <Input
-                  id="campaign-steps"
-                  type="number"
-                  min={1}
-                  max={20}
-                  value={editingCampaignTemplate?.steps || 1}
-                  onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, steps: parseInt(e.target.value) || 1 } : null)}
-                />
-              </div>
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="campaign-description">Description</Label>
+              <Textarea
+                id="campaign-description"
+                placeholder="Brief description of when to use this template..."
+                rows={2}
+                value={editingCampaignTemplate?.description || ''}
+                onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, description: e.target.value } : null)}
+              />
             </div>
             <div className="flex items-center gap-2">
               <input
@@ -853,11 +853,23 @@ export function TemplatesLibraryPage({ onSelectTemplate }: TemplatesLibraryPageP
                 id="campaign-featured"
                 checked={editingCampaignTemplate?.featured || false}
                 onChange={(e) => setEditingCampaignTemplate(prev => prev ? { ...prev, featured: e.target.checked } : null)}
-                className="h-4 w-4 rounded border-gray-300"
+                className="h-4 w-4 rounded border-input"
               />
               <Label htmlFor="campaign-featured" className="text-sm font-normal">
                 Mark as featured template
               </Label>
+            </div>
+
+            {/* Sequence Builder */}
+            <div className="border-t border-border pt-4">
+              <SequenceBuilder
+                steps={editingCampaignTemplate?.sequence_data || []}
+                onChange={(newSteps) =>
+                  setEditingCampaignTemplate(prev =>
+                    prev ? { ...prev, sequence_data: newSteps, steps: newSteps.length || prev.steps } : null
+                  )
+                }
+              />
             </div>
           </div>
           <DialogFooter>

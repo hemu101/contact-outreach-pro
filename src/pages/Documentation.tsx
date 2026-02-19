@@ -6,6 +6,7 @@ import {
   Upload, MousePointer, ArrowLeft, Shield, Clock, MessageSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 
@@ -1179,61 +1180,202 @@ function UnifiedInboxDocs() {
 }
 
 function DatabaseSchemaDocs() {
+  const tables = [
+    { name: 'profiles', cols: 'id (uuid PK = auth.uid), email (text), full_name (text), avatar_url (text), created_at, updated_at', rls: 'SELECT/UPDATE by owner' },
+    { name: 'contacts', cols: 'id (uuid PK), user_id (uuid), first_name, last_name, email, business_name, phone, instagram, tiktok, linkedin, job_title, location, city, state, country, timezone (default UTC), status (default pending), tags (text[]), bounced (bool), bounce_type, bounced_at, unsubscribed (bool), unsubscribed_at, email_sent, dm_sent, voicemail_sent, created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'templates', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), subject (text), content (text), type (text: email|instagram|tiktok|linkedin|voicemail), created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'campaigns', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), status (default draft), template_id (uuid FK→templates), scheduled_at, started_at, completed_at, total_contacts (int), sent_count, open_count, click_count, ab_testing_enabled (bool), variant_a/b_subject, variant_a/b_content, variant_a/b_sent/opens/clicks, use_recipient_timezone (bool), optimal_send_hour (int), created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'campaign_contacts', cols: 'id (uuid PK), campaign_id (uuid FK→campaigns), contact_id (uuid FK→contacts), status (default pending), sent_at, opened_at, clicked_at, bounced_at, bounce_type, error_message, variant (text)', rls: 'CRUD via campaigns.user_id join' },
+    { name: 'campaign_templates', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), description (text), category (default Sales), steps (int default 1), featured (bool), sequence_data (jsonb default []), created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'campaign_send_logs', cols: 'id (uuid PK), campaign_id (uuid FK→campaigns), campaign_contact_id (uuid FK→campaign_contacts), event_type (text), status (text), error_message, error_code, provider, message_id, metadata (jsonb), ip_address, user_agent, created_at', rls: 'INSERT public; SELECT via campaigns join' },
+    { name: 'email_events', cols: 'id (uuid PK), campaign_contact_id (uuid FK→campaign_contacts), event_type (text), metadata (jsonb), ip_address, user_agent, created_at', rls: 'INSERT public; SELECT via campaigns join' },
+    { name: 'email_inbox', cols: 'id (uuid PK), user_id (uuid), from_email (text NOT NULL), from_name, to_email (text NOT NULL), subject, body_text, body_html, is_read (bool), is_starred (bool), folder (default inbox), message_id, in_reply_to, campaign_id (FK→campaigns), campaign_contact_id (FK→campaign_contacts), contact_id (FK→contacts), received_at, created_at', rls: 'Full CRUD by owner + public INSERT' },
+    { name: 'email_settings', cols: 'id (uuid PK), user_id (uuid), smtp_host, smtp_port (default 587), smtp_user, smtp_password, brevo_api_key, sendgrid_key, twilio_sid, twilio_token, twilio_number, created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'email_warmup_schedules', cols: 'id (uuid PK), user_id (uuid), domain (text), warmup_start_date (date), current_daily_limit (int default 10), target_daily_limit (int default 500), increment_per_day (int default 10), emails_sent_today (int), last_send_date (date), status (default active), created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'email_deliverability_tests', cols: 'id (uuid PK), user_id (uuid), email (text), test_type (default inbox_placement), status (default pending), spam_score (numeric), inbox_placement (text), result (jsonb), authentication_results (jsonb), warnings (text[]), completed_at, created_at', rls: 'Full CRUD by owner' },
+    { name: 'follow_up_sequences', cols: 'id (uuid PK), user_id (uuid), campaign_id (uuid FK→campaigns), template_id (uuid FK→templates), name (text NOT NULL), trigger_type (default opened_not_clicked), delay_hours (int default 24), subject, content, status (default active), created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'follow_up_queue', cols: 'id (uuid PK), sequence_id (uuid FK→follow_up_sequences), campaign_contact_id (uuid FK→campaign_contacts), scheduled_at (timestamptz), sent_at, status (default pending), created_at', rls: 'CRUD via sequences.user_id join' },
+    { name: 'dm_campaigns', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), platform (text NOT NULL), status (default draft), template_id (uuid FK→templates), total_contacts, sent_count, reply_count, scheduled_at, started_at, completed_at, created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'dm_campaign_contacts', cols: 'id (uuid PK), dm_campaign_id (uuid FK→dm_campaigns), creator_id (uuid FK→creators), status (default pending), sent_at, replied_at, error_message, created_at', rls: 'SELECT/INSERT/UPDATE via dm_campaigns join' },
+    { name: 'creators', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), handle (text NOT NULL), platform (default instagram), bio, avatar, followers, engagement, avg_likes, category (text[]), location, recent_post, verified (bool), created_at, updated_at', rls: 'SELECT public; INSERT/UPDATE/DELETE by owner' },
+    { name: 'activity_logs', cols: 'id (uuid PK), user_id (uuid), entity_type (text), entity_id (uuid), action_type (text), metadata (jsonb), created_at', rls: 'INSERT public + by owner; SELECT by owner' },
+    { name: 'page_views', cols: 'id (uuid PK), user_id (uuid), page_name (text), path (text), metadata (jsonb), created_at', rls: 'INSERT/SELECT by owner' },
+    { name: 'country_timezones', cols: 'id (uuid PK), country_code (text), country_name (text), timezone (text), utc_offset (int)', rls: 'SELECT public (read-only)' },
+    { name: 'ads_campaigns', cols: 'id (uuid PK), user_id (uuid), name, status, platforms (text[]), budget, spent, reach, impressions, clicks, ctr, cpc, results, result_type, objective, start_date, end_date, target_audience (jsonb), ad_creative (jsonb), created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'campaign_invitations', cols: 'id (uuid PK), brand_user_id (uuid), campaign_id (FK→ads_campaigns), creator_id (FK→creators), message, budget_offered, deliverables (jsonb), deadline, status, responded_at, created_at, updated_at', rls: 'INSERT/UPDATE/SELECT by brand + SELECT/UPDATE by creator' },
+    { name: 'collaboration_contracts', cols: 'id (uuid PK), brand_user_id (uuid), creator_id (FK→creators), invitation_id (FK→campaign_invitations), title, description, terms, deliverables (jsonb), payment_amount, payment_currency, payment_terms, start_date, end_date, status, brand_signature, brand_signed_at, creator_signature, creator_signed_at, exclusivity_clause, usage_rights, cancellation_terms, expires_at, created_at, updated_at', rls: 'ALL by brand; SELECT/UPDATE by creator' },
+    { name: 'contract_templates', cols: 'id (uuid PK), user_id (uuid), name, description, terms_template, deliverables_template (jsonb), payment_terms_template, exclusivity_template, usage_rights_template, cancellation_template, is_default (bool), created_at, updated_at', rls: 'ALL by owner' },
+    { name: 'contract_activity', cols: 'id (uuid PK), contract_id (FK→collaboration_contracts), user_id (uuid), action (text), details (jsonb), ip_address, user_agent, created_at', rls: 'INSERT/SELECT by contract parties' },
+    { name: 'content_posts', cols: 'id (uuid PK), user_id (uuid), title, content, type (default image), status (default draft), platforms (text[]), media_urls (text[]), thumbnail_url, scheduled_for, published_at, views_count, likes_count, comments_count, shares_count, created_at, updated_at', rls: 'CRUD by owner; SELECT published' },
+    { name: 'content_comments', cols: 'id (uuid PK), post_id (FK→content_posts), user_id (uuid), content (text), created_at', rls: 'SELECT public; INSERT/DELETE by owner' },
+    { name: 'content_reports', cols: 'id (uuid PK), post_id (FK→content_posts), user_id (uuid), reason (text), description, status (default pending), created_at', rls: 'INSERT/SELECT by owner' },
+    { name: 'conversations', cols: 'id (uuid PK), participant_ids (uuid[]), platform (default messenger), last_message, last_message_at, created_at, updated_at', rls: 'INSERT/UPDATE/SELECT by participant' },
+    { name: 'messages', cols: 'id (uuid PK), conversation_id (FK→conversations), sender_id (uuid), content (text), is_read (bool), created_at', rls: 'INSERT/SELECT by conversation participant' },
+    { name: 'saved_creators', cols: 'id (uuid PK), user_id (uuid), creator_id (FK→creators), created_at', rls: 'CRUD by owner' },
+    { name: 'saved_filters', cols: 'id (uuid PK), user_id (uuid), name (text), page (text), filters (jsonb), is_default (bool), created_at, updated_at', rls: 'CRUD by owner' },
+    { name: 'business_details', cols: 'id (uuid PK), user_id (uuid), company_name, billing_address, city, state, postal_code, country, phone, tax_id, created_at, updated_at', rls: 'INSERT/UPDATE/SELECT by owner' },
+    { name: 'credit_transactions', cols: 'id (uuid PK), user_id (uuid), amount (int), type (text), tool_used, description, created_at', rls: 'INSERT/SELECT by owner' },
+    { name: 'signatures', cols: 'id (uuid PK), user_id (uuid), document_name, document_url, recipient_email, recipient_name, signature_data, signed_at, expires_at, status (default pending), created_at, updated_at', rls: 'CRUD by owner' },
+    { name: 'signature_templates', cols: 'id (uuid PK), user_id (uuid), name, content, fields (jsonb), created_at, updated_at', rls: 'CRUD by owner' },
+    { name: 'portfolio_items', cols: 'id (uuid PK), creator_id (FK→creators), title, description, image_url (text NOT NULL), link, created_at, updated_at', rls: 'CRUD by creator owner' },
+    { name: 'creator_earnings', cols: 'id (uuid PK), creator_id (FK→creators), campaign_invitation_id (FK→campaign_invitations), amount (numeric NOT NULL), currency (default USD), status (default pending), paid_at, created_at', rls: 'SELECT by creator' },
+    { name: 'processing_history', cols: 'id (uuid PK), user_id (uuid), tool_id (text), file_name, file_size, output_format, credits_used, metadata (jsonb), status, created_at', rls: 'CRUD by owner' },
+  ];
+
   return (
     <div className="space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-foreground">Database Schema Reference</h1>
+      <p className="text-muted-foreground">Complete reference for all {tables.length} tables with columns, types, defaults, and RLS policies.</p>
 
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Core Tables</h2>
-        <div className="space-y-4">
+        <h2 className="text-2xl font-semibold text-foreground mb-2">Connection Info</h2>
+        <p className="text-sm text-muted-foreground mb-4">Use these to connect from external tools or your backend.</p>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto space-y-1">
+          <p><span className="text-muted-foreground">Project ID:</span> syqawvakxxfaohcgrenn</p>
+          <p><span className="text-muted-foreground">API URL:</span> https://syqawvakxxfaohcgrenn.supabase.co</p>
+          <p><span className="text-muted-foreground">DB Host:</span> db.syqawvakxxfaohcgrenn.supabase.co</p>
+          <p><span className="text-muted-foreground">DB Port:</span> 5432</p>
+          <p><span className="text-muted-foreground">DB Name:</span> postgres</p>
+          <p><span className="text-muted-foreground">Anon Key:</span> eyJhbGciOiJIUzI1NiIs... (see .env)</p>
+          <p className="text-muted-foreground mt-2">// Use SUPABASE_DB_URL secret for direct Postgres connections</p>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">All Tables ({tables.length})</h2>
+        <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
+          {tables.map(t => (
+            <details key={t.name} className="border border-border rounded-lg group">
+              <summary className="p-3 cursor-pointer hover:bg-secondary/50 flex items-center justify-between">
+                <span className="font-semibold text-foreground font-mono text-sm">{t.name}</span>
+                <Badge variant="outline" className="text-[10px]">{t.rls}</Badge>
+              </summary>
+              <div className="px-3 pb-3 text-xs text-muted-foreground font-mono leading-relaxed">
+                {t.cols}
+              </div>
+            </details>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Foreign Key Relationships</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto">
+          <pre>{`campaigns.template_id → templates.id
+campaign_contacts.campaign_id → campaigns.id
+campaign_contacts.contact_id → contacts.id
+campaign_send_logs.campaign_id → campaigns.id
+campaign_send_logs.campaign_contact_id → campaign_contacts.id
+email_events.campaign_contact_id → campaign_contacts.id
+email_inbox.campaign_id → campaigns.id
+email_inbox.contact_id → contacts.id
+email_inbox.campaign_contact_id → campaign_contacts.id
+follow_up_sequences.campaign_id → campaigns.id
+follow_up_sequences.template_id → templates.id
+follow_up_queue.sequence_id → follow_up_sequences.id
+follow_up_queue.campaign_contact_id → campaign_contacts.id
+dm_campaigns.template_id → templates.id
+dm_campaign_contacts.dm_campaign_id → dm_campaigns.id
+dm_campaign_contacts.creator_id → creators.id
+campaign_invitations.campaign_id → ads_campaigns.id
+campaign_invitations.creator_id → creators.id
+collaboration_contracts.creator_id → creators.id
+collaboration_contracts.invitation_id → campaign_invitations.id
+contract_activity.contract_id → collaboration_contracts.id
+content_comments.post_id → content_posts.id
+content_reports.post_id → content_posts.id
+messages.conversation_id → conversations.id
+saved_creators.creator_id → creators.id
+portfolio_items.creator_id → creators.id
+creator_earnings.creator_id → creators.id
+creator_earnings.campaign_invitation_id → campaign_invitations.id`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database Functions</h2>
+        <div className="space-y-3">
           {[
-            { name: 'contacts', cols: 'id, user_id, first_name, last_name, email, business_name, phone, instagram, tiktok, linkedin, timezone, status, tags[], bounced, unsubscribed' },
-            { name: 'templates', cols: 'id, user_id, name, subject, content, type (email|instagram|tiktok|linkedin|voicemail)' },
-            { name: 'campaigns', cols: 'id, user_id, name, status, template_id, scheduled_at, sent_count, open_count, click_count, ab_testing fields' },
-            { name: 'campaign_contacts', cols: 'id, campaign_id, contact_id, status, sent_at, opened_at, clicked_at, bounced_at, variant' },
-            { name: 'campaign_templates', cols: 'id, user_id, name, description, category, steps, featured, sequence_data (jsonb)' },
-            { name: 'email_inbox', cols: 'id, user_id, from_email, from_name, subject, body_text, body_html, is_read, is_starred, folder, campaign_id, contact_id' },
-            { name: 'dm_campaigns', cols: 'id, user_id, name, platform, status, template_id, sent_count, reply_count' },
-            { name: 'dm_campaign_contacts', cols: 'id, dm_campaign_id, creator_id, status, sent_at, replied_at' },
-            { name: 'creators', cols: 'id, user_id, name, handle, platform, followers, engagement, category[], verified' },
-            { name: 'email_settings', cols: 'id, user_id, smtp_host, smtp_port, smtp_user, smtp_password, brevo_api_key, sendgrid_key' },
-            { name: 'follow_up_sequences', cols: 'id, user_id, campaign_id, name, trigger_type, delay_hours, subject, content' },
-            { name: 'email_warmup_schedules', cols: 'id, user_id, domain, current_daily_limit, target_daily_limit, increment_per_day, status' },
-            { name: 'activity_logs', cols: 'id, user_id, entity_type, entity_id, action_type, metadata (jsonb)' },
-            { name: 'profiles', cols: 'id (= auth.uid), email, full_name, avatar_url' },
-          ].map(t => (
-            <div key={t.name} className="p-4 border border-border rounded-lg">
-              <h3 className="font-semibold text-foreground font-mono">{t.name}</h3>
-              <p className="text-sm text-muted-foreground mt-1 font-mono">{t.cols}</p>
+            { name: 'handle_new_user()', desc: 'Trigger on auth.users INSERT — creates profile, assigns role, gives 300 credits, creates creator profile if role=creator', type: 'TRIGGER' },
+            { name: 'create_sample_templates_for_user()', desc: 'Trigger on auth.users INSERT — seeds 13 email/DM templates + 4 campaign templates for new users', type: 'TRIGGER' },
+            { name: 'create_default_contract_templates()', desc: 'Trigger on auth.users INSERT — seeds 3 default contract templates', type: 'TRIGGER' },
+            { name: 'update_updated_at_column()', desc: 'Generic trigger to set updated_at = now() before UPDATE on any attached table', type: 'TRIGGER' },
+            { name: 'deduct_credits(user_id, amount, tool, desc)', desc: 'Deducts credits from user balance. Admins bypass deduction. Returns boolean success.', type: 'FUNCTION' },
+            { name: 'has_role(user_id, role)', desc: 'Security definer function checking user_roles. Used in RLS policies to avoid recursion.', type: 'FUNCTION' },
+          ].map(fn => (
+            <div key={fn.name} className="p-3 border border-border rounded-lg">
+              <div className="flex items-center gap-2 mb-1">
+                <Code className="w-4 h-4 text-primary shrink-0" />
+                <span className="font-mono text-sm text-foreground font-semibold">{fn.name}</span>
+                <Badge variant="outline" className="text-[10px]">{fn.type}</Badge>
+              </div>
+              <p className="text-xs text-muted-foreground ml-6">{fn.desc}</p>
             </div>
           ))}
         </div>
       </div>
 
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Key Relationships</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm text-foreground overflow-x-auto">
-          <pre>{`campaigns.template_id → templates.id
-campaign_contacts.campaign_id → campaigns.id
-campaign_contacts.contact_id → contacts.id
-email_inbox.campaign_id → campaigns.id
-email_inbox.contact_id → contacts.id
-dm_campaigns.template_id → templates.id
-dm_campaign_contacts.dm_campaign_id → dm_campaigns.id
-dm_campaign_contacts.creator_id → creators.id
-follow_up_sequences.campaign_id → campaigns.id
-email_events.campaign_contact_id → campaign_contacts.id`}</pre>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Storage Buckets</h2>
+        <div className="space-y-2">
+          {[
+            { name: 'avatars', public: true, desc: 'User and creator profile images' },
+            { name: 'portfolio', public: true, desc: 'Creator portfolio images' },
+            { name: 'documents', public: false, desc: 'Private documents and contracts' },
+          ].map(b => (
+            <div key={b.name} className="p-3 border border-border rounded-lg flex items-center justify-between">
+              <div>
+                <span className="font-mono text-sm text-foreground">{b.name}</span>
+                <p className="text-xs text-muted-foreground">{b.desc}</p>
+              </div>
+              <Badge variant={b.public ? 'secondary' : 'outline'} className="text-[10px]">
+                {b.public ? 'Public' : 'Private'}
+              </Badge>
+            </div>
+          ))}
         </div>
       </div>
 
       <div className="glass-card rounded-xl p-6">
         <h2 className="text-2xl font-semibold text-foreground mb-4">RLS Policy Pattern</h2>
         <p className="text-muted-foreground mb-3">All user-owned tables use Row-Level Security:</p>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm text-foreground">
-          <pre>{`-- SELECT / UPDATE / DELETE
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground">
+          <pre>{`-- Direct ownership
 USING (auth.uid() = user_id)
--- INSERT
-WITH CHECK (auth.uid() = user_id)`}</pre>
+WITH CHECK (auth.uid() = user_id)
+
+-- Via join (e.g. campaign_contacts)
+USING (EXISTS (
+  SELECT 1 FROM campaigns
+  WHERE campaigns.id = campaign_contacts.campaign_id
+  AND campaigns.user_id = auth.uid()
+))
+
+-- Admin check (avoids recursion)
+SELECT public.has_role(auth.uid(), 'admin')`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Functions</h2>
+        <div className="space-y-3">
+          {[
+            { name: 'send-campaign-emails', desc: 'Sends emails via Brevo/SendGrid with open/click tracking pixels' },
+            { name: 'track-email', desc: 'Records open & click events from tracking pixels' },
+            { name: 'inbound-email-webhook', desc: 'Processes inbound emails, matches to campaigns & contacts' },
+            { name: 'match-email-replies', desc: 'Matches reply emails to campaign contacts via message_id/in_reply_to' },
+            { name: 'process-follow-ups', desc: 'Checks follow_up_queue and sends scheduled follow-up emails' },
+            { name: 'process-scheduled-campaigns', desc: 'Launches campaigns at their scheduled_at time' },
+            { name: 'test-deliverability', desc: 'Tests email deliverability, SPF/DKIM/DMARC, and spam score' },
+          ].map(fn => (
+            <div key={fn.name} className="p-3 border border-border rounded-lg flex items-start gap-3">
+              <Code className="w-4 h-4 text-primary mt-0.5 shrink-0" />
+              <div>
+                <span className="font-mono text-foreground text-sm">{fn.name}</span>
+                <p className="text-xs text-muted-foreground">{fn.desc}</p>
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     </div>
@@ -1244,20 +1386,24 @@ function BackupScriptsDocs() {
   return (
     <div className="space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-foreground">Backup SQL Scripts</h1>
-      <p className="text-muted-foreground">Copy these scripts to recreate the schema. Run in the Supabase SQL Editor.</p>
+      <p className="text-muted-foreground">Copy these scripts to recreate the schema. Run in the Supabase SQL Editor or any PostgreSQL client.</p>
 
       <div className="glass-card rounded-xl p-6">
         <h2 className="text-2xl font-semibold text-foreground mb-4">Core Outreach Tables</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[400px] overflow-y-auto">
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[500px] overflow-y-auto">
           <pre>{`-- contacts
 CREATE TABLE IF NOT EXISTS public.contacts (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, first_name text, last_name text, email text,
+  user_id uuid NOT NULL,
+  first_name text, last_name text, email text,
   business_name text, phone text, instagram text, tiktok text, linkedin text,
+  job_title text, location text, city text, state text, country text,
   timezone text DEFAULT 'UTC', status text DEFAULT 'pending',
   tags text[] DEFAULT '{}', bounced boolean DEFAULT false,
-  unsubscribed boolean DEFAULT false, email_sent boolean DEFAULT false,
-  dm_sent boolean DEFAULT false, voicemail_sent boolean DEFAULT false,
+  bounce_type text, bounced_at timestamptz,
+  unsubscribed boolean DEFAULT false, unsubscribed_at timestamptz,
+  email_sent boolean DEFAULT false, dm_sent boolean DEFAULT false,
+  voicemail_sent boolean DEFAULT false,
   created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
 );
 ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
@@ -1269,49 +1415,307 @@ CREATE TABLE IF NOT EXISTS public.templates (
   subject text, content text, type text DEFAULT 'email',
   created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
 );
+ALTER TABLE public.templates ENABLE ROW LEVEL SECURITY;
 
 -- campaigns
 CREATE TABLE IF NOT EXISTS public.campaigns (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid NOT NULL, name text NOT NULL,
   status text DEFAULT 'draft', template_id uuid REFERENCES public.templates(id),
-  scheduled_at timestamptz, total_contacts int DEFAULT 0,
-  sent_count int DEFAULT 0, open_count int DEFAULT 0, click_count int DEFAULT 0,
+  scheduled_at timestamptz, started_at timestamptz, completed_at timestamptz,
+  total_contacts int DEFAULT 0, sent_count int DEFAULT 0,
+  open_count int DEFAULT 0, click_count int DEFAULT 0,
   ab_testing_enabled boolean DEFAULT false,
+  variant_a_subject text, variant_a_content text, variant_a_sent int DEFAULT 0,
+  variant_a_opens int DEFAULT 0, variant_a_clicks int DEFAULT 0,
+  variant_b_subject text, variant_b_content text, variant_b_sent int DEFAULT 0,
+  variant_b_opens int DEFAULT 0, variant_b_clicks int DEFAULT 0,
+  use_recipient_timezone boolean DEFAULT false, optimal_send_hour int DEFAULT 9,
   created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
 );
+ALTER TABLE public.campaigns ENABLE ROW LEVEL SECURITY;
+
+-- campaign_contacts
+CREATE TABLE IF NOT EXISTS public.campaign_contacts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  campaign_id uuid NOT NULL REFERENCES public.campaigns(id),
+  contact_id uuid NOT NULL REFERENCES public.contacts(id),
+  status text DEFAULT 'pending', variant text,
+  sent_at timestamptz, opened_at timestamptz, clicked_at timestamptz,
+  bounced_at timestamptz, bounce_type text, error_message text
+);
+ALTER TABLE public.campaign_contacts ENABLE ROW LEVEL SECURITY;
+
+-- campaign_templates
+CREATE TABLE IF NOT EXISTS public.campaign_templates (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, name text NOT NULL,
+  description text, category text DEFAULT 'Sales',
+  steps int DEFAULT 1, featured boolean DEFAULT false,
+  sequence_data jsonb DEFAULT '[]'::jsonb,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.campaign_templates ENABLE ROW LEVEL SECURITY;
+
+-- campaign_send_logs
+CREATE TABLE IF NOT EXISTS public.campaign_send_logs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  campaign_id uuid NOT NULL REFERENCES public.campaigns(id),
+  campaign_contact_id uuid NOT NULL REFERENCES public.campaign_contacts(id),
+  event_type text NOT NULL, status text NOT NULL,
+  error_message text, error_code text, provider text,
+  message_id text, metadata jsonb DEFAULT '{}'::jsonb,
+  ip_address text, user_agent text,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.campaign_send_logs ENABLE ROW LEVEL SECURITY;
+
+-- email_events
+CREATE TABLE IF NOT EXISTS public.email_events (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  campaign_contact_id uuid NOT NULL REFERENCES public.campaign_contacts(id),
+  event_type text NOT NULL, metadata jsonb DEFAULT '{}'::jsonb,
+  ip_address text, user_agent text,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.email_events ENABLE ROW LEVEL SECURITY;
 
 -- email_inbox
 CREATE TABLE IF NOT EXISTS public.email_inbox (
   id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
   user_id uuid NOT NULL, from_email text NOT NULL, to_email text NOT NULL,
-  subject text, body_text text, body_html text,
+  from_name text, subject text, body_text text, body_html text,
   is_read boolean DEFAULT false, is_starred boolean DEFAULT false,
-  folder text DEFAULT 'inbox',
+  folder text DEFAULT 'inbox', message_id text, in_reply_to text,
   campaign_id uuid REFERENCES public.campaigns(id),
+  campaign_contact_id uuid REFERENCES public.campaign_contacts(id),
   contact_id uuid REFERENCES public.contacts(id),
   received_at timestamptz DEFAULT now(), created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.email_inbox ENABLE ROW LEVEL SECURITY;
+
+-- email_settings
+CREATE TABLE IF NOT EXISTS public.email_settings (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL,
+  smtp_host text, smtp_port text DEFAULT '587', smtp_user text, smtp_password text,
+  brevo_api_key text, sendgrid_key text,
+  twilio_sid text, twilio_token text, twilio_number text,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.email_settings ENABLE ROW LEVEL SECURITY;
+
+-- email_warmup_schedules
+CREATE TABLE IF NOT EXISTS public.email_warmup_schedules (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, domain text NOT NULL,
+  warmup_start_date date DEFAULT CURRENT_DATE,
+  current_daily_limit int DEFAULT 10, target_daily_limit int DEFAULT 500,
+  increment_per_day int DEFAULT 10, emails_sent_today int DEFAULT 0,
+  last_send_date date, status text DEFAULT 'active',
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.email_warmup_schedules ENABLE ROW LEVEL SECURITY;
+
+-- email_deliverability_tests
+CREATE TABLE IF NOT EXISTS public.email_deliverability_tests (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, email text NOT NULL,
+  test_type text DEFAULT 'inbox_placement', status text DEFAULT 'pending',
+  spam_score numeric, inbox_placement text,
+  result jsonb DEFAULT '{}'::jsonb, authentication_results jsonb DEFAULT '{}'::jsonb,
+  warnings text[], completed_at timestamptz,
+  created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.email_deliverability_tests ENABLE ROW LEVEL SECURITY;`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Follow-ups & DM Tables</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[400px] overflow-y-auto">
+          <pre>{`-- follow_up_sequences
+CREATE TABLE IF NOT EXISTS public.follow_up_sequences (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, campaign_id uuid REFERENCES public.campaigns(id),
+  template_id uuid REFERENCES public.templates(id),
+  name text NOT NULL, trigger_type text DEFAULT 'opened_not_clicked',
+  delay_hours int DEFAULT 24, subject text, content text,
+  status text DEFAULT 'active',
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+
+-- follow_up_queue
+CREATE TABLE IF NOT EXISTS public.follow_up_queue (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  sequence_id uuid NOT NULL REFERENCES public.follow_up_sequences(id),
+  campaign_contact_id uuid NOT NULL REFERENCES public.campaign_contacts(id),
+  scheduled_at timestamptz NOT NULL, sent_at timestamptz,
+  status text DEFAULT 'pending', created_at timestamptz DEFAULT now()
+);
+
+-- dm_campaigns
+CREATE TABLE IF NOT EXISTS public.dm_campaigns (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, name text NOT NULL, platform text NOT NULL,
+  status text DEFAULT 'draft', template_id uuid REFERENCES public.templates(id),
+  total_contacts int DEFAULT 0, sent_count int DEFAULT 0, reply_count int DEFAULT 0,
+  scheduled_at timestamptz, started_at timestamptz, completed_at timestamptz,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+
+-- dm_campaign_contacts
+CREATE TABLE IF NOT EXISTS public.dm_campaign_contacts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  dm_campaign_id uuid NOT NULL REFERENCES public.dm_campaigns(id),
+  creator_id uuid NOT NULL REFERENCES public.creators(id),
+  status text DEFAULT 'pending', sent_at timestamptz, replied_at timestamptz,
+  error_message text, created_at timestamptz DEFAULT now()
+);
+
+-- creators
+CREATE TABLE IF NOT EXISTS public.creators (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid, name text NOT NULL, handle text NOT NULL,
+  platform text DEFAULT 'instagram', bio text, avatar text,
+  followers text, engagement text, avg_likes text,
+  category text[], location text, recent_post text,
+  verified boolean DEFAULT false,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
 );`}</pre>
         </div>
       </div>
 
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Sample Templates Trigger</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[250px] overflow-y-auto">
-          <pre>{`CREATE OR REPLACE FUNCTION public.create_sample_templates_for_user()
-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER AS $$
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Collaboration & Content Tables</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[400px] overflow-y-auto">
+          <pre>{`-- ads_campaigns
+CREATE TABLE IF NOT EXISTS public.ads_campaigns (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, name text NOT NULL,
+  status text DEFAULT 'draft', platforms text[] DEFAULT ARRAY['facebook'],
+  budget numeric, spent numeric DEFAULT 0, objective text,
+  reach int DEFAULT 0, impressions int DEFAULT 0, clicks int DEFAULT 0,
+  ctr numeric DEFAULT 0, cpc numeric DEFAULT 0,
+  results int DEFAULT 0, result_type text,
+  start_date date, end_date date,
+  target_audience jsonb, ad_creative jsonb,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+
+-- collaboration_contracts
+CREATE TABLE IF NOT EXISTS public.collaboration_contracts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  brand_user_id uuid NOT NULL,
+  creator_id uuid REFERENCES public.creators(id),
+  invitation_id uuid REFERENCES public.campaign_invitations(id),
+  title text NOT NULL, description text, terms text NOT NULL,
+  deliverables jsonb DEFAULT '[]'::jsonb,
+  payment_amount numeric, payment_currency text DEFAULT 'USD',
+  payment_terms text, start_date date, end_date date,
+  status text DEFAULT 'draft',
+  brand_signature text, brand_signed_at timestamptz,
+  creator_signature text, creator_signed_at timestamptz,
+  exclusivity_clause text, usage_rights text,
+  cancellation_terms text, expires_at timestamptz,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+
+-- content_posts
+CREATE TABLE IF NOT EXISTS public.content_posts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, title text NOT NULL,
+  content text, type text DEFAULT 'image', status text DEFAULT 'draft',
+  platforms text[] DEFAULT ARRAY['instagram'],
+  media_urls text[] DEFAULT ARRAY[]::text[],
+  thumbnail_url text, scheduled_for timestamptz, published_at timestamptz,
+  views_count int DEFAULT 0, likes_count int DEFAULT 0,
+  comments_count int DEFAULT 0, shares_count int DEFAULT 0,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+
+-- profiles
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id uuid PRIMARY KEY, -- matches auth.users.id
+  email text, full_name text, avatar_url text,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+
+-- activity_logs
+CREATE TABLE IF NOT EXISTS public.activity_logs (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, entity_type text NOT NULL,
+  entity_id uuid, action_type text NOT NULL,
+  metadata jsonb DEFAULT '{}'::jsonb,
+  created_at timestamptz DEFAULT now()
+);`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Stored Procedures & Triggers</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[400px] overflow-y-auto">
+          <pre>{`-- Auto-update timestamps trigger
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+BEGIN NEW.updated_at = now(); RETURN NEW; END; $$;
+
+-- Attach to tables:
+CREATE TRIGGER update_contacts_updated_at BEFORE UPDATE ON public.contacts
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+CREATE TRIGGER update_templates_updated_at BEFORE UPDATE ON public.templates
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+CREATE TRIGGER update_campaigns_updated_at BEFORE UPDATE ON public.campaigns
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- New user handler (creates profile + role + credits)
+CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE user_role TEXT;
 BEGIN
-  INSERT INTO public.templates (user_id, name, subject, content, type) VALUES
-  (NEW.id, 'Welcome Introduction', 'Quick intro', '...', 'email'),
-  (NEW.id, 'Instagram Introduction', NULL, '...', 'instagram'),
-  (NEW.id, 'TikTok Creator Outreach', NULL, '...', 'tiktok'),
-  (NEW.id, 'LinkedIn Professional Intro', NULL, '...', 'linkedin');
+  user_role := COALESCE(NEW.raw_user_meta_data ->> 'role', 'user');
+  INSERT INTO public.profiles (id, email, full_name)
+  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data ->> 'full_name');
+  INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, user_role::app_role);
+  INSERT INTO public.user_credits (user_id, balance, total_purchased) VALUES (NEW.id, 300, 0);
+  IF user_role = 'creator' THEN
+    INSERT INTO public.creators (user_id, name, handle, bio)
+    VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data ->> 'full_name', 'Creator'),
+            LOWER(REPLACE(COALESCE(NEW.raw_user_meta_data ->> 'full_name', 'creator'), ' ', '_'))
+            || '_' || SUBSTRING(NEW.id::text, 1, 8), '');
+  END IF;
   RETURN NEW;
 END; $$;
 
-CREATE TRIGGER on_auth_user_created_templates
-  AFTER INSERT ON auth.users
-  FOR EACH ROW EXECUTE FUNCTION public.create_sample_templates_for_user();`}</pre>
+-- Credit deduction function
+CREATE OR REPLACE FUNCTION public.deduct_credits(
+  p_user_id uuid, p_amount int, p_tool text, p_description text
+) RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE current_balance INTEGER; is_admin BOOLEAN;
+BEGIN
+  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = p_user_id AND role = 'admin') INTO is_admin;
+  IF is_admin THEN
+    INSERT INTO public.credit_transactions (user_id, amount, type, tool_used, description)
+    VALUES (p_user_id, 0, 'admin_usage', p_tool, p_description);
+    RETURN TRUE;
+  END IF;
+  SELECT balance INTO current_balance FROM public.user_credits WHERE user_id = p_user_id FOR UPDATE;
+  IF current_balance IS NULL OR current_balance < p_amount THEN RETURN FALSE; END IF;
+  UPDATE public.user_credits SET balance = balance - p_amount, updated_at = now() WHERE user_id = p_user_id;
+  INSERT INTO public.credit_transactions (user_id, amount, type, tool_used, description)
+  VALUES (p_user_id, -p_amount, 'usage', p_tool, p_description);
+  RETURN TRUE;
+END; $$;
+
+-- Role check (prevents RLS recursion)
+CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public AS $$
+  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role)
+$$;`}</pre>
         </div>
       </div>
 
@@ -1319,13 +1723,13 @@ CREATE TRIGGER on_auth_user_created_templates
         <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Functions</h2>
         <div className="space-y-3">
           {[
-            { name: 'send-campaign-emails', desc: 'Sends emails via Brevo/SendGrid with tracking' },
-            { name: 'track-email', desc: 'Records open & click events' },
-            { name: 'inbound-email-webhook', desc: 'Processes inbound emails, matches to campaigns' },
-            { name: 'match-email-replies', desc: 'Matches replies to campaign contacts' },
-            { name: 'process-follow-ups', desc: 'Processes scheduled follow-up sequences' },
-            { name: 'process-scheduled-campaigns', desc: 'Launches scheduled campaigns' },
-            { name: 'test-deliverability', desc: 'Tests email deliverability & spam score' },
+            { name: 'send-campaign-emails', desc: 'Sends emails via Brevo/SendGrid with tracking pixels. Reads email_settings, updates campaign_contacts status.' },
+            { name: 'track-email', desc: 'Handles open/click tracking pixel requests. Inserts into email_events and updates campaign_contacts.' },
+            { name: 'inbound-email-webhook', desc: 'Webhook endpoint for inbound email providers. Inserts into email_inbox, matches via message_id.' },
+            { name: 'match-email-replies', desc: 'Background function to match unlinked inbox emails to campaign contacts.' },
+            { name: 'process-follow-ups', desc: 'Processes follow_up_queue entries whose scheduled_at has passed.' },
+            { name: 'process-scheduled-campaigns', desc: 'Checks campaigns with status=scheduled and scheduled_at <= now(), launches them.' },
+            { name: 'test-deliverability', desc: 'Tests SPF/DKIM/DMARC records and spam score for a given email address.' },
           ].map(fn => (
             <div key={fn.name} className="p-3 border border-border rounded-lg flex items-start gap-3">
               <Code className="w-4 h-4 text-primary mt-0.5 shrink-0" />
