@@ -13,7 +13,10 @@ import {
   Flame,
   Shield,
   Instagram,
-  Library
+  Library,
+  Link2,
+  UserSearch,
+  Building2
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
@@ -32,6 +35,9 @@ const navItems = [
   { id: 'deliverability', icon: Shield, label: 'Deliverability' },
   { id: 'warmup', icon: Flame, label: 'Email Warmup' },
   { id: 'social-dms', icon: Instagram, label: 'Social DMs' },
+  { id: 'link-finder', icon: Link2, label: 'Link Finder' },
+  { id: 'linkedin-scraper', icon: UserSearch, label: 'LinkedIn Scraper' },
+  { id: 'companies', icon: Building2, label: 'Companies' },
   { id: 'n8n', icon: Zap, label: 'n8n Workflow' },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ];

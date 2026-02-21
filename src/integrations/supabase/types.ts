@@ -574,6 +574,72 @@ export type Database = {
           },
         ]
       }
+      companies: {
+        Row: {
+          annual_revenue: string | null
+          created_at: string
+          description: string | null
+          email: string | null
+          employee_count: number | null
+          founded: string | null
+          headquarters: string | null
+          id: string
+          industry: string | null
+          linkedin_url: string | null
+          logo_url: string | null
+          metadata: Json | null
+          name: string
+          phone: string | null
+          size: string | null
+          specialties: string[] | null
+          updated_at: string
+          user_id: string
+          website: string | null
+        }
+        Insert: {
+          annual_revenue?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          employee_count?: number | null
+          founded?: string | null
+          headquarters?: string | null
+          id?: string
+          industry?: string | null
+          linkedin_url?: string | null
+          logo_url?: string | null
+          metadata?: Json | null
+          name: string
+          phone?: string | null
+          size?: string | null
+          specialties?: string[] | null
+          updated_at?: string
+          user_id: string
+          website?: string | null
+        }
+        Update: {
+          annual_revenue?: string | null
+          created_at?: string
+          description?: string | null
+          email?: string | null
+          employee_count?: number | null
+          founded?: string | null
+          headquarters?: string | null
+          id?: string
+          industry?: string | null
+          linkedin_url?: string | null
+          logo_url?: string | null
+          metadata?: Json | null
+          name?: string
+          phone?: string | null
+          size?: string | null
+          specialties?: string[] | null
+          updated_at?: string
+          user_id?: string
+          website?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           bounce_type: string | null
@@ -1547,6 +1613,66 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      linkedin_leads: {
+        Row: {
+          about: string | null
+          company_name: string | null
+          created_at: string
+          experience: Json | null
+          first_name: string | null
+          headline: string | null
+          id: string
+          last_name: string | null
+          linkedin_url: string
+          location: string | null
+          profile_image_url: string | null
+          scraped_at: string | null
+          scraped_data: Json | null
+          skills: Json | null
+          updated_at: string
+          user_id: string
+          working_status: string | null
+        }
+        Insert: {
+          about?: string | null
+          company_name?: string | null
+          created_at?: string
+          experience?: Json | null
+          first_name?: string | null
+          headline?: string | null
+          id?: string
+          last_name?: string | null
+          linkedin_url: string
+          location?: string | null
+          profile_image_url?: string | null
+          scraped_at?: string | null
+          scraped_data?: Json | null
+          skills?: Json | null
+          updated_at?: string
+          user_id: string
+          working_status?: string | null
+        }
+        Update: {
+          about?: string | null
+          company_name?: string | null
+          created_at?: string
+          experience?: Json | null
+          first_name?: string | null
+          headline?: string | null
+          id?: string
+          last_name?: string | null
+          linkedin_url?: string
+          location?: string | null
+          profile_image_url?: string | null
+          scraped_at?: string | null
+          scraped_data?: Json | null
+          skills?: Json | null
+          updated_at?: string
+          user_id?: string
+          working_status?: string | null
+        }
+        Relationships: []
       }
       messages: {
         Row: {

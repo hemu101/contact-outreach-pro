@@ -14,6 +14,9 @@ import { UnifiedInbox } from '@/components/inbox/UnifiedInbox';
 import { EmailWarmup } from '@/components/settings/EmailWarmup';
 import { DeliverabilityTest } from '@/components/campaigns/DeliverabilityTest';
 import { SocialDMsPage } from '@/components/social/SocialDMsPage';
+import { LinkFinderPage } from '@/components/linkedin/LinkFinderPage';
+import { LinkedInScraperPage } from '@/components/linkedin/LinkedInScraperPage';
+import { CompaniesPage as CompaniesInfoPage } from '@/components/linkedin/CompaniesPage';
 import { CRMWebhookIntegration } from '@/components/settings/CRMWebhookIntegration';
 import { useAuth } from '@/hooks/useAuth';
 import { useContacts } from '@/hooks/useContacts';
@@ -204,6 +207,12 @@ const Index = () => {
         return <EmailWarmup />;
       case 'social-dms':
         return <SocialDMsPage />;
+      case 'link-finder':
+        return <LinkFinderPage />;
+      case 'linkedin-scraper':
+        return <LinkedInScraperPage />;
+      case 'companies':
+        return <CompaniesInfoPage />;
       case 'n8n':
         return <N8nWorkflow />;
       case 'settings':
