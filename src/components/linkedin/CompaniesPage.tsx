@@ -1,25 +1,28 @@
-import { useState } from 'react';
+import { useState, useRef } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useCompanies } from '@/hooks/useCompanies';
-import { Search, Plus, Building2, Trash2, Edit, Loader2, ExternalLink, Globe } from 'lucide-react';
+import { Search, Plus, Building2, Trash2, Edit, Loader2, ExternalLink, Globe, Upload, Download } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { useToast } from '@/hooks/use-toast';
 
 const INDUSTRIES = ['Technology', 'Finance', 'Healthcare', 'Retail', 'Food & Beverage', 'Manufacturing', 'Education', 'Real Estate', 'Marketing', 'Consulting', 'Other'];
 const SIZES = ['1-10', '11-50', '51-200', '201-500', '501-1000', '1001-5000', '5000+'];
 
 export function CompaniesPage() {
   const { companies, isLoading, createCompany, updateCompany, deleteCompany } = useCompanies();
+  const { toast } = useToast();
   const [search, setSearch] = useState('');
   const [showAdd, setShowAdd] = useState(false);
   const [editCompany, setEditCompany] = useState<any>(null);
   const [form, setForm] = useState({ name: '', website: '', linkedin_url: '', industry: '', size: '', headquarters: '', description: '', phone: '', email: '' });
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const filtered = companies.filter(c =>
     c.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -28,6 +31,64 @@ export function CompaniesPage() {
   );
 
   const resetForm = () => setForm({ name: '', website: '', linkedin_url: '', industry: '', size: '', headquarters: '', description: '', phone: '', email: '' });
+
+  const handleCSVImport = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      const text = evt.target?.result as string;
+      const lines = text.split('\n').filter(l => l.trim());
+      if (lines.length < 2) { toast({ title: 'CSV must have a header row and data', variant: 'destructive' }); return; }
+      const headers = lines[0].split(',').map(h => h.trim().toLowerCase().replace(/['"]/g, ''));
+      const map = (keys: string[]) => headers.findIndex(h => keys.includes(h));
+      const idx = {
+        name: map(['name', 'company', 'company name', 'company_name']),
+        website: map(['website', 'url', 'site']),
+        linkedin_url: map(['linkedin', 'linkedin_url', 'linkedin url']),
+        industry: map(['industry', 'sector']),
+        size: map(['size', 'company size', 'company_size', 'employees']),
+        headquarters: map(['headquarters', 'hq', 'location', 'city']),
+        description: map(['description', 'about', 'bio']),
+        phone: map(['phone', 'telephone', 'tel']),
+        email: map(['email', 'contact email', 'contact_email']),
+      };
+      if (idx.name === -1) { toast({ title: 'CSV must have a "name" or "company" column', variant: 'destructive' }); return; }
+      let imported = 0;
+      for (let i = 1; i < lines.length; i++) {
+        const cols = lines[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g)?.map(c => c.replace(/^"|"$/g, '').trim()) || lines[i].split(',').map(c => c.trim());
+        const name = cols[idx.name] || '';
+        if (!name) continue;
+        createCompany.mutate({
+          name,
+          website: idx.website >= 0 ? cols[idx.website] || '' : '',
+          linkedin_url: idx.linkedin_url >= 0 ? cols[idx.linkedin_url] || '' : '',
+          industry: idx.industry >= 0 ? cols[idx.industry] || '' : '',
+          size: idx.size >= 0 ? cols[idx.size] || '' : '',
+          headquarters: idx.headquarters >= 0 ? cols[idx.headquarters] || '' : '',
+          description: idx.description >= 0 ? cols[idx.description] || '' : '',
+          phone: idx.phone >= 0 ? cols[idx.phone] || '' : '',
+          email: idx.email >= 0 ? cols[idx.email] || '' : '',
+        });
+        imported++;
+      }
+      toast({ title: `Importing ${imported} companies` });
+    };
+    reader.readAsText(file);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleCSVExport = () => {
+    const headers = ['Name', 'Website', 'LinkedIn URL', 'Industry', 'Size', 'Headquarters', 'Description', 'Phone', 'Email'];
+    const rows = companies.map(c => [c.name, c.website || '', c.linkedin_url || '', c.industry || '', c.size || '', c.headquarters || '', (c.description || '').replace(/"/g, '""'), c.phone || '', c.email || ''].map(v => `"${v}"`).join(','));
+    const csv = [headers.join(','), ...rows].join('\n');
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `companies_${new Date().toISOString().split('T')[0]}.csv`; a.click();
+    URL.revokeObjectURL(url);
+    toast({ title: `Exported ${companies.length} companies` });
+  };
 
   const handleSave = () => {
     if (!form.name.trim()) return;
@@ -99,6 +160,9 @@ export function CompaniesPage() {
           <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
           <Input placeholder="Search companies..." value={search} onChange={e => setSearch(e.target.value)} className="pl-9" />
         </div>
+        <input type="file" ref={fileInputRef} accept=".csv" className="hidden" onChange={handleCSVImport} />
+        <Button variant="outline" onClick={() => fileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" />Import CSV</Button>
+        <Button variant="outline" onClick={handleCSVExport} disabled={companies.length === 0}><Download className="w-4 h-4 mr-2" />Export CSV</Button>
         <Dialog open={showAdd} onOpenChange={handleClose}>
           <DialogTrigger asChild>
             <Button onClick={() => { resetForm(); setEditCompany(null); }}><Plus className="w-4 h-4 mr-2" />Add Company</Button>
