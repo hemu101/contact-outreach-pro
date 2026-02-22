@@ -1509,6 +1509,51 @@ export type Database = {
         }
         Relationships: []
       }
+      file_storage_tracking: {
+        Row: {
+          created_at: string
+          expires_at: string | null
+          file_name: string
+          file_size: number | null
+          file_type: string | null
+          id: string
+          mime_type: string | null
+          status: string | null
+          storage_path: string | null
+          tool_id: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          expires_at?: string | null
+          file_name: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          mime_type?: string | null
+          status?: string | null
+          storage_path?: string | null
+          tool_id?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          expires_at?: string | null
+          file_name?: string
+          file_size?: number | null
+          file_type?: string | null
+          id?: string
+          mime_type?: string | null
+          status?: string | null
+          storage_path?: string | null
+          tool_id?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       follow_up_queue: {
         Row: {
           campaign_contact_id: string
@@ -2163,6 +2208,72 @@ export type Database = {
         }
         Relationships: []
       }
+      tool_ratings: {
+        Row: {
+          created_at: string
+          id: string
+          rating: number
+          review: string | null
+          tool_id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          rating: number
+          review?: string | null
+          tool_id: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          rating?: number
+          review?: string | null
+          tool_id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      tool_usage_analytics: {
+        Row: {
+          created_at: string
+          file_count: number | null
+          id: string
+          processing_time_ms: number | null
+          status: string | null
+          tool_category: string
+          tool_id: string
+          total_file_size: number | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          file_count?: number | null
+          id?: string
+          processing_time_ms?: number | null
+          status?: string | null
+          tool_category: string
+          tool_id: string
+          total_file_size?: number | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          file_count?: number | null
+          id?: string
+          processing_time_ms?: number | null
+          status?: string | null
+          tool_category?: string
+          tool_id?: string
+          total_file_size?: number | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       user_credits: {
         Row: {
           balance: number
@@ -2186,6 +2297,27 @@ export type Database = {
           id?: string
           total_purchased?: number
           updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      user_favorites: {
+        Row: {
+          created_at: string
+          id: string
+          tool_id: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          tool_id: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          tool_id?: string
           user_id?: string
         }
         Relationships: []
@@ -2285,7 +2417,29 @@ export type Database = {
       }
     }
     Views: {
-      [_ in never]: never
+      tool_rating_summary: {
+        Row: {
+          avg_rating: number | null
+          five_star: number | null
+          four_star: number | null
+          one_star: number | null
+          three_star: number | null
+          tool_id: string | null
+          total_reviews: number | null
+          two_star: number | null
+        }
+        Relationships: []
+      }
+      tool_stats: {
+        Row: {
+          avg_processing_time_ms: number | null
+          tool_id: string | null
+          total_bytes_processed: number | null
+          total_uses: number | null
+          unique_users: number | null
+        }
+        Relationships: []
+      }
     }
     Functions: {
       deduct_credits: {
@@ -2297,11 +2451,24 @@ export type Database = {
         }
         Returns: boolean
       }
+      get_user_top_tools: {
+        Args: { p_limit?: number; p_user_id: string }
+        Returns: {
+          last_used: string
+          tool_category: string
+          tool_id: string
+          usage_count: number
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
           _user_id: string
         }
+        Returns: boolean
+      }
+      toggle_favorite: {
+        Args: { p_tool_id: string; p_user_id: string }
         Returns: boolean
       }
     }

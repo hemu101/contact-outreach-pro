@@ -1219,7 +1219,10 @@ function DatabaseSchemaDocs() {
     { name: 'signature_templates', cols: 'id (uuid PK), user_id (uuid), name, content, fields (jsonb), created_at, updated_at', rls: 'CRUD by owner' },
     { name: 'portfolio_items', cols: 'id (uuid PK), creator_id (FK→creators), title, description, image_url (text NOT NULL), link, created_at, updated_at', rls: 'CRUD by creator owner' },
     { name: 'creator_earnings', cols: 'id (uuid PK), creator_id (FK→creators), campaign_invitation_id (FK→campaign_invitations), amount (numeric NOT NULL), currency (default USD), status (default pending), paid_at, created_at', rls: 'SELECT by creator' },
-    { name: 'processing_history', cols: 'id (uuid PK), user_id (uuid), tool_id (text), file_name, file_size, output_format, credits_used, metadata (jsonb), status, created_at', rls: 'CRUD by owner' },
+    { name: 'processing_history', cols: 'id (uuid PK), user_id (uuid), tool_id (text NOT NULL), file_name, file_size (bigint), output_format, credits_used (int), metadata (jsonb), status (default pending), created_at', rls: 'CRUD by owner' },
+    { name: 'linkedin_leads', cols: 'id (uuid PK), user_id (uuid NOT NULL), linkedin_url (text NOT NULL), first_name, last_name, company_name, headline, location, about, profile_image_url, working_status, experience (jsonb), skills (jsonb), scraped_data (jsonb), scraped_at (timestamptz), created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'companies', cols: 'id (uuid PK), user_id (uuid NOT NULL), name (text NOT NULL), website, linkedin_url, industry, size, headquarters, description, founded, specialties (text[]), logo_url, phone, email, employee_count (int), annual_revenue, metadata (jsonb default {}), created_at, updated_at', rls: 'Full CRUD by owner' },
+    { name: 'file_storage_tracking', cols: 'id (uuid PK), user_id (uuid NOT NULL), file_name (text NOT NULL), file_type, mime_type, file_size (bigint), storage_path, tool_id, status (default active), expires_at (timestamptz), created_at, updated_at', rls: 'Full CRUD by owner' },
   ];
 
   return (
@@ -1288,7 +1291,9 @@ messages.conversation_id → conversations.id
 saved_creators.creator_id → creators.id
 portfolio_items.creator_id → creators.id
 creator_earnings.creator_id → creators.id
-creator_earnings.campaign_invitation_id → campaign_invitations.id`}</pre>
+creator_earnings.campaign_invitation_id → campaign_invitations.id
+linkedin_leads.user_id → auth.users.id (logical, no FK)
+companies.user_id → auth.users.id (logical, no FK)`}</pre>
         </div>
       </div>
 
@@ -1302,6 +1307,8 @@ creator_earnings.campaign_invitation_id → campaign_invitations.id`}</pre>
             { name: 'update_updated_at_column()', desc: 'Generic trigger to set updated_at = now() before UPDATE on any attached table', type: 'TRIGGER' },
             { name: 'deduct_credits(user_id, amount, tool, desc)', desc: 'Deducts credits from user balance. Admins bypass deduction. Returns boolean success.', type: 'FUNCTION' },
             { name: 'has_role(user_id, role)', desc: 'Security definer function checking user_roles. Used in RLS policies to avoid recursion.', type: 'FUNCTION' },
+            { name: 'toggle_favorite(user_id, tool_id)', desc: 'Inserts or removes a user_favorites row. Returns TRUE if favorited, FALSE if unfavorited.', type: 'FUNCTION' },
+            { name: 'get_user_top_tools(user_id, limit)', desc: 'Returns top tools by usage count from tool_usage_analytics. Includes tool_id, category, count, last_used.', type: 'FUNCTION' },
           ].map(fn => (
             <div key={fn.name} className="p-3 border border-border rounded-lg">
               <div className="flex items-center gap-2 mb-1">
@@ -1357,25 +1364,61 @@ SELECT public.has_role(auth.uid(), 'admin')`}</pre>
       </div>
 
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Functions</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Functions ({7})</h2>
         <div className="space-y-3">
           {[
-            { name: 'send-campaign-emails', desc: 'Sends emails via Brevo/SendGrid with open/click tracking pixels' },
-            { name: 'track-email', desc: 'Records open & click events from tracking pixels' },
-            { name: 'inbound-email-webhook', desc: 'Processes inbound emails, matches to campaigns & contacts' },
-            { name: 'match-email-replies', desc: 'Matches reply emails to campaign contacts via message_id/in_reply_to' },
-            { name: 'process-follow-ups', desc: 'Checks follow_up_queue and sends scheduled follow-up emails' },
-            { name: 'process-scheduled-campaigns', desc: 'Launches campaigns at their scheduled_at time' },
-            { name: 'test-deliverability', desc: 'Tests email deliverability, SPF/DKIM/DMARC, and spam score' },
+            { name: 'send-campaign-emails', jwt: true, desc: 'Sends emails via Brevo/SendGrid/Resend with open/click tracking pixels. Reads email_settings for provider config. Updates campaign_contacts status to sent/failed.' },
+            { name: 'track-email', jwt: false, desc: 'Pixel endpoint — records open & click events into email_events and updates campaign_contacts.opened_at / clicked_at. Returns 1x1 transparent GIF or redirects for clicks.' },
+            { name: 'inbound-email-webhook', jwt: false, desc: 'Receives inbound emails from external providers (SendGrid, Mailgun). Inserts into email_inbox, attempts to match contact by from_email.' },
+            { name: 'match-email-replies', jwt: false, desc: 'Matches incoming emails to campaigns via in_reply_to header or recent campaign_contacts. Updates status to replied.' },
+            { name: 'process-follow-ups', jwt: false, desc: 'Cron-triggered. Checks follow_up_queue for entries with scheduled_at <= now() and status=pending, sends via email provider.' },
+            { name: 'process-scheduled-campaigns', jwt: false, desc: 'Cron-triggered. Finds campaigns with status=scheduled and scheduled_at <= now(). Sends all pending contacts and marks campaign completed.' },
+            { name: 'test-deliverability', jwt: true, desc: 'Tests SPF/DKIM/DMARC records and spam score for a given email address. Writes results to email_deliverability_tests.' },
           ].map(fn => (
             <div key={fn.name} className="p-3 border border-border rounded-lg flex items-start gap-3">
               <Code className="w-4 h-4 text-primary mt-0.5 shrink-0" />
               <div>
-                <span className="font-mono text-foreground text-sm">{fn.name}</span>
-                <p className="text-xs text-muted-foreground">{fn.desc}</p>
+                <div className="flex items-center gap-2">
+                  <span className="font-mono text-foreground text-sm">{fn.name}</span>
+                  <Badge variant="outline" className="text-[10px]">{fn.jwt ? 'JWT required' : 'Public'}</Badge>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">{fn.desc}</p>
               </div>
             </div>
           ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Secrets / Environment Variables</h2>
+        <div className="space-y-2">
+          {[
+            { name: 'SUPABASE_URL', desc: 'Supabase project API URL', scope: 'Edge Functions' },
+            { name: 'SUPABASE_ANON_KEY', desc: 'Public anon key for client-side access', scope: 'Client + Edge' },
+            { name: 'SUPABASE_SERVICE_ROLE_KEY', desc: 'Service role key — bypasses RLS. Never expose to client.', scope: 'Edge Functions only' },
+            { name: 'SUPABASE_DB_URL', desc: 'Direct Postgres connection string for migrations/admin', scope: 'Backend only' },
+            { name: 'RESEND_API_KEY', desc: 'Resend email provider API key (fallback provider)', scope: 'Edge Functions' },
+            { name: 'LOVABLE_API_KEY', desc: 'AI Gateway key for LLM calls from edge functions', scope: 'Edge Functions' },
+          ].map(s => (
+            <div key={s.name} className="p-3 border border-border rounded-lg flex items-center justify-between">
+              <div>
+                <span className="font-mono text-sm text-foreground">{s.name}</span>
+                <p className="text-xs text-muted-foreground">{s.desc}</p>
+              </div>
+              <Badge variant="outline" className="text-[10px] shrink-0">{s.scope}</Badge>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Enum Types</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground">
+          <pre>{`-- Custom enum for user roles
+CREATE TYPE public.app_role AS ENUM ('admin', 'user', 'creator');
+
+-- Used in: user_roles.role column
+-- Checked by: has_role() function`}</pre>
         </div>
       </div>
     </div>
@@ -1648,7 +1691,44 @@ CREATE TABLE IF NOT EXISTS public.activity_logs (
   entity_id uuid, action_type text NOT NULL,
   metadata jsonb DEFAULT '{}'::jsonb,
   created_at timestamptz DEFAULT now()
-);`}</pre>
+);
+
+-- linkedin_leads
+CREATE TABLE IF NOT EXISTS public.linkedin_leads (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, linkedin_url text NOT NULL,
+  first_name text, last_name text, company_name text,
+  headline text, location text, about text,
+  profile_image_url text, working_status text,
+  experience jsonb, skills jsonb, scraped_data jsonb,
+  scraped_at timestamptz,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.linkedin_leads ENABLE ROW LEVEL SECURITY;
+
+-- companies
+CREATE TABLE IF NOT EXISTS public.companies (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, name text NOT NULL,
+  website text, linkedin_url text, industry text, size text,
+  headquarters text, description text, founded text,
+  specialties text[], logo_url text, phone text, email text,
+  employee_count int, annual_revenue text,
+  metadata jsonb DEFAULT '{}'::jsonb,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
+
+-- file_storage_tracking
+CREATE TABLE IF NOT EXISTS public.file_storage_tracking (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, file_name text NOT NULL,
+  file_type text, mime_type text, file_size bigint DEFAULT 0,
+  storage_path text, tool_id text, status text DEFAULT 'active',
+  expires_at timestamptz,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.file_storage_tracking ENABLE ROW LEVEL SECURITY;`}</pre>
         </div>
       </div>
 
