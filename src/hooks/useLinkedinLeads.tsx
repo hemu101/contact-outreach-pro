@@ -97,6 +97,84 @@ export function useLinkedinLeads() {
     },
   });
 
+  const scrapeLead = useMutation({
+    mutationFn: async (leadId: string) => {
+      if (!user) throw new Error('Not authenticated');
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error('No auth token');
+
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const res = await fetch(
+        `https://${projectId}.supabase.co/functions/v1/scrape-linkedin-profile`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}`,
+          },
+          body: JSON.stringify({ leadId }),
+        }
+      );
+      const result = await res.json();
+      if (!res.ok) throw new Error(result.error || 'Scrape failed');
+      return result;
+    },
+    onSuccess: (data) => {
+      queryClient.invalidateQueries({ queryKey: ['linkedin_leads'] });
+      toast({ title: `Profile scraped — Status: ${data.status}` });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Scrape failed', description: error.message, variant: 'destructive' });
+    },
+  });
+
+  const scrapeAllUnprocessed = useMutation({
+    mutationFn: async () => {
+      if (!user) throw new Error('Not authenticated');
+      const { data: sessionData } = await supabase.auth.getSession();
+      const token = sessionData?.session?.access_token;
+      if (!token) throw new Error('No auth token');
+
+      const unprocessed = (leadsQuery.data ?? []).filter(
+        (l: any) => !l.scraped_at && !l.first_name && !l.headline
+      );
+      const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID;
+      const results = [];
+
+      for (const lead of unprocessed) {
+        try {
+          const res = await fetch(
+            `https://${projectId}.supabase.co/functions/v1/scrape-linkedin-profile`,
+            {
+              method: 'POST',
+              headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`,
+              },
+              body: JSON.stringify({ leadId: lead.id }),
+            }
+          );
+          const result = await res.json();
+          results.push({ id: lead.id, ...result });
+          // Small delay between requests to avoid rate limiting
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (err) {
+          results.push({ id: lead.id, error: String(err) });
+        }
+      }
+      return results;
+    },
+    onSuccess: (results) => {
+      queryClient.invalidateQueries({ queryKey: ['linkedin_leads'] });
+      const success = results.filter((r: any) => r.success).length;
+      toast({ title: `Batch scrape complete: ${success}/${results.length} processed` });
+    },
+    onError: (error: Error) => {
+      toast({ title: 'Batch scrape failed', description: error.message, variant: 'destructive' });
+    },
+  });
+
   return {
     leads: leadsQuery.data ?? [],
     isLoading: leadsQuery.isLoading,
@@ -104,5 +182,7 @@ export function useLinkedinLeads() {
     createManyLeads,
     updateLead,
     deleteLead,
+    scrapeLead,
+    scrapeAllUnprocessed,
   };
 }
