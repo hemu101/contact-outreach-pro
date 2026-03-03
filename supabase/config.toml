@@ -20,3 +20,6 @@ verify_jwt = false
 
 [functions.test-deliverability]
 verify_jwt = true
+
+[functions.scrape-linkedin-profile]
+verify_jwt = false

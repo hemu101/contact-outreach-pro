@@ -5,17 +5,18 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { useLinkedinLeads } from '@/hooks/useLinkedinLeads';
-import { Search, Eye, Download, Loader2, UserCheck, UserX, Clock, AlertCircle, ChevronDown, ChevronUp } from 'lucide-react';
+import { Search, Eye, Download, Loader2, UserCheck, UserX, Clock, AlertCircle, Play, Zap } from 'lucide-react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { ScrollArea } from '@/components/ui/scroll-area';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export function LinkedInScraperPage() {
-  const { leads, isLoading, updateLead } = useLinkedinLeads();
+  const { leads, isLoading, updateLead, scrapeLead, scrapeAllUnprocessed } = useLinkedinLeads();
   const [search, setSearch] = useState('');
   const [statusFilter, setStatusFilter] = useState<string>('all');
   const [viewLead, setViewLead] = useState<any>(null);
+  const [scrapingId, setScrapingId] = useState<string | null>(null);
 
   const scraped = leads.filter(l => l.scraped_at || l.first_name || l.headline);
   const unscraped = leads.filter(l => !l.scraped_at && !l.first_name && !l.headline);
@@ -129,6 +130,14 @@ export function LinkedInScraperPage() {
 
         <Button variant="outline" onClick={handleExportCSV}><Download className="w-4 h-4 mr-2" />CSV</Button>
         <Button variant="outline" onClick={handleExportJSON}><Download className="w-4 h-4 mr-2" />JSON</Button>
+        <Button 
+          onClick={() => scrapeAllUnprocessed.mutate()} 
+          disabled={scrapeAllUnprocessed.isPending || unscraped.length === 0}
+          className="bg-primary text-primary-foreground"
+        >
+          {scrapeAllUnprocessed.isPending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Zap className="w-4 h-4 mr-2" />}
+          Scrape All ({unscraped.length})
+        </Button>
       </div>
 
       {/* Table */}
@@ -170,9 +179,27 @@ export function LinkedInScraperPage() {
                       </Badge>
                     </TableCell>
                     <TableCell>
-                      <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setViewLead(lead); }}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
+                      <div className="flex gap-1">
+                        <Button variant="ghost" size="icon" onClick={(e) => { e.stopPropagation(); setViewLead(lead); }}>
+                          <Eye className="w-4 h-4" />
+                        </Button>
+                        {!lead.scraped_at && (
+                          <Button 
+                            variant="ghost" 
+                            size="icon"
+                            disabled={scrapingId === lead.id}
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              setScrapingId(lead.id);
+                              scrapeLead.mutate(lead.id, {
+                                onSettled: () => setScrapingId(null),
+                              });
+                            }}
+                          >
+                            {scrapingId === lead.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Play className="w-4 h-4" />}
+                          </Button>
+                        )}
+                      </div>
                     </TableCell>
                   </TableRow>
                 ))}
