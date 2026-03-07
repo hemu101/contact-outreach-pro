@@ -1054,6 +1054,53 @@ export type Database = {
           },
         ]
       }
+      creator_social_accounts: {
+        Row: {
+          created_at: string
+          creator_id: string | null
+          id: string
+          metadata: Json
+          platform: string
+          platform_user_id: string | null
+          profile_url: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          created_at?: string
+          creator_id?: string | null
+          id?: string
+          metadata?: Json
+          platform: string
+          platform_user_id?: string | null
+          profile_url?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string | null
+          id?: string
+          metadata?: Json
+          platform?: string
+          platform_user_id?: string | null
+          profile_url?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_social_accounts_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       creators: {
         Row: {
           avatar: string | null
