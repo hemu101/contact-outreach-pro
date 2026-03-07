@@ -576,69 +576,320 @@ export type Database = {
       }
       companies: {
         Row: {
+          ad_library_proof: string | null
           annual_revenue: string | null
+          average_er: string | null
+          company_address: string | null
+          company_city: string | null
+          company_country: string | null
+          company_linkedin_url: string | null
+          company_name_for_emails: string | null
+          company_phone: string | null
+          company_state: string | null
           created_at: string
+          d2c_presence: string | null
           description: string | null
+          e_commerce_presence: string | null
           email: string | null
           employee_count: number | null
+          engagement_score: string | null
+          extra_data: Json | null
+          extracted_from: string | null
+          facebook_url: string | null
+          firmographic_score: string | null
           founded: string | null
+          hashtags: string | null
           headquarters: string | null
           id: string
+          ig_bio: string | null
+          ig_followers_count: string | null
+          ig_username: string | null
           industry: string | null
+          instagram_url: string | null
+          integrated_video_urls: string | null
+          integrated_videos: string | null
+          keywords: string | null
+          latest_funding: string | null
+          latest_funding_amount: string | null
           linkedin_url: string | null
           logo_url: string | null
+          mentions: string | null
           metadata: Json | null
           name: string
+          number_of_retail_locations: string | null
           phone: string | null
+          phone_from_website: string | null
+          pinterest_url: string | null
+          segmentation: string | null
+          short_description: string | null
           size: string | null
+          social_media_presence: string | null
           specialties: string[] | null
+          subsidiary_of: string | null
+          technologies: string | null
+          total_collaborations: string | null
+          total_funding: string | null
+          total_post_in_3_months: string | null
+          twitter_url: string | null
+          ugc_example: string | null
           updated_at: string
           user_id: string
           website: string | null
+          website_status: string | null
+          worked_with_creators: string | null
         }
         Insert: {
+          ad_library_proof?: string | null
           annual_revenue?: string | null
+          average_er?: string | null
+          company_address?: string | null
+          company_city?: string | null
+          company_country?: string | null
+          company_linkedin_url?: string | null
+          company_name_for_emails?: string | null
+          company_phone?: string | null
+          company_state?: string | null
           created_at?: string
+          d2c_presence?: string | null
           description?: string | null
+          e_commerce_presence?: string | null
           email?: string | null
           employee_count?: number | null
+          engagement_score?: string | null
+          extra_data?: Json | null
+          extracted_from?: string | null
+          facebook_url?: string | null
+          firmographic_score?: string | null
           founded?: string | null
+          hashtags?: string | null
           headquarters?: string | null
           id?: string
+          ig_bio?: string | null
+          ig_followers_count?: string | null
+          ig_username?: string | null
           industry?: string | null
+          instagram_url?: string | null
+          integrated_video_urls?: string | null
+          integrated_videos?: string | null
+          keywords?: string | null
+          latest_funding?: string | null
+          latest_funding_amount?: string | null
           linkedin_url?: string | null
           logo_url?: string | null
+          mentions?: string | null
           metadata?: Json | null
           name: string
+          number_of_retail_locations?: string | null
           phone?: string | null
+          phone_from_website?: string | null
+          pinterest_url?: string | null
+          segmentation?: string | null
+          short_description?: string | null
           size?: string | null
+          social_media_presence?: string | null
           specialties?: string[] | null
+          subsidiary_of?: string | null
+          technologies?: string | null
+          total_collaborations?: string | null
+          total_funding?: string | null
+          total_post_in_3_months?: string | null
+          twitter_url?: string | null
+          ugc_example?: string | null
           updated_at?: string
           user_id: string
           website?: string | null
+          website_status?: string | null
+          worked_with_creators?: string | null
         }
         Update: {
+          ad_library_proof?: string | null
           annual_revenue?: string | null
+          average_er?: string | null
+          company_address?: string | null
+          company_city?: string | null
+          company_country?: string | null
+          company_linkedin_url?: string | null
+          company_name_for_emails?: string | null
+          company_phone?: string | null
+          company_state?: string | null
           created_at?: string
+          d2c_presence?: string | null
           description?: string | null
+          e_commerce_presence?: string | null
           email?: string | null
           employee_count?: number | null
+          engagement_score?: string | null
+          extra_data?: Json | null
+          extracted_from?: string | null
+          facebook_url?: string | null
+          firmographic_score?: string | null
           founded?: string | null
+          hashtags?: string | null
           headquarters?: string | null
           id?: string
+          ig_bio?: string | null
+          ig_followers_count?: string | null
+          ig_username?: string | null
           industry?: string | null
+          instagram_url?: string | null
+          integrated_video_urls?: string | null
+          integrated_videos?: string | null
+          keywords?: string | null
+          latest_funding?: string | null
+          latest_funding_amount?: string | null
           linkedin_url?: string | null
           logo_url?: string | null
+          mentions?: string | null
           metadata?: Json | null
           name?: string
+          number_of_retail_locations?: string | null
           phone?: string | null
+          phone_from_website?: string | null
+          pinterest_url?: string | null
+          segmentation?: string | null
+          short_description?: string | null
           size?: string | null
+          social_media_presence?: string | null
           specialties?: string[] | null
+          subsidiary_of?: string | null
+          technologies?: string | null
+          total_collaborations?: string | null
+          total_funding?: string | null
+          total_post_in_3_months?: string | null
+          twitter_url?: string | null
+          ugc_example?: string | null
           updated_at?: string
           user_id?: string
           website?: string | null
+          website_status?: string | null
+          worked_with_creators?: string | null
         }
         Relationships: []
+      }
+      company_contacts: {
+        Row: {
+          city: string | null
+          company_id: string | null
+          corporate_phone: string | null
+          country: string | null
+          created_at: string
+          date_of_filtration: string | null
+          departments: string | null
+          email: string | null
+          email_from_website: string | null
+          extra_data: Json | null
+          first_name: string | null
+          hiring_job_title: string | null
+          home_phone: string | null
+          id: string
+          ig_score: string | null
+          job_basedon: string | null
+          job_location: string | null
+          job_tracking_link: string | null
+          last_name: string | null
+          linkedin_job_link: string | null
+          linkedin_job_title: string | null
+          mobile_phone: string | null
+          mql: string | null
+          notes_for_data: string | null
+          notes_for_sdr: string | null
+          other_phone: string | null
+          person_linkedin_url: string | null
+          salary_estimated: string | null
+          secondary_email: string | null
+          seniority: string | null
+          sql_status: string | null
+          state: string | null
+          title: string | null
+          updated_at: string
+          user_id: string
+          work_direct_phone: string | null
+        }
+        Insert: {
+          city?: string | null
+          company_id?: string | null
+          corporate_phone?: string | null
+          country?: string | null
+          created_at?: string
+          date_of_filtration?: string | null
+          departments?: string | null
+          email?: string | null
+          email_from_website?: string | null
+          extra_data?: Json | null
+          first_name?: string | null
+          hiring_job_title?: string | null
+          home_phone?: string | null
+          id?: string
+          ig_score?: string | null
+          job_basedon?: string | null
+          job_location?: string | null
+          job_tracking_link?: string | null
+          last_name?: string | null
+          linkedin_job_link?: string | null
+          linkedin_job_title?: string | null
+          mobile_phone?: string | null
+          mql?: string | null
+          notes_for_data?: string | null
+          notes_for_sdr?: string | null
+          other_phone?: string | null
+          person_linkedin_url?: string | null
+          salary_estimated?: string | null
+          secondary_email?: string | null
+          seniority?: string | null
+          sql_status?: string | null
+          state?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id: string
+          work_direct_phone?: string | null
+        }
+        Update: {
+          city?: string | null
+          company_id?: string | null
+          corporate_phone?: string | null
+          country?: string | null
+          created_at?: string
+          date_of_filtration?: string | null
+          departments?: string | null
+          email?: string | null
+          email_from_website?: string | null
+          extra_data?: Json | null
+          first_name?: string | null
+          hiring_job_title?: string | null
+          home_phone?: string | null
+          id?: string
+          ig_score?: string | null
+          job_basedon?: string | null
+          job_location?: string | null
+          job_tracking_link?: string | null
+          last_name?: string | null
+          linkedin_job_link?: string | null
+          linkedin_job_title?: string | null
+          mobile_phone?: string | null
+          mql?: string | null
+          notes_for_data?: string | null
+          notes_for_sdr?: string | null
+          other_phone?: string | null
+          person_linkedin_url?: string | null
+          salary_estimated?: string | null
+          secondary_email?: string | null
+          seniority?: string | null
+          sql_status?: string | null
+          state?: string | null
+          title?: string | null
+          updated_at?: string
+          user_id?: string
+          work_direct_phone?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "company_contacts_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       contacts: {
         Row: {
