@@ -13,6 +13,7 @@ import { SettingsPage } from '@/components/settings/SettingsPage';
 import { UnifiedInbox } from '@/components/inbox/UnifiedInbox';
 import { EmailWarmup } from '@/components/settings/EmailWarmup';
 import { DeliverabilityTest } from '@/components/campaigns/DeliverabilityTest';
+import { EmailToolsPage } from '@/components/settings/EmailToolsPage';
 import { SocialDMsPage } from '@/components/social/SocialDMsPage';
 import { LinkFinderPage } from '@/components/linkedin/LinkFinderPage';
 import { LinkedInScraperPage } from '@/components/linkedin/LinkedInScraperPage';
