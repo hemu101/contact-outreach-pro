@@ -98,6 +98,15 @@ export default function Documentation() {
           {activeSection === 'social-dm' && <SocialDMDocs />}
           {activeSection === 'analytics' && <AnalyticsDocs />}
           {activeSection === 'companies' && <CompaniesContactsDocs />}
+          {activeSection === 'lead-scoring' && <LeadScoringDocs />}
+          {activeSection === 'automation-rules' && <AutomationRulesDocs />}
+          {activeSection === 'contact-tracking' && <ContactTrackingDocs />}
+          {activeSection === 'website-tracking' && <WebsiteTrackingDocs />}
+          {activeSection === 'enrichment' && <EnrichmentDocs />}
+          {activeSection === 'audit-trail' && <AuditTrailDocs />}
+          {activeSection === 'report-builder' && <ReportBuilderDocs />}
+          {activeSection === 'revenue-forecast' && <RevenueForecastDocs />}
+          {activeSection === 'email-tools' && <EmailToolsDocs />}
           {activeSection === 'connection-info' && <ConnectionInfoDocs />}
           {activeSection === 'db-schema' && <DatabaseSchemaDocs />}
           {activeSection === 'db-indexes' && <IndexesViewsDocs />}
