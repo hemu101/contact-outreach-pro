@@ -43,7 +43,7 @@ const navItems = [
   { id: 'templates', icon: FileText, label: 'Templates' },
   { id: 'campaigns', icon: Mail, label: 'Campaigns' },
   { id: 'unified-inbox', icon: Inbox, label: 'Unified Inbox' },
-  { id: 'deliverability', icon: Shield, label: 'Deliverability' },
+  { id: 'email-tools', icon: Mail, label: 'Email Tools' },
   { id: 'warmup', icon: Flame, label: 'Email Warmup' },
   { id: 'social-dms', icon: Instagram, label: 'Social DMs' },
   { id: 'website-tracking', icon: Globe, label: 'Website Tracking' },

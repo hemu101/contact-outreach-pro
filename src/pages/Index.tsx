@@ -210,8 +210,8 @@ const Index = () => {
         );
       case 'unified-inbox':
         return <UnifiedInbox />;
-      case 'deliverability':
-        return <DeliverabilityTest />;
+      case 'email-tools':
+        return <EmailToolsPage />;
       case 'warmup':
         return <EmailWarmup />;
       case 'social-dms':
