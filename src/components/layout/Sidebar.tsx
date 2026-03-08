@@ -31,6 +31,8 @@ const navItems = [
   { id: 'dashboard', icon: LayoutDashboard, label: 'Dashboard' },
   { id: 'analytics', icon: PieChart, label: 'Analytics' },
   { id: 'contacts', icon: Users, label: 'Contacts' },
+  { id: 'pipeline', icon: Kanban, label: 'Pipeline' },
+  { id: 'lead-scoring', icon: Target, label: 'Lead Scoring' },
   { id: 'templates', icon: FileText, label: 'Templates' },
   { id: 'campaigns', icon: Mail, label: 'Campaigns' },
   { id: 'unified-inbox', icon: Inbox, label: 'Unified Inbox' },
@@ -40,6 +42,7 @@ const navItems = [
   { id: 'link-finder', icon: Link2, label: 'Link Finder' },
   { id: 'linkedin-scraper', icon: UserSearch, label: 'LinkedIn Scraper' },
   { id: 'companies', icon: Building2, label: 'Companies' },
+  { id: 'audit-trail', icon: History, label: 'Audit Trail' },
   { id: 'n8n', icon: Zap, label: 'n8n Workflow' },
   { id: 'settings', icon: Settings, label: 'Settings' },
 ];

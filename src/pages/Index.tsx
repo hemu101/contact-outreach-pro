@@ -211,10 +211,16 @@ const Index = () => {
         return <SocialDMsPage />;
       case 'link-finder':
         return <LinkFinderPage />;
+      case 'pipeline':
+        return <PipelineBoard />;
+      case 'lead-scoring':
+        return <LeadScoringPanel />;
       case 'linkedin-scraper':
         return <LinkedInScraperPage />;
       case 'companies':
         return <CompaniesInfoPage />;
+      case 'audit-trail':
+        return <AuditTrailPanel />;
       case 'n8n':
         return <N8nWorkflow />;
       case 'settings':
