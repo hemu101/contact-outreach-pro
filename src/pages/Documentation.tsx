@@ -1241,6 +1241,90 @@ function DatabaseSchemaDocs() {
         ]}
       />
 
+      <TableSchema name="contact_activities" description="Tracks all contact interactions: page visits, emails, calls, form submissions"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'contact_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → company_contacts' },
+          { name: 'activity_type', type: 'text', nullable: false, default_val: null, note: 'page_view, email_open, email_click, form_submit, call, meeting' },
+          { name: 'title', type: 'text', nullable: true, default_val: null },
+          { name: 'description', type: 'text', nullable: true, default_val: null },
+          { name: 'metadata', type: 'jsonb', nullable: true, default_val: '{}' },
+          { name: 'source', type: 'text', nullable: true, default_val: 'manual', note: 'manual, tracking_script, webhook, system' },
+          { name: 'ip_address', type: 'text', nullable: true, default_val: null },
+          { name: 'user_agent', type: 'text', nullable: true, default_val: null },
+          { name: 'page_url', type: 'text', nullable: true, default_val: null },
+          { name: 'duration_seconds', type: 'integer', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+        foreignKeys={['contact_id → company_contacts.id']}
+      />
+
+      <TableSchema name="automation_rules" description="IF/THEN workflow automation rules"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'description', type: 'text', nullable: true, default_val: null },
+          { name: 'trigger_type', type: 'text', nullable: false, default_val: null, note: 'lead_score_threshold, no_reply, stage_change, new_contact, email_opened' },
+          { name: 'trigger_config', type: 'jsonb', nullable: false, default_val: '{}', note: 'Trigger parameters (e.g., threshold value, days)' },
+          { name: 'action_type', type: 'text', nullable: false, default_val: null, note: 'move_stage, send_email, add_tag, notify, create_task' },
+          { name: 'action_config', type: 'jsonb', nullable: false, default_val: '{}', note: 'Action parameters (e.g., target stage, template)' },
+          { name: 'is_active', type: 'boolean', nullable: true, default_val: 'true' },
+          { name: 'execution_count', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'last_executed_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="automation_logs" description="Execution log for automation rules"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'rule_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → automation_rules' },
+          { name: 'contact_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → company_contacts' },
+          { name: 'status', type: 'text', nullable: true, default_val: 'success', note: 'success, error' },
+          { name: 'trigger_data', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'action_result', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'error_message', type: 'text', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+        foreignKeys={['rule_id → automation_rules.id', 'contact_id → company_contacts.id']}
+      />
+
+      <TableSchema name="audit_trail" description="Change tracking for all major table operations"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'table_name', type: 'text', nullable: false, default_val: null },
+          { name: 'record_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'action', type: 'text', nullable: false, default_val: null, note: 'INSERT, UPDATE, DELETE' },
+          { name: 'old_data', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'new_data', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'changed_fields', type: 'text[]', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="custom_reports" description="User-created custom report configurations"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'description', type: 'text', nullable: true, default_val: null },
+          { name: 'report_type', type: 'text', nullable: false, default_val: 'bar', note: 'bar, line, pie, area, radar' },
+          { name: 'data_source', type: 'text', nullable: false, default_val: 'company_contacts' },
+          { name: 'metrics', type: 'jsonb', nullable: false, default_val: '{}' },
+          { name: 'dimensions', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'filters', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'chart_config', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'is_pinned', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
       <div className="glass-card rounded-xl p-6">
         <h2 className="text-xl font-semibold text-foreground mb-4">Additional Tables</h2>
         <p className="text-muted-foreground text-sm mb-4">The following tables also exist in the schema (see Backup SQL Scripts for full CREATE statements):</p>
