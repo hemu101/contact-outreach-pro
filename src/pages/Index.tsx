@@ -227,6 +227,18 @@ const Index = () => {
         return <CompaniesInfoPage />;
       case 'audit-trail':
         return <AuditTrailPanel />;
+      case 'activity-tracking':
+        return <ContactActivityPage />;
+      case 'automation':
+        return <AutomationRulesPage />;
+      case 'website-tracking':
+        return <TrackingScriptPage />;
+      case 'enrichment':
+        return <EnrichmentPage />;
+      case 'revenue-forecast':
+        return <RevenueForecastPage />;
+      case 'report-builder':
+        return <ReportBuilderPage />;
       case 'n8n':
         return <N8nWorkflow />;
       case 'settings':
