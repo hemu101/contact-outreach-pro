@@ -152,6 +152,105 @@ export type Database = {
         }
         Relationships: []
       }
+      automation_logs: {
+        Row: {
+          action_result: Json | null
+          contact_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          rule_id: string | null
+          status: string | null
+          trigger_data: Json | null
+          user_id: string
+        }
+        Insert: {
+          action_result?: Json | null
+          contact_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          rule_id?: string | null
+          status?: string | null
+          trigger_data?: Json | null
+          user_id: string
+        }
+        Update: {
+          action_result?: Json | null
+          contact_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          rule_id?: string | null
+          status?: string | null
+          trigger_data?: Json | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "automation_logs_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "automation_logs_rule_id_fkey"
+            columns: ["rule_id"]
+            isOneToOne: false
+            referencedRelation: "automation_rules"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      automation_rules: {
+        Row: {
+          action_config: Json
+          action_type: string
+          created_at: string
+          description: string | null
+          execution_count: number | null
+          id: string
+          is_active: boolean | null
+          last_executed_at: string | null
+          name: string
+          trigger_config: Json
+          trigger_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          action_config?: Json
+          action_type: string
+          created_at?: string
+          description?: string | null
+          execution_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          name: string
+          trigger_config?: Json
+          trigger_type: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          action_config?: Json
+          action_type?: string
+          created_at?: string
+          description?: string | null
+          execution_count?: number | null
+          id?: string
+          is_active?: boolean | null
+          last_executed_at?: string | null
+          name?: string
+          trigger_config?: Json
+          trigger_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_details: {
         Row: {
           billing_address: string | null
@@ -966,6 +1065,62 @@ export type Database = {
           },
         ]
       }
+      contact_activities: {
+        Row: {
+          activity_type: string
+          contact_id: string | null
+          created_at: string
+          description: string | null
+          duration_seconds: number | null
+          id: string
+          ip_address: string | null
+          metadata: Json | null
+          page_url: string | null
+          source: string | null
+          title: string | null
+          user_agent: string | null
+          user_id: string
+        }
+        Insert: {
+          activity_type: string
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          page_url?: string | null
+          source?: string | null
+          title?: string | null
+          user_agent?: string | null
+          user_id: string
+        }
+        Update: {
+          activity_type?: string
+          contact_id?: string | null
+          created_at?: string
+          description?: string | null
+          duration_seconds?: number | null
+          id?: string
+          ip_address?: string | null
+          metadata?: Json | null
+          page_url?: string | null
+          source?: string | null
+          title?: string | null
+          user_agent?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_activities_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       contacts: {
         Row: {
           bounce_type: string | null
@@ -1514,6 +1669,54 @@ export type Database = {
         }
         Relationships: []
       }
+      custom_reports: {
+        Row: {
+          chart_config: Json | null
+          created_at: string
+          data_source: string
+          description: string | null
+          dimensions: Json | null
+          filters: Json | null
+          id: string
+          is_pinned: boolean | null
+          metrics: Json
+          name: string
+          report_type: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          chart_config?: Json | null
+          created_at?: string
+          data_source?: string
+          description?: string | null
+          dimensions?: Json | null
+          filters?: Json | null
+          id?: string
+          is_pinned?: boolean | null
+          metrics?: Json
+          name: string
+          report_type?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          chart_config?: Json | null
+          created_at?: string
+          data_source?: string
+          description?: string | null
+          dimensions?: Json | null
+          filters?: Json | null
+          id?: string
+          is_pinned?: boolean | null
+          metrics?: Json
+          name?: string
+          report_type?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       deals: {
         Row: {
           company_contact_id: string | null
@@ -1961,6 +2164,60 @@ export type Database = {
           warmup_start_date?: string
         }
         Relationships: []
+      }
+      enrichment_logs: {
+        Row: {
+          company_id: string | null
+          contact_id: string | null
+          created_at: string
+          data_after: Json | null
+          data_before: Json | null
+          fields_enriched: string[] | null
+          id: string
+          source: string
+          status: string | null
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          data_after?: Json | null
+          data_before?: Json | null
+          fields_enriched?: string[] | null
+          id?: string
+          source: string
+          status?: string | null
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          data_after?: Json | null
+          data_before?: Json | null
+          fields_enriched?: string[] | null
+          id?: string
+          source?: string
+          status?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "enrichment_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "enrichment_logs_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       file_storage_tracking: {
         Row: {
@@ -2806,6 +3063,83 @@ export type Database = {
         }
         Relationships: []
       }
+      tracking_sessions: {
+        Row: {
+          browser: string | null
+          city: string | null
+          contact_id: string | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          email: string | null
+          first_seen_at: string | null
+          id: string
+          ip_address: string | null
+          is_identified: boolean | null
+          landing_page: string | null
+          last_seen_at: string | null
+          pages_viewed: Json | null
+          referrer: string | null
+          total_duration_seconds: number | null
+          total_page_views: number | null
+          user_agent: string | null
+          user_id: string
+          visitor_id: string
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          contact_id?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          email?: string | null
+          first_seen_at?: string | null
+          id?: string
+          ip_address?: string | null
+          is_identified?: boolean | null
+          landing_page?: string | null
+          last_seen_at?: string | null
+          pages_viewed?: Json | null
+          referrer?: string | null
+          total_duration_seconds?: number | null
+          total_page_views?: number | null
+          user_agent?: string | null
+          user_id: string
+          visitor_id: string
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          contact_id?: string | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          email?: string | null
+          first_seen_at?: string | null
+          id?: string
+          ip_address?: string | null
+          is_identified?: boolean | null
+          landing_page?: string | null
+          last_seen_at?: string | null
+          pages_viewed?: Json | null
+          referrer?: string | null
+          total_duration_seconds?: number | null
+          total_page_views?: number | null
+          user_agent?: string | null
+          user_id?: string
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "tracking_sessions_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_credits: {
         Row: {
           balance: number
@@ -3091,6 +3425,10 @@ export type Database = {
     Functions: {
       batch_calculate_lead_scores: {
         Args: { p_user_id: string }
+        Returns: number
+      }
+      calculate_engagement_score: {
+        Args: { p_contact_id: string }
         Returns: number
       }
       calculate_lead_score: { Args: { p_contact_id: string }; Returns: number }
