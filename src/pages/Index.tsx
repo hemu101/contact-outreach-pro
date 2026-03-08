@@ -20,6 +20,12 @@ import { CompaniesPage as CompaniesInfoPage } from '@/components/linkedin/Compan
 import { PipelineBoard } from '@/components/pipeline/PipelineBoard';
 import { LeadScoringPanel } from '@/components/contacts/LeadScoringPanel';
 import { AuditTrailPanel } from '@/components/audit/AuditTrailPanel';
+import { ContactActivityPage } from '@/components/tracking/ContactTimeline';
+import { AutomationRulesPage } from '@/components/tracking/AutomationRulesPage';
+import { TrackingScriptPage } from '@/components/tracking/TrackingScriptPage';
+import { EnrichmentPage } from '@/components/tracking/EnrichmentPage';
+import { RevenueForecastPage } from '@/components/reports/RevenueForecastPage';
+import { ReportBuilderPage } from '@/components/reports/ReportBuilderPage';
 import { useAuth } from '@/hooks/useAuth';
 import { useContacts } from '@/hooks/useContacts';
 import { useTemplates } from '@/hooks/useTemplates';
