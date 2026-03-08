@@ -4,7 +4,7 @@ import {
   Play, Settings, Code, ChevronRight, ExternalLink,
   CheckCircle, AlertCircle, Workflow, PieChart, Edit3, 
   Upload, MousePointer, ArrowLeft, Shield, Clock, MessageSquare,
-  Key, Server, Layers, Search, Table2, FunctionSquare
+  Key, Server, Layers, Search, Table2, FunctionSquare, Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -21,6 +21,15 @@ const sections = [
   { id: 'social-dm', label: 'Social DM Outreach', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics Dashboard', icon: PieChart },
   { id: 'companies', label: 'Companies & Contacts', icon: Layers },
+  { id: 'lead-scoring', label: 'Lead Scoring & Intelligence', icon: Zap },
+  { id: 'automation-rules', label: 'Workflow Automation', icon: Workflow },
+  { id: 'contact-tracking', label: 'Contact Activity Tracking', icon: MousePointer },
+  { id: 'website-tracking', label: 'Website Visitor Tracking', icon: Globe },
+  { id: 'enrichment', label: 'Contact Enrichment', icon: Search },
+  { id: 'audit-trail', label: 'Audit Trail', icon: Shield },
+  { id: 'report-builder', label: 'Custom Report Builder', icon: PieChart },
+  { id: 'revenue-forecast', label: 'Revenue Forecasting', icon: PieChart },
+  { id: 'email-tools', label: 'Email & Automation Tools', icon: Mail },
   { id: 'connection-info', label: 'Connection & Setup', icon: Key },
   { id: 'db-schema', label: 'Database Schema (All Tables)', icon: Database },
   { id: 'db-indexes', label: 'Indexes & Views', icon: Search },
@@ -89,6 +98,15 @@ export default function Documentation() {
           {activeSection === 'social-dm' && <SocialDMDocs />}
           {activeSection === 'analytics' && <AnalyticsDocs />}
           {activeSection === 'companies' && <CompaniesContactsDocs />}
+          {activeSection === 'lead-scoring' && <LeadScoringDocs />}
+          {activeSection === 'automation-rules' && <AutomationRulesDocs />}
+          {activeSection === 'contact-tracking' && <ContactTrackingDocs />}
+          {activeSection === 'website-tracking' && <WebsiteTrackingDocs />}
+          {activeSection === 'enrichment' && <EnrichmentDocs />}
+          {activeSection === 'audit-trail' && <AuditTrailDocs />}
+          {activeSection === 'report-builder' && <ReportBuilderDocs />}
+          {activeSection === 'revenue-forecast' && <RevenueForecastDocs />}
+          {activeSection === 'email-tools' && <EmailToolsDocs />}
           {activeSection === 'connection-info' && <ConnectionInfoDocs />}
           {activeSection === 'db-schema' && <DatabaseSchemaDocs />}
           {activeSection === 'db-indexes' && <IndexesViewsDocs />}
@@ -1223,6 +1241,90 @@ function DatabaseSchemaDocs() {
         ]}
       />
 
+      <TableSchema name="contact_activities" description="Tracks all contact interactions: page visits, emails, calls, form submissions"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'contact_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → company_contacts' },
+          { name: 'activity_type', type: 'text', nullable: false, default_val: null, note: 'page_view, email_open, email_click, form_submit, call, meeting' },
+          { name: 'title', type: 'text', nullable: true, default_val: null },
+          { name: 'description', type: 'text', nullable: true, default_val: null },
+          { name: 'metadata', type: 'jsonb', nullable: true, default_val: '{}' },
+          { name: 'source', type: 'text', nullable: true, default_val: 'manual', note: 'manual, tracking_script, webhook, system' },
+          { name: 'ip_address', type: 'text', nullable: true, default_val: null },
+          { name: 'user_agent', type: 'text', nullable: true, default_val: null },
+          { name: 'page_url', type: 'text', nullable: true, default_val: null },
+          { name: 'duration_seconds', type: 'integer', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+        foreignKeys={['contact_id → company_contacts.id']}
+      />
+
+      <TableSchema name="automation_rules" description="IF/THEN workflow automation rules"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'description', type: 'text', nullable: true, default_val: null },
+          { name: 'trigger_type', type: 'text', nullable: false, default_val: null, note: 'lead_score_threshold, no_reply, stage_change, new_contact, email_opened' },
+          { name: 'trigger_config', type: 'jsonb', nullable: false, default_val: '{}', note: 'Trigger parameters (e.g., threshold value, days)' },
+          { name: 'action_type', type: 'text', nullable: false, default_val: null, note: 'move_stage, send_email, add_tag, notify, create_task' },
+          { name: 'action_config', type: 'jsonb', nullable: false, default_val: '{}', note: 'Action parameters (e.g., target stage, template)' },
+          { name: 'is_active', type: 'boolean', nullable: true, default_val: 'true' },
+          { name: 'execution_count', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'last_executed_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="automation_logs" description="Execution log for automation rules"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'rule_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → automation_rules' },
+          { name: 'contact_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → company_contacts' },
+          { name: 'status', type: 'text', nullable: true, default_val: 'success', note: 'success, error' },
+          { name: 'trigger_data', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'action_result', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'error_message', type: 'text', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+        foreignKeys={['rule_id → automation_rules.id', 'contact_id → company_contacts.id']}
+      />
+
+      <TableSchema name="audit_trail" description="Change tracking for all major table operations"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'table_name', type: 'text', nullable: false, default_val: null },
+          { name: 'record_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'action', type: 'text', nullable: false, default_val: null, note: 'INSERT, UPDATE, DELETE' },
+          { name: 'old_data', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'new_data', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'changed_fields', type: 'text[]', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="custom_reports" description="User-created custom report configurations"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'description', type: 'text', nullable: true, default_val: null },
+          { name: 'report_type', type: 'text', nullable: false, default_val: 'bar', note: 'bar, line, pie, area, radar' },
+          { name: 'data_source', type: 'text', nullable: false, default_val: 'company_contacts' },
+          { name: 'metrics', type: 'jsonb', nullable: false, default_val: '{}' },
+          { name: 'dimensions', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'filters', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'chart_config', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'is_pinned', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
       <div className="glass-card rounded-xl p-6">
         <h2 className="text-xl font-semibold text-foreground mb-4">Additional Tables</h2>
         <p className="text-muted-foreground text-sm mb-4">The following tables also exist in the schema (see Backup SQL Scripts for full CREATE statements):</p>
@@ -1493,6 +1595,38 @@ $$;`}</SqlBlock>
         <Badge className="mb-3">TRIGGER FUNCTION</Badge>
         <p className="text-muted-foreground mb-3">Creates 3 default contract templates (Standard Collaboration, Influencer Campaign, Content License) for new users.</p>
       </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">9. calculate_lead_score(p_contact_id uuid)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Calculates lead score (0-100) for a contact based on data completeness, seniority, MQL/SQL status, and engagement. Updates lead_score and lead_score_breakdown columns.</p>
+        <SqlBlock>{`CREATE OR REPLACE FUNCTION public.calculate_lead_score(p_contact_id uuid)
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE score INTEGER := 0; breakdown JSONB := '{}';
+BEGIN
+  -- Scores based on: seniority (25), email (20), phone (15),
+  -- mql (15), sql_status (15), linkedin (10), engagement (variable)
+  -- Updates company_contacts.lead_score and lead_score_breakdown
+  RETURN score;
+END; $$;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">10. batch_calculate_lead_scores(p_user_id uuid)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Batch scores all contacts for a user. Returns count of scored contacts.</p>
+        <SqlBlock>{`SELECT batch_calculate_lead_scores(auth.uid());
+-- Returns: integer (count of contacts scored)`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">11. find_duplicate_contacts(p_user_id uuid)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Finds duplicate contacts by matching email or name+company combinations.</p>
+        <SqlBlock>{`SELECT * FROM find_duplicate_contacts(auth.uid());
+-- Returns TABLE(contact_id uuid, duplicate_of_id uuid, match_type text, match_value text)`}</SqlBlock>
+      </div>
     </div>
   );
 }
@@ -1631,6 +1765,13 @@ function EdgeFunctionsDocs() {
           desc: 'Scrapes public LinkedIn profile data (name, headline, experience, skills) and stores in linkedin_leads.',
           input: '{ linkedin_url: string }',
           tables: 'linkedin_leads',
+        },
+        {
+          name: 'track-website-visitor',
+          jwt: false,
+          desc: 'Processes website tracking events. Handles visitor identification, session tracking, and logs activities if contact is matched by email.',
+          input: '{ user_id, event_type, page_url, referrer, visitor_id, email?, metadata? }',
+          tables: 'contact_activities, company_contacts',
         },
       ].map(fn => (
         <div key={fn.name} className="glass-card rounded-xl p-6">
@@ -1773,6 +1914,9 @@ function DatabaseLoggingDocs() {
             { name: 'campaign_send_logs', desc: 'Detailed send events: success, failures, error codes, timestamps' },
             { name: 'email_events', desc: 'Tracking events: opens, clicks, IP addresses, user agents' },
             { name: 'page_views', desc: 'User navigation tracking' },
+            { name: 'contact_activities', desc: 'Contact interactions: page views, email opens, form submissions, calls, meetings' },
+            { name: 'automation_logs', desc: 'Workflow automation execution logs with trigger data and action results' },
+            { name: 'audit_trail', desc: 'Record-level change tracking with before/after data snapshots' },
             { name: 'contract_activity', desc: 'Contract lifecycle events (viewed, signed, edited)' },
             { name: 'credit_transactions', desc: 'Credit usage and purchase history' },
             { name: 'tool_usage_analytics', desc: 'Which tools users interact with most' },
@@ -1962,6 +2106,62 @@ function PageReferenceDocs() {
           tables: 'None',
           component: 'Documentation.tsx',
         },
+        {
+          page: 'Lead Scoring',
+          route: '/lead-scoring (tab)',
+          desc: 'Score contacts by seniority, engagement, MQL/SQL status. Duplicate detection.',
+          hooks: 'useLeadScoring, useCompanyContacts',
+          tables: 'company_contacts (lead_score, lead_score_breakdown, mql, sql_status)',
+          component: 'LeadScoringPanel.tsx',
+        },
+        {
+          page: 'Automation Rules',
+          route: '/automation (tab)',
+          desc: 'IF/THEN workflow rules: trigger on score threshold, stage change, etc.',
+          hooks: 'useAutomationRules',
+          tables: 'automation_rules, automation_logs',
+          component: 'AutomationRulesPage.tsx',
+        },
+        {
+          page: 'Website Tracking',
+          route: '/tracking (tab)',
+          desc: 'Generate tracking script, view visitor sessions, match to contacts.',
+          hooks: 'useContactActivities',
+          tables: 'contact_activities',
+          component: 'TrackingScriptPage.tsx',
+        },
+        {
+          page: 'Contact Enrichment',
+          route: '/enrichment (tab)',
+          desc: 'Data completeness analysis, missing field identification.',
+          hooks: 'useCompanyContacts',
+          tables: 'company_contacts',
+          component: 'EnrichmentPage.tsx',
+        },
+        {
+          page: 'Report Builder',
+          route: '/reports (tab)',
+          desc: 'Custom bar/pie/line/area/radar reports with configurable dimensions.',
+          hooks: 'useCustomReports, useCompanyContacts',
+          tables: 'custom_reports, company_contacts',
+          component: 'ReportBuilderPage.tsx',
+        },
+        {
+          page: 'Revenue Forecast',
+          route: '/forecast (tab)',
+          desc: 'Pipeline value forecasting, monthly projections, funnel conversion.',
+          hooks: 'usePipeline',
+          tables: 'deals, pipeline_stages',
+          component: 'RevenueForecastPage.tsx',
+        },
+        {
+          page: 'Email Tools',
+          route: '/email-tools (tab)',
+          desc: 'SMTP config, provider comparison, automation alternatives.',
+          hooks: 'useEmailSettings',
+          tables: 'email_settings',
+          component: 'EmailToolsPage.tsx',
+        },
       ].map(p => (
         <div key={p.page} className="glass-card rounded-xl p-6">
           <div className="flex items-center gap-3 mb-3">
@@ -1979,6 +2179,382 @@ function PageReferenceDocs() {
     </div>
   );
 }
+
+/* ========== NEW FEATURE DOCS ========== */
+
+function LeadScoringDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Lead Scoring & Intelligence</h1>
+      <p className="text-muted-foreground">Advanced engagement-based scoring with MQL/SQL tracking, seniority weighting, and duplicate detection.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Scoring Methodology</h2>
+        <p className="text-muted-foreground mb-4">Lead scores are calculated using a weighted formula across multiple dimensions:</p>
+        <div className="space-y-3">
+          {[
+            { category: 'Seniority', weight: '25 pts', desc: 'C-Level/VP/Director get highest scores' },
+            { category: 'Email Available', weight: '20 pts', desc: 'Contacts with verified email addresses' },
+            { category: 'Phone Available', weight: '15 pts', desc: 'Direct phone or mobile available' },
+            { category: 'MQL Status', weight: '15 pts', desc: 'Marketing Qualified Lead designation' },
+            { category: 'SQL Status', weight: '15 pts', desc: 'Sales Qualified Lead designation' },
+            { category: 'LinkedIn Profile', weight: '10 pts', desc: 'Has LinkedIn URL for outreach' },
+            { category: 'Engagement Score', weight: 'Variable', desc: 'Based on email opens, clicks, page visits (recency-weighted)' },
+          ].map(s => (
+            <div key={s.category} className="flex items-center justify-between p-3 border border-border rounded-lg">
+              <div>
+                <span className="font-semibold text-foreground">{s.category}</span>
+                <p className="text-xs text-muted-foreground">{s.desc}</p>
+              </div>
+              <Badge variant="secondary">{s.weight}</Badge>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database Functions</h2>
+        <SqlBlock title="calculate_lead_score(p_contact_id uuid)">{`-- Calculates score for a single contact based on data completeness,
+-- seniority, MQL/SQL status, and engagement history.
+-- Returns integer score (0-100).
+-- Updates company_contacts.lead_score and lead_score_breakdown.
+SELECT calculate_lead_score('contact-uuid-here');`}</SqlBlock>
+        <SqlBlock title="batch_calculate_lead_scores(p_user_id uuid)">{`-- Scores ALL contacts for a user. Returns count of scored contacts.
+SELECT batch_calculate_lead_scores(auth.uid());`}</SqlBlock>
+        <SqlBlock title="find_duplicate_contacts(p_user_id uuid)">{`-- Finds duplicate contacts by matching email or name+company.
+-- Returns: contact_id, duplicate_of_id, match_type, match_value
+SELECT * FROM find_duplicate_contacts(auth.uid());`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Hooks & Components</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Hook:</span><code className="text-primary">useLeadScoring()</code> — scoreContact, scoreAll, findDuplicates mutations</div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Component:</span><code className="text-primary">LeadScoringPanel.tsx</code> — Dashboard with score breakdown, MQL/SQL rates, contact detail dialog</div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Tables:</span><code className="text-muted-foreground">company_contacts (lead_score, lead_score_breakdown, mql, sql_status, ig_score)</code></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AutomationRulesDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Workflow Automation Rules</h1>
+      <p className="text-muted-foreground">Create IF/THEN automation rules to auto-move pipeline stages, send emails, add tags, and more.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Trigger Types</h2>
+        <div className="space-y-2">
+          {[
+            { type: 'lead_score_threshold', desc: 'When a contact\'s lead score exceeds a threshold (e.g., > 70)' },
+            { type: 'no_reply', desc: 'When no reply is received within N days of sending' },
+            { type: 'stage_change', desc: 'When a contact moves to a specific pipeline stage' },
+            { type: 'new_contact', desc: 'When a new contact is created' },
+            { type: 'email_opened', desc: 'When a campaign email is opened by a contact' },
+          ].map(t => (
+            <div key={t.type} className="p-3 border border-border rounded-lg">
+              <code className="text-primary font-mono text-sm">{t.type}</code>
+              <p className="text-xs text-muted-foreground mt-1">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Action Types</h2>
+        <div className="space-y-2">
+          {[
+            { type: 'move_stage', desc: 'Move contact to a pipeline stage (e.g., Qualified, Negotiation)' },
+            { type: 'send_email', desc: 'Send a template email to the contact' },
+            { type: 'add_tag', desc: 'Add a tag to the contact (e.g., hot-lead, follow-up)' },
+            { type: 'notify', desc: 'Send a notification to the user' },
+            { type: 'create_task', desc: 'Create a follow-up task' },
+          ].map(t => (
+            <div key={t.type} className="p-3 border border-border rounded-lg">
+              <code className="text-primary font-mono text-sm">{t.type}</code>
+              <p className="text-xs text-muted-foreground mt-1">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Tables & Hooks</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Tables:</span><code className="text-muted-foreground">automation_rules, automation_logs</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Hook:</span><code className="text-primary">useAutomationRules()</code> — CRUD for rules + logs query</div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Component:</span><code className="text-primary">AutomationRulesPage.tsx</code> — Rule builder UI with trigger/action config</div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">RLS:</span><code className="text-muted-foreground">Users manage own rules (ALL policy). Logs: public insert, user select.</code></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ContactTrackingDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Contact Activity Tracking</h1>
+      <p className="text-muted-foreground">Track every interaction with contacts: page visits, email opens, calls, meetings, and form submissions.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Activity Types</h2>
+        <div className="grid grid-cols-2 gap-2">
+          {['page_view', 'email_open', 'email_click', 'email_reply', 'form_submit', 'call', 'meeting', 'note', 'deal_created', 'stage_change'].map(t => (
+            <div key={t} className="p-2 bg-secondary/50 rounded font-mono text-sm text-primary">{t}</div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Contact Timeline</h2>
+        <p className="text-muted-foreground mb-3">The <code className="text-primary">ContactTimeline.tsx</code> component displays a vertical timeline grouped by date, showing all activities for a contact with type-specific icons and metadata.</p>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Hook:</span><code className="text-primary">useContactActivities(contactId?)</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Table:</span><code className="text-muted-foreground">contact_activities</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">RLS:</span><code className="text-muted-foreground">Public insert (for tracking script), user manages own</code></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function WebsiteTrackingDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Website Visitor Tracking</h1>
+      <p className="text-muted-foreground">Embed a JavaScript tracking script on your website to identify visitors and match them to contacts.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">How It Works</h2>
+        <div className="space-y-4">
+          <Step number={1} title="Embed Tracking Script">Copy the generated JavaScript snippet and add it to your website's HTML.</Step>
+          <Step number={2} title="Track Page Views">The script automatically tracks page views, referrers, and session duration.</Step>
+          <Step number={3} title="Identify Visitors">When a visitor fills a form or clicks a tracked link, they're matched to a contact by email.</Step>
+          <Step number={4} title="View Activity">All matched activities appear in the contact's timeline and activity feed.</Step>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Function: track-website-visitor</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Endpoint:</span><code className="text-primary">POST /functions/v1/track-website-visitor</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Auth:</span><code className="text-muted-foreground">Public (no JWT required)</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Input:</span><code className="text-muted-foreground">{'{ user_id, event_type, page_url, referrer, visitor_id, email?, metadata? }'}</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Tables:</span><code className="text-muted-foreground">contact_activities, company_contacts</code></div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Component</h2>
+        <p className="text-muted-foreground text-sm"><code className="text-primary">TrackingScriptPage.tsx</code> — Generates the embeddable script, shows visitor sessions dashboard, and provides a copy-to-clipboard snippet.</p>
+      </div>
+    </div>
+  );
+}
+
+function EnrichmentDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Contact Enrichment</h1>
+      <p className="text-muted-foreground">Analyze data completeness and identify contacts with missing fields for enrichment.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Completeness Metrics</h2>
+        <p className="text-muted-foreground mb-3">The enrichment dashboard calculates completeness percentages for key fields:</p>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {['Email', 'Phone', 'LinkedIn URL', 'Title/Role', 'City', 'State', 'Country', 'Seniority', 'Company', 'MQL Status'].map(f => (
+            <div key={f} className="p-2 bg-secondary/50 rounded text-muted-foreground">{f}</div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Component</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Page:</span><code className="text-primary">EnrichmentPage.tsx</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Hook:</span><code className="text-primary">useCompanyContacts()</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Features:</span><span className="text-muted-foreground">Completeness bars, missing field identification, enrichment suggestions</span></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function AuditTrailDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Audit Trail</h1>
+      <p className="text-muted-foreground">Track all changes to records across the system with before/after snapshots.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">What's Tracked</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Table name and record ID for every change</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Action type: INSERT, UPDATE, DELETE</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Old data snapshot (before change)</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />New data snapshot (after change)</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />List of changed fields</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Timestamp and user ID</li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Hooks & Components</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Hook:</span><code className="text-primary">useAuditTrail(tableName?, recordId?)</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Component:</span><code className="text-primary">AuditTrailPanel.tsx</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Table:</span><code className="text-muted-foreground">audit_trail</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">RLS:</span><code className="text-muted-foreground">Public insert (system), user select own</code></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ReportBuilderDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Custom Report Builder</h1>
+      <p className="text-muted-foreground">Build custom reports with drag-and-drop metrics, filters, and multiple chart types.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Supported Chart Types</h2>
+        <div className="grid grid-cols-3 gap-2">
+          {['Bar Chart', 'Line Chart', 'Pie Chart', 'Area Chart', 'Radar Chart', 'Funnel Chart'].map(t => (
+            <div key={t} className="p-3 bg-secondary/50 rounded text-center text-sm text-foreground">{t}</div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Sources & Dimensions</h2>
+        <p className="text-muted-foreground mb-3">Reports can be grouped by these dimensions:</p>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {['Seniority', 'Department', 'Country', 'Pipeline Stage', 'MQL Status', 'SQL Status', 'Industry', 'Tags'].map(d => (
+            <div key={d} className="p-2 bg-secondary/50 rounded text-muted-foreground">{d}</div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Hooks & Components</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Hook:</span><code className="text-primary">useCustomReports()</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Component:</span><code className="text-primary">ReportBuilderPage.tsx</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Table:</span><code className="text-muted-foreground">custom_reports</code></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function RevenueForecastDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Revenue Forecasting</h1>
+      <p className="text-muted-foreground">Track deals by expected close date with weighted pipeline value forecasting.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Features</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Total pipeline value and weighted value (Value × Probability %)</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Monthly revenue projections with bar/area charts</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Pipeline funnel conversion visualization</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Deal stage distribution</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Win rate and average deal size metrics</li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Hooks & Components</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Hook:</span><code className="text-primary">usePipeline()</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Component:</span><code className="text-primary">RevenueForecastPage.tsx</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Table:</span><code className="text-muted-foreground">deals, pipeline_stages</code></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function EmailToolsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Email & Automation Tools</h1>
+      <p className="text-muted-foreground">Dedicated page for SMTP configuration, email provider comparison, and automation alternatives beyond n8n.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">SMTP Configuration</h2>
+        <p className="text-muted-foreground mb-3">Quick-setup for popular SMTP providers with pre-filled host/port values:</p>
+        <div className="space-y-2">
+          {[
+            { name: 'Brevo', host: 'smtp-relay.brevo.com:587' },
+            { name: 'Gmail', host: 'smtp.gmail.com:587' },
+            { name: 'Outlook', host: 'smtp.office365.com:587' },
+            { name: 'Mailgun', host: 'smtp.mailgun.org:587' },
+            { name: 'SendGrid', host: 'smtp.sendgrid.net:587' },
+            { name: 'Amazon SES', host: 'email-smtp.us-east-1.amazonaws.com:587' },
+          ].map(p => (
+            <div key={p.name} className="flex justify-between p-2 bg-secondary/50 rounded text-sm">
+              <span className="text-foreground">{p.name}</span>
+              <code className="text-muted-foreground">{p.host}</code>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Email Providers (Free Tiers)</h2>
+        <div className="space-y-2">
+          {[
+            { name: 'Brevo (Sendinblue)', free: '300 emails/day free', note: 'Recommended' },
+            { name: 'SendGrid', free: '100 emails/day free forever', note: '' },
+            { name: 'Resend', free: '100 emails/day, 3000/month', note: 'Modern API' },
+            { name: 'Mailgun', free: '100 emails/day (sandbox)', note: '' },
+            { name: 'Mailjet', free: '200 emails/day, 6000/month', note: '' },
+          ].map(p => (
+            <div key={p.name} className="flex justify-between p-2 bg-secondary/50 rounded text-sm">
+              <span className="text-foreground">{p.name} {p.note && <Badge variant="secondary" className="ml-2 text-[10px]">{p.note}</Badge>}</span>
+              <span className="text-primary text-xs">{p.free}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Automation Alternatives</h2>
+        <p className="text-muted-foreground mb-3">Beyond n8n, these tools can be integrated for workflow automation:</p>
+        <div className="space-y-2">
+          {[
+            { name: 'Supabase Edge Functions', desc: 'Built-in — custom triggers, webhooks, scheduling' },
+            { name: 'Zapier', desc: '5000+ app integrations, 100 tasks/month free' },
+            { name: 'Make (Integromat)', desc: '1000 ops/month free, visual builder' },
+            { name: 'Pipedream', desc: 'Unlimited workflows, Node.js runtime' },
+            { name: 'n8n (Self-hosted)', desc: 'Already integrated — 200+ integrations, code nodes' },
+          ].map(t => (
+            <div key={t.name} className="p-3 border border-border rounded-lg">
+              <span className="font-semibold text-foreground text-sm">{t.name}</span>
+              <p className="text-xs text-muted-foreground">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Component</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Page:</span><code className="text-primary">EmailToolsPage.tsx</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Hook:</span><code className="text-primary">useEmailSettings()</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Tabs:</span><code className="text-muted-foreground">SMTP, Providers, Automation, Testing</code></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
 
 function TroubleshootingDocs() {
   return (
