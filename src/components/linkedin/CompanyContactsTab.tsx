@@ -37,13 +37,15 @@ const FIELD_GROUPS = {
     { key: 'city', label: 'City' },
     { key: 'state', label: 'State' },
     { key: 'country', label: 'Country' },
+  ],
+  social: [
     { key: 'person_linkedin_url', label: 'LinkedIn URL' },
+    { key: 'job_tracking_link', label: 'Job Tracking Link' },
+    { key: 'linkedin_job_link', label: 'LinkedIn Job Link' },
   ],
   job: [
     { key: 'hiring_job_title', label: 'Hiring Job Title' },
     { key: 'job_location', label: 'Job Location' },
-    { key: 'job_tracking_link', label: 'Job Tracking Link' },
-    { key: 'linkedin_job_link', label: 'LinkedIn Job Link' },
     { key: 'linkedin_job_title', label: 'LinkedIn Job Title' },
     { key: 'job_basedon', label: 'Job Based On' },
     { key: 'salary_estimated', label: 'Salary (Estimated)' },
@@ -52,6 +54,7 @@ const FIELD_GROUPS = {
     { key: 'mql', label: 'MQL' },
     { key: 'sql_status', label: 'SQL Status' },
     { key: 'ig_score', label: 'IG Score' },
+    { key: 'pipeline_stage', label: 'Pipeline Stage' },
     { key: 'date_of_filtration', label: 'Date of Filtration' },
     { key: 'notes_for_sdr', label: 'Notes for SDR', type: 'textarea', full: true },
     { key: 'notes_for_data', label: 'Notes for Data', type: 'textarea', full: true },
@@ -136,10 +139,11 @@ export function CompanyContactsTab({ companyId }: { companyId?: string }) {
           <DialogContent className="max-w-2xl max-h-[85vh]">
             <DialogHeader><DialogTitle>{editContact ? 'Edit Contact' : 'Add Contact'}</DialogTitle></DialogHeader>
             <Tabs defaultValue="basic">
-              <TabsList className="grid grid-cols-5 w-full">
+              <TabsList className="grid grid-cols-6 w-full">
                 <TabsTrigger value="basic">Basic</TabsTrigger>
                 <TabsTrigger value="contact">Contact</TabsTrigger>
                 <TabsTrigger value="location">Location</TabsTrigger>
+                <TabsTrigger value="social">Social</TabsTrigger>
                 <TabsTrigger value="job">Job Info</TabsTrigger>
                 <TabsTrigger value="scoring">Scoring</TabsTrigger>
               </TabsList>
@@ -152,6 +156,9 @@ export function CompanyContactsTab({ companyId }: { companyId?: string }) {
                 </TabsContent>
                 <TabsContent value="location" className="grid grid-cols-2 gap-3 mt-0">
                   {FIELD_GROUPS.location.map(renderField)}
+                </TabsContent>
+                <TabsContent value="social" className="grid grid-cols-2 gap-3 mt-0">
+                  {FIELD_GROUPS.social.map(renderField)}
                 </TabsContent>
                 <TabsContent value="job" className="grid grid-cols-2 gap-3 mt-0">
                   {FIELD_GROUPS.job.map(renderField)}
@@ -187,10 +194,14 @@ export function CompanyContactsTab({ companyId }: { companyId?: string }) {
                     <TableHead>Seniority</TableHead>
                     <TableHead>Email</TableHead>
                     <TableHead>Phone</TableHead>
-                    <TableHead>Location</TableHead>
+                    <TableHead>City</TableHead>
+                    <TableHead>State</TableHead>
+                    <TableHead>Country</TableHead>
+                    <TableHead>LinkedIn</TableHead>
                     <TableHead>MQL</TableHead>
                     <TableHead>SQL</TableHead>
                     <TableHead>IG Score</TableHead>
+                    <TableHead>Stage</TableHead>
                     <TableHead className="w-[80px]"></TableHead>
                   </TableRow>
                 </TableHeader>
@@ -198,23 +209,26 @@ export function CompanyContactsTab({ companyId }: { companyId?: string }) {
                   {filtered.map(c => (
                     <TableRow key={c.id}>
                       <TableCell>
-                        <div className="flex items-center gap-2">
-                          <span className="font-medium whitespace-nowrap">{c.first_name} {c.last_name}</span>
-                          {c.person_linkedin_url && (
-                            <a href={c.person_linkedin_url} target="_blank" rel="noopener noreferrer">
-                              <ExternalLink className="w-3 h-3 text-muted-foreground" />
-                            </a>
-                          )}
-                        </div>
+                        <span className="font-medium whitespace-nowrap">{c.first_name} {c.last_name}</span>
                       </TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{c.title || '—'}</TableCell>
                       <TableCell>{c.seniority ? <Badge variant="outline" className="text-xs">{c.seniority}</Badge> : '—'}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{c.email || '—'}</TableCell>
                       <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{c.work_direct_phone || c.mobile_phone || '—'}</TableCell>
-                      <TableCell className="text-sm text-muted-foreground whitespace-nowrap">{[c.city, c.state, c.country].filter(Boolean).join(', ') || '—'}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{c.city || '—'}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{c.state || '—'}</TableCell>
+                      <TableCell className="text-sm text-muted-foreground">{c.country || '—'}</TableCell>
+                      <TableCell>
+                        {c.person_linkedin_url ? (
+                          <a href={c.person_linkedin_url} target="_blank" rel="noopener noreferrer">
+                            <ExternalLink className="w-3 h-3 text-primary" />
+                          </a>
+                        ) : '—'}
+                      </TableCell>
                       <TableCell>{c.mql ? <Badge variant="secondary" className="text-xs">{c.mql}</Badge> : '—'}</TableCell>
                       <TableCell>{c.sql_status ? <Badge variant="secondary" className="text-xs">{c.sql_status}</Badge> : '—'}</TableCell>
                       <TableCell className="text-sm text-muted-foreground">{c.ig_score || '—'}</TableCell>
+                      <TableCell>{c.pipeline_stage ? <Badge variant="outline" className="text-xs">{c.pipeline_stage}</Badge> : '—'}</TableCell>
                       <TableCell>
                         <div className="flex gap-1">
                           <Button variant="ghost" size="icon" className="h-7 w-7" onClick={() => openEdit(c)}><Edit className="w-3.5 h-3.5" /></Button>
