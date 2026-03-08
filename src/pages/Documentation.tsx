@@ -1734,6 +1734,13 @@ function EdgeFunctionsDocs() {
           input: '{ linkedin_url: string }',
           tables: 'linkedin_leads',
         },
+        {
+          name: 'track-website-visitor',
+          jwt: false,
+          desc: 'Processes website tracking events. Handles visitor identification, session tracking, and logs activities if contact is matched by email.',
+          input: '{ user_id, event_type, page_url, referrer, visitor_id, email?, metadata? }',
+          tables: 'contact_activities, company_contacts',
+        },
       ].map(fn => (
         <div key={fn.name} className="glass-card rounded-xl p-6">
           <div className="flex items-center gap-3 mb-3">
