@@ -18,7 +18,12 @@ import {
   Building2,
   Kanban,
   Target,
-  History
+  History,
+  Eye,
+  Globe,
+  TrendingUp,
+  BarChart3,
+  Sparkles
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
