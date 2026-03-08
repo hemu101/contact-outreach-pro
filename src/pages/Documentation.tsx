@@ -3,7 +3,8 @@ import {
   Book, Zap, Database, Mail, Users, FileText, 
   Play, Settings, Code, ChevronRight, ExternalLink,
   CheckCircle, AlertCircle, Workflow, PieChart, Edit3, 
-  Upload, MousePointer, ArrowLeft, Shield, Clock, MessageSquare
+  Upload, MousePointer, ArrowLeft, Shield, Clock, MessageSquare,
+  Key, Server, Layers, Search, Table2, FunctionSquare
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -19,12 +20,20 @@ const sections = [
   { id: 'unified-inbox', label: 'Unified Inbox', icon: Mail },
   { id: 'social-dm', label: 'Social DM Outreach', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics Dashboard', icon: PieChart },
-  { id: 'db-schema', label: 'Database Schema', icon: Database },
+  { id: 'companies', label: 'Companies & Contacts', icon: Layers },
+  { id: 'connection-info', label: 'Connection & Setup', icon: Key },
+  { id: 'db-schema', label: 'Database Schema (All Tables)', icon: Database },
+  { id: 'db-indexes', label: 'Indexes & Views', icon: Search },
+  { id: 'db-functions', label: 'Functions & Procedures', icon: FunctionSquare },
+  { id: 'db-triggers', label: 'Triggers & Enums', icon: Zap },
+  { id: 'edge-functions', label: 'Edge Functions', icon: Server },
+  { id: 'rls-policies', label: 'RLS Policies', icon: Shield },
   { id: 'backup-scripts', label: 'Backup SQL Scripts', icon: Code },
   { id: 'n8n-automation', label: 'n8n Automation', icon: Workflow },
   { id: 'database-logging', label: 'Database Logging', icon: Database },
   { id: 'db-migration', label: 'PostgreSQL Migration', icon: Database },
   { id: 'api-setup', label: 'API Setup', icon: Code },
+  { id: 'page-reference', label: 'Page-by-Page Reference', icon: Table2 },
   { id: 'troubleshooting', label: 'Troubleshooting', icon: Settings },
 ];
 
@@ -36,7 +45,7 @@ export default function Documentation() {
     <div className="min-h-screen bg-background">
       <div className="flex">
         {/* Sidebar */}
-        <aside className="w-72 border-r border-border bg-card/50 min-h-screen p-4 sticky top-0">
+        <aside className="w-72 border-r border-border bg-card/50 min-h-screen p-4 sticky top-0 overflow-y-auto max-h-screen">
           <div className="flex items-center gap-2 mb-6 px-2">
             <Button variant="ghost" size="sm" onClick={() => navigate('/')}>
               <ArrowLeft className="w-4 h-4 mr-2" />
@@ -55,13 +64,13 @@ export default function Documentation() {
                   key={section.id}
                   onClick={() => setActiveSection(section.id)}
                   className={cn(
-                    "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors",
+                    "w-full flex items-center gap-3 px-3 py-2 rounded-lg text-left transition-colors text-sm",
                     activeSection === section.id
                       ? "bg-primary/10 text-primary"
                       : "text-muted-foreground hover:bg-secondary hover:text-foreground"
                   )}
                 >
-                  <Icon className="w-4 h-4" />
+                  <Icon className="w-4 h-4 shrink-0" />
                   {section.label}
                 </button>
               );
@@ -70,7 +79,7 @@ export default function Documentation() {
         </aside>
 
         {/* Content */}
-        <main className="flex-1 p-8 max-w-4xl">
+        <main className="flex-1 p-8 max-w-5xl">
           {activeSection === 'getting-started' && <GettingStarted />}
           {activeSection === 'contacts' && <ContactsDocs />}
           {activeSection === 'inline-editing' && <InlineEditingDocs />}
@@ -79,12 +88,20 @@ export default function Documentation() {
           {activeSection === 'unified-inbox' && <UnifiedInboxDocs />}
           {activeSection === 'social-dm' && <SocialDMDocs />}
           {activeSection === 'analytics' && <AnalyticsDocs />}
+          {activeSection === 'companies' && <CompaniesContactsDocs />}
+          {activeSection === 'connection-info' && <ConnectionInfoDocs />}
           {activeSection === 'db-schema' && <DatabaseSchemaDocs />}
+          {activeSection === 'db-indexes' && <IndexesViewsDocs />}
+          {activeSection === 'db-functions' && <DatabaseFunctionsDocs />}
+          {activeSection === 'db-triggers' && <TriggersEnumsDocs />}
+          {activeSection === 'edge-functions' && <EdgeFunctionsDocs />}
+          {activeSection === 'rls-policies' && <RLSPoliciesDocs />}
           {activeSection === 'backup-scripts' && <BackupScriptsDocs />}
           {activeSection === 'n8n-automation' && <N8nDocs />}
           {activeSection === 'database-logging' && <DatabaseLoggingDocs />}
           {activeSection === 'db-migration' && <DatabaseMigrationDocs />}
           {activeSection === 'api-setup' && <ApiSetupDocs />}
+          {activeSection === 'page-reference' && <PageReferenceDocs />}
           {activeSection === 'troubleshooting' && <TroubleshootingDocs />}
         </main>
       </div>
@@ -92,1740 +109,7 @@ export default function Documentation() {
   );
 }
 
-function GettingStarted() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <div>
-        <h1 className="text-4xl font-bold text-foreground mb-4">Getting Started</h1>
-        <p className="text-lg text-muted-foreground">
-          Welcome to OutreachFlow - your advanced automation platform for personalized outreach campaigns.
-        </p>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Quick Start Guide</h2>
-        <div className="space-y-4">
-          <Step number={1} title="Sign Up / Login">
-            Create an account or log in with your email. You'll need to verify your email if confirmation is enabled.
-          </Step>
-          <Step number={2} title="Import Your Contacts">
-            Go to the Contacts tab and upload a CSV file. Required columns: First Name, Last Name, Email.
-            Optional: Business Name, Phone, Instagram, TikTok handles.
-          </Step>
-          <Step number={3} title="Create Templates">
-            Build personalized message templates using variables like {"{{firstName}}"}, {"{{businessName}}"}.
-            Create templates for Email, Instagram DM, TikTok DM, or Voicemail.
-          </Step>
-          <Step number={4} title="Build Campaigns">
-            Select contacts, choose templates, and schedule your campaign.
-            Monitor delivery in real-time with open and click tracking.
-          </Step>
-          <Step number={5} title="View Analytics">
-            Check the Analytics tab to see open rates, click rates, and engagement metrics.
-          </Step>
-          <Step number={6} title="Automate with n8n">
-            Export the n8n workflow to automate multi-channel outreach with advanced scheduling.
-          </Step>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">System Requirements</h2>
-        <ul className="space-y-2 text-muted-foreground">
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            Modern browser (Chrome, Firefox, Safari, Edge)
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            Brevo/SendGrid API key for email sending
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            n8n instance (self-hosted or cloud) for advanced automation
-          </li>
-        </ul>
-      </div>
-
-      <div className="glass-card rounded-xl p-6 border-primary/30">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Initial Setup Checklist</h2>
-        <div className="space-y-3">
-          <ChecklistItem>Create your account and verify email</ChecklistItem>
-          <ChecklistItem>Set up Brevo/SendGrid API key (Settings → API Keys)</ChecklistItem>
-          <ChecklistItem>Import your first batch of contacts via CSV</ChecklistItem>
-          <ChecklistItem>Create at least one email template</ChecklistItem>
-          <ChecklistItem>Create a test campaign with 1-2 contacts</ChecklistItem>
-          <ChecklistItem>Verify emails are being received</ChecklistItem>
-          <ChecklistItem>Set up n8n for automation (optional)</ChecklistItem>
-          <ChecklistItem>Connect social accounts for DM outreach (optional)</ChecklistItem>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function ContactsDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Managing Contacts</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">CSV Import Format</h2>
-        <p className="text-muted-foreground mb-4">
-          Your CSV file should have the following columns (header row required):
-        </p>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-          <pre className="text-foreground">First Name,Last Name,Business Name,Email,Phone,Instagram,TikTok,Timezone</pre>
-          <pre className="text-muted-foreground">John,Smith,Acme Corp,john@acme.com,+1234567890,@johnsmith,@johnsmith_tt,America/New_York</pre>
-          <pre className="text-muted-foreground">Jane,Doe,Tech Inc,jane@tech.io,,,@janedoe_tt,Europe/London</pre>
-        </div>
-        <div className="mt-4 p-4 bg-warning/10 rounded-lg border border-warning/30">
-          <p className="text-sm text-warning flex items-center gap-2">
-            <AlertCircle className="w-4 h-4" />
-            Optional columns can be left empty. Only Email is required for email campaigns.
-          </p>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Bulk Operations</h2>
-        <ul className="space-y-3 text-muted-foreground">
-          <li className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-              <span className="text-xs text-primary font-bold">1</span>
-            </div>
-            <div>
-              <strong className="text-foreground">Select Multiple:</strong> Use checkboxes to select individual contacts or click the header checkbox to select all.
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-              <span className="text-xs text-primary font-bold">2</span>
-            </div>
-            <div>
-              <strong className="text-foreground">Bulk Delete:</strong> After selecting contacts, click the red "Delete" button to remove them.
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5">
-              <span className="text-xs text-primary font-bold">3</span>
-            </div>
-            <div>
-              <strong className="text-foreground">Filter by Status:</strong> Use the dropdown to filter by Pending, Sent, or Failed.
-            </div>
-          </li>
-        </ul>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Contact Statuses</h2>
-        <ul className="space-y-3">
-          <li className="flex items-center gap-3">
-            <span className="w-3 h-3 rounded-full bg-warning" />
-            <span className="font-medium text-foreground">Pending</span>
-            <span className="text-muted-foreground">- Not yet contacted, waiting for campaign</span>
-          </li>
-          <li className="flex items-center gap-3">
-            <span className="w-3 h-3 rounded-full bg-success" />
-            <span className="font-medium text-foreground">Sent</span>
-            <span className="text-muted-foreground">- Message successfully delivered</span>
-          </li>
-          <li className="flex items-center gap-3">
-            <span className="w-3 h-3 rounded-full bg-destructive" />
-            <span className="font-medium text-foreground">Failed</span>
-            <span className="text-muted-foreground">- Delivery failed (check email address)</span>
-          </li>
-          <li className="flex items-center gap-3">
-            <span className="w-3 h-3 rounded-full bg-blue-500" />
-            <span className="font-medium text-foreground">Bounced</span>
-            <span className="text-muted-foreground">- Email bounced (invalid address)</span>
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-function InlineEditingDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Inline Editing</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Click-to-Edit Fields</h2>
-        <p className="text-muted-foreground mb-4">
-          Quickly update contact information without opening a separate form. Simply click on any field in the contacts table to edit it.
-        </p>
-        <div className="space-y-4">
-          <Step number={1} title="Click on a Field">
-            Click on any name, email, or business name in the contacts table. A pencil icon appears on hover.
-          </Step>
-          <Step number={2} title="Edit the Value">
-            Type your changes directly in the input field that appears.
-          </Step>
-          <Step number={3} title="Save Changes">
-            Press <kbd className="px-2 py-0.5 rounded bg-secondary text-foreground text-xs">Enter</kbd> to save, or click the green checkmark. Press <kbd className="px-2 py-0.5 rounded bg-secondary text-foreground text-xs">Escape</kbd> or the red X to cancel.
-          </Step>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Editable Fields</h2>
-        <ul className="space-y-2 text-muted-foreground">
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">First Name</strong> - Contact's first name
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Last Name</strong> - Contact's last name
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Email</strong> - Email address (validated)
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Business Name</strong> - Company or organization
-          </li>
-        </ul>
-      </div>
-
-      <div className="glass-card rounded-xl p-6 border-primary/30">
-        <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
-          <MousePointer className="w-5 h-5" />
-          Pro Tips
-        </h2>
-        <ul className="space-y-2 text-muted-foreground">
-          <li>• Changes save automatically when you press Enter or click outside</li>
-          <li>• You can Tab through fields to edit multiple contacts quickly</li>
-          <li>• Empty fields show placeholder text in italics</li>
-          <li>• All edits are synced to the database instantly</li>
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-function TemplatesDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Templates</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Template Library</h2>
-        <p className="text-muted-foreground mb-4">
-          Access the Template Library from the sidebar to manage all your templates in one place:
-        </p>
-        <ul className="space-y-2 text-muted-foreground">
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Use Template</strong> - Click to apply template to a campaign
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Duplicate</strong> - Create a copy to customize
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Edit</strong> - Modify existing templates
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Delete</strong> - Remove unused templates
-          </li>
-        </ul>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Available Variables</h2>
-        <p className="text-muted-foreground mb-4">
-          Use these variables in your templates. They will be replaced with actual contact data:
-        </p>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="bg-secondary/50 rounded-lg p-3">
-            <code className="text-primary">{"{{firstName}}"}</code>
-            <p className="text-sm text-muted-foreground mt-1">Contact's first name</p>
-          </div>
-          <div className="bg-secondary/50 rounded-lg p-3">
-            <code className="text-primary">{"{{lastName}}"}</code>
-            <p className="text-sm text-muted-foreground mt-1">Contact's last name</p>
-          </div>
-          <div className="bg-secondary/50 rounded-lg p-3">
-            <code className="text-primary">{"{{businessName}}"}</code>
-            <p className="text-sm text-muted-foreground mt-1">Business/company name</p>
-          </div>
-          <div className="bg-secondary/50 rounded-lg p-3">
-            <code className="text-primary">{"{{email}}"}</code>
-            <p className="text-sm text-muted-foreground mt-1">Contact's email address</p>
-          </div>
-          <div className="bg-secondary/50 rounded-lg p-3">
-            <code className="text-primary">{"{{handle}}"}</code>
-            <p className="text-sm text-muted-foreground mt-1">Social media handle</p>
-          </div>
-          <div className="bg-secondary/50 rounded-lg p-3">
-            <code className="text-primary">{"{{platform}}"}</code>
-            <p className="text-sm text-muted-foreground mt-1">Platform name (Instagram/TikTok)</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Template Types</h2>
-        <div className="space-y-4">
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">📧 Email Templates</h3>
-            <p className="text-muted-foreground text-sm">Full HTML emails with subject lines. Best for professional outreach.</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">📱 Instagram DM Templates</h3>
-            <p className="text-muted-foreground text-sm">Short, casual messages for Instagram direct messages.</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">🎵 TikTok DM Templates</h3>
-            <p className="text-muted-foreground text-sm">Brief, engaging content for TikTok messages.</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">🎙️ Voicemail Scripts</h3>
-            <p className="text-muted-foreground text-sm">Script templates for voice messages and calls.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function CampaignsDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Campaigns</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Campaign Wizard</h2>
-        <p className="text-muted-foreground mb-4">Create campaigns using the step-by-step wizard:</p>
-        <ol className="space-y-4 list-decimal list-inside">
-          <li className="text-muted-foreground">
-            <strong className="text-foreground">Company Info</strong> - Enter your company name and select mode (AI or Manual)
-          </li>
-          <li className="text-muted-foreground">
-            <strong className="text-foreground">Lead Selection</strong> - Choose how to import leads (CSV, existing contacts, or manual)
-          </li>
-          <li className="text-muted-foreground">
-            <strong className="text-foreground">Review Leads</strong> - Preview and select contacts for the campaign
-          </li>
-          <li className="text-muted-foreground">
-            <strong className="text-foreground">Build Sequence</strong> - Add email, DM, and follow-up steps with drag-and-drop reordering
-          </li>
-          <li className="text-muted-foreground">
-            <strong className="text-foreground">Launch</strong> - Review and launch your campaign
-          </li>
-        </ol>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Campaign Statuses</h2>
-        <ul className="space-y-3">
-          <li className="flex items-center gap-3">
-            <span className="px-2 py-1 rounded-full bg-secondary text-muted-foreground text-sm">draft</span>
-            <span className="text-muted-foreground">Campaign created but not launched</span>
-          </li>
-          <li className="flex items-center gap-3">
-            <span className="px-2 py-1 rounded-full bg-warning/10 text-warning text-sm">scheduled</span>
-            <span className="text-muted-foreground">Set to launch at a future date/time</span>
-          </li>
-          <li className="flex items-center gap-3">
-            <span className="px-2 py-1 rounded-full bg-primary/10 text-primary text-sm">running</span>
-            <span className="text-muted-foreground">Currently sending messages</span>
-          </li>
-          <li className="flex items-center gap-3">
-            <span className="px-2 py-1 rounded-full bg-success/10 text-success text-sm">completed</span>
-            <span className="text-muted-foreground">All messages have been sent</span>
-          </li>
-        </ul>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Email Tracking</h2>
-        <p className="text-muted-foreground mb-4">
-          Every email includes automatic tracking:
-        </p>
-        <ul className="space-y-2">
-          <li className="flex items-center gap-2 text-muted-foreground">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Opens:</strong> Tracked via invisible 1x1 pixel
-          </li>
-          <li className="flex items-center gap-2 text-muted-foreground">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Clicks:</strong> All links are wrapped for tracking
-          </li>
-          <li className="flex items-center gap-2 text-muted-foreground">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Timestamps:</strong> Exact time of each event
-          </li>
-          <li className="flex items-center gap-2 text-muted-foreground">
-            <CheckCircle className="w-4 h-4 text-success" />
-            <strong className="text-foreground">Device Info:</strong> Browser and IP logged
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-function SocialDMDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Social DM Outreach</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Multi-Account Setup</h2>
-        <p className="text-muted-foreground mb-4">
-          Connect multiple Instagram and TikTok accounts to distribute your outreach and avoid rate limits:
-        </p>
-        <ul className="space-y-3 text-muted-foreground">
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Account Rotation</strong> - Messages are distributed across accounts automatically
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Primary Account</strong> - Set one account as primary for each platform
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Individual Limits</strong> - Configure daily limits per account
-            </div>
-          </li>
-        </ul>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Anti-Block Protection</h2>
-        <div className="space-y-4">
-          <div className="p-4 border border-border rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Clock className="w-4 h-4 text-primary" />
-              <h3 className="font-semibold text-foreground">Active Hours</h3>
-            </div>
-            <p className="text-muted-foreground text-sm">Set sending hours (e.g., 9 AM - 9 PM) to mimic human behavior</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Shield className="w-4 h-4 text-primary" />
-              <h3 className="font-semibold text-foreground">Message Delays</h3>
-            </div>
-            <p className="text-muted-foreground text-sm">Random delays between 30s-10min to avoid detection</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <div className="flex items-center gap-2 mb-2">
-              <Users className="w-4 h-4 text-primary" />
-              <h3 className="font-semibold text-foreground">Daily Limits</h3>
-            </div>
-            <p className="text-muted-foreground text-sm">Recommended: 30-50 DMs per account per day</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6 border-warning/50">
-        <h2 className="text-2xl font-semibold text-foreground mb-4 flex items-center gap-2">
-          <AlertCircle className="w-5 h-5 text-warning" />
-          Important Considerations
-        </h2>
-        <ul className="space-y-2 text-muted-foreground">
-          <li>• Instagram/TikTok don't have official DM APIs - use third-party tools carefully</li>
-          <li>• Always warm up new accounts before high-volume sending</li>
-          <li>• Vary your message content to avoid spam detection</li>
-          <li>• Monitor account status daily for rate limit warnings</li>
-          <li>• Keep daily sends under 50 per account to stay safe</li>
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-function AnalyticsDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Analytics Dashboard</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Key Metrics</h2>
-        <div className="grid grid-cols-2 gap-4">
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">📤 Total Sent</h3>
-            <p className="text-muted-foreground text-sm">Total number of messages successfully delivered across all campaigns.</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">👁️ Open Rate</h3>
-            <p className="text-muted-foreground text-sm">Percentage of sent emails that were opened. Formula: (Opens / Sent) × 100</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">🖱️ Click Rate</h3>
-            <p className="text-muted-foreground text-sm">Percentage of opened emails where links were clicked. Formula: (Clicks / Opens) × 100</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">📊 Reply Rate</h3>
-            <p className="text-muted-foreground text-sm">Percentage of DMs that received a reply.</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6 border-primary/30">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Understanding Your Metrics</h2>
-        <div className="space-y-4">
-          <div>
-            <h3 className="font-medium text-foreground">Good Open Rates</h3>
-            <p className="text-sm text-muted-foreground">20-40% is considered good for cold outreach. Above 40% is excellent.</p>
-          </div>
-          <div>
-            <h3 className="font-medium text-foreground">Good Click Rates</h3>
-            <p className="text-sm text-muted-foreground">2-5% of opens is typical. Above 10% indicates highly engaged recipients.</p>
-          </div>
-          <div>
-            <h3 className="font-medium text-foreground">Good DM Reply Rates</h3>
-            <p className="text-sm text-muted-foreground">5-15% is typical for cold DM outreach. Personalization helps significantly.</p>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function N8nDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">n8n Automation v2.0</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Enhanced Workflow Features</h2>
-        <ul className="space-y-3 text-muted-foreground">
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Supabase Integration</strong> - All actions logged directly to your database
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Rate Limiting</strong> - Built-in limits prevent account blocks
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Error Handling</strong> - Automatic retry and error logging
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Multi-Channel</strong> - Email, DM, and Voicemail support
-            </div>
-          </li>
-        </ul>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Database Tables Used</h2>
-        <div className="space-y-3 font-mono text-sm">
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="text-primary">campaign_contacts</span>
-            <span className="text-muted-foreground"> - Delivery status (sent_at, opened_at, clicked_at)</span>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="text-primary">campaign_send_logs</span>
-            <span className="text-muted-foreground"> - Detailed send events and errors</span>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="text-primary">activity_logs</span>
-            <span className="text-muted-foreground"> - Full audit trail of all actions</span>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="text-primary">email_events</span>
-            <span className="text-muted-foreground"> - Open/click tracking events</span>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Setup Steps</h2>
-        <ol className="space-y-4">
-          <li className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-xs text-primary font-bold">1</span>
-            </div>
-            <div>
-              <strong className="text-foreground">Download Workflow</strong>
-              <p className="text-sm text-muted-foreground">Go to n8n tab and click "Download" to get the JSON file</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-xs text-primary font-bold">2</span>
-            </div>
-            <div>
-              <strong className="text-foreground">Import to n8n</strong>
-              <p className="text-sm text-muted-foreground">Add Workflow → Import from File → Select JSON</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-xs text-primary font-bold">3</span>
-            </div>
-            <div>
-              <strong className="text-foreground">Add Supabase Credentials</strong>
-              <p className="text-sm text-muted-foreground">Credentials → Supabase → Use your project URL and service role key</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-xs text-primary font-bold">4</span>
-            </div>
-            <div>
-              <strong className="text-foreground">Configure Email Provider</strong>
-              <p className="text-sm text-muted-foreground">Add Brevo, SendGrid, or SMTP credentials</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <div className="w-6 h-6 rounded-full bg-primary/10 flex items-center justify-center mt-0.5 flex-shrink-0">
-              <span className="text-xs text-primary font-bold">5</span>
-            </div>
-            <div>
-              <strong className="text-foreground">Activate Workflow</strong>
-              <p className="text-sm text-muted-foreground">Toggle Active to enable scheduled execution</p>
-            </div>
-          </li>
-        </ol>
-      </div>
-    </div>
-  );
-}
-
-function DatabaseLoggingDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Database Logging</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Comprehensive Audit Trail</h2>
-        <p className="text-muted-foreground mb-4">
-          All actions in the platform are logged to your Supabase database for complete visibility:
-        </p>
-        <div className="space-y-4">
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">📊 activity_logs</h3>
-            <p className="text-muted-foreground text-sm">Every user action: campaign creation, contact imports, template edits</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">📧 campaign_send_logs</h3>
-            <p className="text-muted-foreground text-sm">Detailed send events: success, failures, error codes, timestamps</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">👁️ email_events</h3>
-            <p className="text-muted-foreground text-sm">Tracking events: opens, clicks, IP addresses, user agents</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">📱 page_views</h3>
-            <p className="text-muted-foreground text-sm">User navigation tracking for analytics</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Log Retention</h2>
-        <ul className="space-y-2 text-muted-foreground">
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            All logs are retained indefinitely (no auto-deletion)
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            Export logs via Supabase dashboard or API
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            Query logs for custom reports and analytics
-          </li>
-          <li className="flex items-center gap-2">
-            <CheckCircle className="w-4 h-4 text-success" />
-            RLS ensures users only see their own data
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-function DatabaseMigrationDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">PostgreSQL Migration</h1>
-      
-      <div className="glass-card rounded-xl p-6 border-warning/50">
-        <div className="flex items-center gap-2 mb-4">
-          <AlertCircle className="w-5 h-5 text-warning" />
-          <h2 className="text-2xl font-semibold text-foreground">Before You Begin</h2>
-        </div>
-        <p className="text-muted-foreground mb-4">
-          Migrating from Supabase to a self-hosted PostgreSQL database requires careful planning. 
-          Ensure you have a backup and test the migration in a staging environment first.
-        </p>
-        <ul className="space-y-2 text-muted-foreground">
-          <li className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-warning" />
-            Auth users are stored in Supabase's auth schema - you'll need an alternative auth system
-          </li>
-          <li className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-warning" />
-            RLS policies use auth.uid() - these need to be adapted for your auth system
-          </li>
-          <li className="flex items-center gap-2">
-            <AlertCircle className="w-4 h-4 text-warning" />
-            Edge Functions need to be rewritten as standard backend APIs
-          </li>
-        </ul>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 1: Export Schema</h2>
-        <p className="text-muted-foreground mb-4">
-          Export your database schema from Supabase using pg_dump:
-        </p>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-          <pre className="text-foreground">{`# Get your database connection string from Supabase Dashboard
-# Settings → Database → Connection string
-
-pg_dump \\
-  --schema=public \\
-  --schema-only \\
-  --no-owner \\
-  --no-privileges \\
-  "postgresql://postgres:[PASSWORD]@db.[PROJECT_ID].supabase.co:5432/postgres" \\
-  > schema.sql`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 2: Export Data</h2>
-        <p className="text-muted-foreground mb-4">
-          Export your data (without schema) for the public tables:
-        </p>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-          <pre className="text-foreground">{`pg_dump \\
-  --schema=public \\
-  --data-only \\
-  --no-owner \\
-  --no-privileges \\
-  "postgresql://postgres:[PASSWORD]@db.[PROJECT_ID].supabase.co:5432/postgres" \\
-  > data.sql`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 3: Modify Schema for Standard PostgreSQL</h2>
-        <p className="text-muted-foreground mb-4">
-          Update the schema to work without Supabase-specific features:
-        </p>
-        <div className="space-y-4">
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">Remove RLS Policies</h3>
-            <div className="bg-secondary/50 rounded-lg p-3 font-mono text-xs overflow-x-auto">
-              <pre className="text-foreground">{`-- Remove all RLS-related statements
--- DELETE: ALTER TABLE ... ENABLE ROW LEVEL SECURITY;
--- DELETE: CREATE POLICY ... ON ... USING (auth.uid() = ...);
-
--- Or keep RLS but replace auth.uid() with your auth system:
--- CREATE POLICY "user_access" ON contacts
--- USING (user_id = current_setting('app.current_user_id')::uuid);`}</pre>
-            </div>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">Remove Supabase Functions</h3>
-            <div className="bg-secondary/50 rounded-lg p-3 font-mono text-xs overflow-x-auto">
-              <pre className="text-foreground">{`-- Replace auth.uid() references
--- Before: WHERE user_id = auth.uid()
--- After:  WHERE user_id = $1  (use parameterized queries)
-
--- Remove functions that reference auth schema:
--- has_role(), handle_new_user(), etc.`}</pre>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 4: Import to New PostgreSQL</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-          <pre className="text-foreground">{`# Create new database
-createdb outreachflow
-
-# Import schema
-psql -d outreachflow -f schema_modified.sql
-
-# Import data
-psql -d outreachflow -f data.sql
-
-# Verify data
-psql -d outreachflow -c "SELECT COUNT(*) FROM contacts;"`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 5: Update Application Code</h2>
-        <p className="text-muted-foreground mb-4">
-          Replace Supabase client with a standard PostgreSQL client:
-        </p>
-        <div className="space-y-4">
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">Install PostgreSQL Client</h3>
-            <div className="bg-secondary/50 rounded-lg p-3 font-mono text-xs">
-              <pre className="text-foreground">{`npm install pg
-# or for TypeScript
-npm install @types/pg`}</pre>
-            </div>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">Create Database Connection</h3>
-            <div className="bg-secondary/50 rounded-lg p-3 font-mono text-xs overflow-x-auto">
-              <pre className="text-foreground">{`// db.ts
-import { Pool } from 'pg';
-
-export const pool = new Pool({
-  connectionString: process.env.DATABASE_URL,
-  ssl: process.env.NODE_ENV === 'production'
-});
-
-// Query example
-export async function getContacts(userId: string) {
-  const result = await pool.query(
-    'SELECT * FROM contacts WHERE user_id = $1',
-    [userId]
-  );
-  return result.rows;
-}`}</pre>
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Step 6: Replace Edge Functions</h2>
-        <p className="text-muted-foreground mb-4">
-          Convert Supabase Edge Functions to Express/Node.js endpoints:
-        </p>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
-          <pre className="text-foreground">{`// server.js - Express equivalent of Edge Functions
-import express from 'express';
-import { pool } from './db';
-
-const app = express();
-app.use(express.json());
-
-// Before: supabase/functions/send-campaign-emails/index.ts
-// After: 
-app.post('/api/send-campaign-emails', async (req, res) => {
-  const { campaignId } = req.body;
-  
-  // Your email sending logic here
-  const contacts = await pool.query(
-    'SELECT * FROM campaign_contacts WHERE campaign_id = $1',
-    [campaignId]
-  );
-  
-  // Send emails...
-  res.json({ success: true });
-});
-
-app.listen(3001);`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Tables to Migrate</h2>
-        <div className="grid grid-cols-2 gap-4 text-sm">
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="font-mono text-primary">contacts</span>
-            <p className="text-muted-foreground text-xs mt-1">All contact records</p>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="font-mono text-primary">templates</span>
-            <p className="text-muted-foreground text-xs mt-1">Email/DM templates</p>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="font-mono text-primary">campaigns</span>
-            <p className="text-muted-foreground text-xs mt-1">Campaign definitions</p>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="font-mono text-primary">campaign_contacts</span>
-            <p className="text-muted-foreground text-xs mt-1">Campaign recipients & status</p>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="font-mono text-primary">email_events</span>
-            <p className="text-muted-foreground text-xs mt-1">Open/click tracking</p>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="font-mono text-primary">activity_logs</span>
-            <p className="text-muted-foreground text-xs mt-1">Audit trail</p>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="font-mono text-primary">social_accounts</span>
-            <p className="text-muted-foreground text-xs mt-1">DM account settings</p>
-          </div>
-          <div className="p-3 bg-secondary/50 rounded-lg">
-            <span className="font-mono text-primary">email_settings</span>
-            <p className="text-muted-foreground text-xs mt-1">API credentials</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6 border-primary/30">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Authentication Alternatives</h2>
-        <p className="text-muted-foreground mb-4">
-          After migration, you'll need to implement your own authentication:
-        </p>
-        <ul className="space-y-3">
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">NextAuth.js</strong>
-              <p className="text-sm text-muted-foreground">Full-featured auth for Next.js apps</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Passport.js</strong>
-              <p className="text-sm text-muted-foreground">Flexible authentication for Express</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Auth0 / Clerk</strong>
-              <p className="text-sm text-muted-foreground">Managed auth services (similar to Supabase Auth)</p>
-            </div>
-          </li>
-          <li className="flex items-start gap-3">
-            <CheckCircle className="w-4 h-4 text-success mt-1" />
-            <div>
-              <strong className="text-foreground">Custom JWT</strong>
-              <p className="text-sm text-muted-foreground">Roll your own with bcrypt + jsonwebtoken</p>
-            </div>
-          </li>
-        </ul>
-      </div>
-    </div>
-  );
-}
-
-function ApiSetupDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">API Setup</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Brevo (Email) - Recommended</h2>
-        <ol className="space-y-3 list-decimal list-inside text-muted-foreground">
-          <li>Sign up at <a href="https://brevo.com" target="_blank" className="text-primary hover:underline">brevo.com</a></li>
-          <li>Go to Settings → SMTP & API → Create API Key</li>
-          <li>Add BREVO_API_KEY to your settings or Supabase secrets</li>
-          <li>Free tier: 300 emails/day</li>
-        </ol>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">SendGrid (Alternative)</h2>
-        <ol className="space-y-3 list-decimal list-inside text-muted-foreground">
-          <li>Sign up at <a href="https://sendgrid.com" target="_blank" className="text-primary hover:underline">sendgrid.com</a></li>
-          <li>Verify your sender domain</li>
-          <li>Create API key at Settings → API Keys</li>
-          <li>Free tier: 100 emails/day</li>
-        </ol>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Twilio (Voice/SMS)</h2>
-        <ol className="space-y-3 list-decimal list-inside text-muted-foreground">
-          <li>Sign up at <a href="https://twilio.com" target="_blank" className="text-primary hover:underline">twilio.com</a></li>
-          <li>Get Account SID and Auth Token from Console</li>
-          <li>Purchase a phone number ($1/month for US numbers)</li>
-          <li>Add credentials to n8n workflow or app settings</li>
-        </ol>
-      </div>
-    </div>
-  );
-}
-
-function TroubleshootingDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Troubleshooting</h1>
-      
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Common Issues</h2>
-        
-        <div className="space-y-6">
-          <div className="border-b border-border pb-4">
-            <h3 className="text-lg font-medium text-foreground mb-2">❌ Emails not sending</h3>
-            <ul className="space-y-1 text-muted-foreground text-sm">
-              <li>• Verify API key is set correctly in settings</li>
-              <li>• Check domain verification status with your provider</li>
-              <li>• Review Edge Function logs in Supabase dashboard</li>
-              <li>• Ensure the "from" email matches your verified domain</li>
-            </ul>
-          </div>
-          
-          <div className="border-b border-border pb-4">
-            <h3 className="text-lg font-medium text-foreground mb-2">❌ DMs not sending</h3>
-            <ul className="space-y-1 text-muted-foreground text-sm">
-              <li>• Check account status in DM Account Setup</li>
-              <li>• Verify daily limit hasn't been reached</li>
-              <li>• Check for rate limit warnings or errors</li>
-              <li>• Ensure active hours are configured correctly</li>
-            </ul>
-          </div>
-          
-          <div className="border-b border-border pb-4">
-            <h3 className="text-lg font-medium text-foreground mb-2">❌ CSV import fails</h3>
-            <ul className="space-y-1 text-muted-foreground text-sm">
-              <li>• Ensure CSV has proper headers</li>
-              <li>• Check for special characters or encoding issues (use UTF-8)</li>
-              <li>• Verify email format is valid</li>
-              <li>• Remove any blank rows from the CSV</li>
-            </ul>
-          </div>
-          
-          <div className="border-b border-border pb-4">
-            <h3 className="text-lg font-medium text-foreground mb-2">❌ n8n workflow errors</h3>
-            <ul className="space-y-1 text-muted-foreground text-sm">
-              <li>• Check Supabase credentials are correct</li>
-              <li>• Verify table names match your schema</li>
-              <li>• Review execution logs in n8n for specific errors</li>
-              <li>• Ensure rate limit settings aren't too aggressive</li>
-            </ul>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6 border-primary/30">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Getting Help</h2>
-        <p className="text-muted-foreground">
-          For additional support, check the Supabase dashboard for function logs, 
-          or review the activity_logs table for detailed error information.
-        </p>
-      </div>
-    </div>
-  );
-}
-
-function UnifiedInboxDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Unified Inbox</h1>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Overview</h2>
-        <p className="text-muted-foreground mb-4">
-          The Unified Inbox consolidates all inbound replies from email campaigns and social DM outreach into a single view. Filter by channel, status, or campaign.
-        </p>
-        <ul className="space-y-2 text-muted-foreground">
-          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Auto-matching</strong> — Replies linked to campaigns &amp; contacts</li>
-          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Read tracking</strong> — Messages marked read when opened</li>
-          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Star &amp; Archive</strong> — Organize with stars and archiving</li>
-          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Reply inline</strong> — Compose replies directly</li>
-        </ul>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Sources</h2>
-        <div className="space-y-4">
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">📧 email_inbox table</h3>
-            <p className="text-muted-foreground text-sm">Inbound emails matched via <code className="text-primary">inbound-email-webhook</code>. Linked to campaigns and contacts via foreign keys.</p>
-          </div>
-          <div className="p-4 border border-border rounded-lg">
-            <h3 className="font-semibold text-foreground mb-2">💬 dm_campaign_contacts table</h3>
-            <p className="text-muted-foreground text-sm">DM replies tracked via <code className="text-primary">replied_at</code> timestamp. Joins with <code className="text-primary">creators</code> and <code className="text-primary">dm_campaigns</code>.</p>
-          </div>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Filters</h2>
-        <div className="grid grid-cols-2 gap-3">
-          {[
-            { label: 'All', desc: 'Every message across all channels' },
-            { label: 'Unread', desc: 'Messages not yet opened' },
-            { label: 'Starred', desc: 'Flagged messages' },
-            { label: 'Campaigns', desc: 'Replies linked to a campaign' },
-            { label: 'Email', desc: 'Email channel only' },
-            { label: 'Instagram', desc: 'Instagram DM replies' },
-            { label: 'TikTok', desc: 'TikTok DM replies' },
-          ].map(f => (
-            <div key={f.label} className="bg-secondary/50 rounded-lg p-3">
-              <code className="text-primary">{f.label}</code>
-              <p className="text-sm text-muted-foreground mt-1">{f.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function DatabaseSchemaDocs() {
-  const tables = [
-    { name: 'profiles', cols: 'id (uuid PK = auth.uid), email (text), full_name (text), avatar_url (text), created_at, updated_at', rls: 'SELECT/UPDATE by owner' },
-    { name: 'contacts', cols: 'id (uuid PK), user_id (uuid), first_name, last_name, email, business_name, phone, instagram, tiktok, linkedin, job_title, location, city, state, country, timezone (default UTC), status (default pending), tags (text[]), bounced (bool), bounce_type, bounced_at, unsubscribed (bool), unsubscribed_at, email_sent, dm_sent, voicemail_sent, created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'templates', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), subject (text), content (text), type (text: email|instagram|tiktok|linkedin|voicemail), created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'campaigns', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), status (default draft), template_id (uuid FK→templates), scheduled_at, started_at, completed_at, total_contacts (int), sent_count, open_count, click_count, ab_testing_enabled (bool), variant_a/b_subject, variant_a/b_content, variant_a/b_sent/opens/clicks, use_recipient_timezone (bool), optimal_send_hour (int), created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'campaign_contacts', cols: 'id (uuid PK), campaign_id (uuid FK→campaigns), contact_id (uuid FK→contacts), status (default pending), sent_at, opened_at, clicked_at, bounced_at, bounce_type, error_message, variant (text)', rls: 'CRUD via campaigns.user_id join' },
-    { name: 'campaign_templates', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), description (text), category (default Sales), steps (int default 1), featured (bool), sequence_data (jsonb default []), created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'campaign_send_logs', cols: 'id (uuid PK), campaign_id (uuid FK→campaigns), campaign_contact_id (uuid FK→campaign_contacts), event_type (text), status (text), error_message, error_code, provider, message_id, metadata (jsonb), ip_address, user_agent, created_at', rls: 'INSERT public; SELECT via campaigns join' },
-    { name: 'email_events', cols: 'id (uuid PK), campaign_contact_id (uuid FK→campaign_contacts), event_type (text), metadata (jsonb), ip_address, user_agent, created_at', rls: 'INSERT public; SELECT via campaigns join' },
-    { name: 'email_inbox', cols: 'id (uuid PK), user_id (uuid), from_email (text NOT NULL), from_name, to_email (text NOT NULL), subject, body_text, body_html, is_read (bool), is_starred (bool), folder (default inbox), message_id, in_reply_to, campaign_id (FK→campaigns), campaign_contact_id (FK→campaign_contacts), contact_id (FK→contacts), received_at, created_at', rls: 'Full CRUD by owner + public INSERT' },
-    { name: 'email_settings', cols: 'id (uuid PK), user_id (uuid), smtp_host, smtp_port (default 587), smtp_user, smtp_password, brevo_api_key, sendgrid_key, twilio_sid, twilio_token, twilio_number, created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'email_warmup_schedules', cols: 'id (uuid PK), user_id (uuid), domain (text), warmup_start_date (date), current_daily_limit (int default 10), target_daily_limit (int default 500), increment_per_day (int default 10), emails_sent_today (int), last_send_date (date), status (default active), created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'email_deliverability_tests', cols: 'id (uuid PK), user_id (uuid), email (text), test_type (default inbox_placement), status (default pending), spam_score (numeric), inbox_placement (text), result (jsonb), authentication_results (jsonb), warnings (text[]), completed_at, created_at', rls: 'Full CRUD by owner' },
-    { name: 'follow_up_sequences', cols: 'id (uuid PK), user_id (uuid), campaign_id (uuid FK→campaigns), template_id (uuid FK→templates), name (text NOT NULL), trigger_type (default opened_not_clicked), delay_hours (int default 24), subject, content, status (default active), created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'follow_up_queue', cols: 'id (uuid PK), sequence_id (uuid FK→follow_up_sequences), campaign_contact_id (uuid FK→campaign_contacts), scheduled_at (timestamptz), sent_at, status (default pending), created_at', rls: 'CRUD via sequences.user_id join' },
-    { name: 'dm_campaigns', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), platform (text NOT NULL), status (default draft), template_id (uuid FK→templates), total_contacts, sent_count, reply_count, scheduled_at, started_at, completed_at, created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'dm_campaign_contacts', cols: 'id (uuid PK), dm_campaign_id (uuid FK→dm_campaigns), creator_id (uuid FK→creators), status (default pending), sent_at, replied_at, error_message, created_at', rls: 'SELECT/INSERT/UPDATE via dm_campaigns join' },
-    { name: 'creators', cols: 'id (uuid PK), user_id (uuid), name (text NOT NULL), handle (text NOT NULL), platform (default instagram), bio, avatar, followers, engagement, avg_likes, category (text[]), location, recent_post, verified (bool), created_at, updated_at', rls: 'SELECT public; INSERT/UPDATE/DELETE by owner' },
-    { name: 'activity_logs', cols: 'id (uuid PK), user_id (uuid), entity_type (text), entity_id (uuid), action_type (text), metadata (jsonb), created_at', rls: 'INSERT public + by owner; SELECT by owner' },
-    { name: 'page_views', cols: 'id (uuid PK), user_id (uuid), page_name (text), path (text), metadata (jsonb), created_at', rls: 'INSERT/SELECT by owner' },
-    { name: 'country_timezones', cols: 'id (uuid PK), country_code (text), country_name (text), timezone (text), utc_offset (int)', rls: 'SELECT public (read-only)' },
-    { name: 'ads_campaigns', cols: 'id (uuid PK), user_id (uuid), name, status, platforms (text[]), budget, spent, reach, impressions, clicks, ctr, cpc, results, result_type, objective, start_date, end_date, target_audience (jsonb), ad_creative (jsonb), created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'campaign_invitations', cols: 'id (uuid PK), brand_user_id (uuid), campaign_id (FK→ads_campaigns), creator_id (FK→creators), message, budget_offered, deliverables (jsonb), deadline, status, responded_at, created_at, updated_at', rls: 'INSERT/UPDATE/SELECT by brand + SELECT/UPDATE by creator' },
-    { name: 'collaboration_contracts', cols: 'id (uuid PK), brand_user_id (uuid), creator_id (FK→creators), invitation_id (FK→campaign_invitations), title, description, terms, deliverables (jsonb), payment_amount, payment_currency, payment_terms, start_date, end_date, status, brand_signature, brand_signed_at, creator_signature, creator_signed_at, exclusivity_clause, usage_rights, cancellation_terms, expires_at, created_at, updated_at', rls: 'ALL by brand; SELECT/UPDATE by creator' },
-    { name: 'contract_templates', cols: 'id (uuid PK), user_id (uuid), name, description, terms_template, deliverables_template (jsonb), payment_terms_template, exclusivity_template, usage_rights_template, cancellation_template, is_default (bool), created_at, updated_at', rls: 'ALL by owner' },
-    { name: 'contract_activity', cols: 'id (uuid PK), contract_id (FK→collaboration_contracts), user_id (uuid), action (text), details (jsonb), ip_address, user_agent, created_at', rls: 'INSERT/SELECT by contract parties' },
-    { name: 'content_posts', cols: 'id (uuid PK), user_id (uuid), title, content, type (default image), status (default draft), platforms (text[]), media_urls (text[]), thumbnail_url, scheduled_for, published_at, views_count, likes_count, comments_count, shares_count, created_at, updated_at', rls: 'CRUD by owner; SELECT published' },
-    { name: 'content_comments', cols: 'id (uuid PK), post_id (FK→content_posts), user_id (uuid), content (text), created_at', rls: 'SELECT public; INSERT/DELETE by owner' },
-    { name: 'content_reports', cols: 'id (uuid PK), post_id (FK→content_posts), user_id (uuid), reason (text), description, status (default pending), created_at', rls: 'INSERT/SELECT by owner' },
-    { name: 'conversations', cols: 'id (uuid PK), participant_ids (uuid[]), platform (default messenger), last_message, last_message_at, created_at, updated_at', rls: 'INSERT/UPDATE/SELECT by participant' },
-    { name: 'messages', cols: 'id (uuid PK), conversation_id (FK→conversations), sender_id (uuid), content (text), is_read (bool), created_at', rls: 'INSERT/SELECT by conversation participant' },
-    { name: 'saved_creators', cols: 'id (uuid PK), user_id (uuid), creator_id (FK→creators), created_at', rls: 'CRUD by owner' },
-    { name: 'saved_filters', cols: 'id (uuid PK), user_id (uuid), name (text), page (text), filters (jsonb), is_default (bool), created_at, updated_at', rls: 'CRUD by owner' },
-    { name: 'business_details', cols: 'id (uuid PK), user_id (uuid), company_name, billing_address, city, state, postal_code, country, phone, tax_id, created_at, updated_at', rls: 'INSERT/UPDATE/SELECT by owner' },
-    { name: 'credit_transactions', cols: 'id (uuid PK), user_id (uuid), amount (int), type (text), tool_used, description, created_at', rls: 'INSERT/SELECT by owner' },
-    { name: 'signatures', cols: 'id (uuid PK), user_id (uuid), document_name, document_url, recipient_email, recipient_name, signature_data, signed_at, expires_at, status (default pending), created_at, updated_at', rls: 'CRUD by owner' },
-    { name: 'signature_templates', cols: 'id (uuid PK), user_id (uuid), name, content, fields (jsonb), created_at, updated_at', rls: 'CRUD by owner' },
-    { name: 'portfolio_items', cols: 'id (uuid PK), creator_id (FK→creators), title, description, image_url (text NOT NULL), link, created_at, updated_at', rls: 'CRUD by creator owner' },
-    { name: 'creator_earnings', cols: 'id (uuid PK), creator_id (FK→creators), campaign_invitation_id (FK→campaign_invitations), amount (numeric NOT NULL), currency (default USD), status (default pending), paid_at, created_at', rls: 'SELECT by creator' },
-    { name: 'processing_history', cols: 'id (uuid PK), user_id (uuid), tool_id (text NOT NULL), file_name, file_size (bigint), output_format, credits_used (int), metadata (jsonb), status (default pending), created_at', rls: 'CRUD by owner' },
-    { name: 'linkedin_leads', cols: 'id (uuid PK), user_id (uuid NOT NULL), linkedin_url (text NOT NULL), first_name, last_name, company_name, headline, location, about, profile_image_url, working_status, experience (jsonb), skills (jsonb), scraped_data (jsonb), scraped_at (timestamptz), created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'companies', cols: 'id (uuid PK), user_id (uuid NOT NULL), name (text NOT NULL), website, linkedin_url, industry, size, headquarters, description, founded, specialties (text[]), logo_url, phone, email, employee_count (int), annual_revenue, metadata (jsonb default {}), created_at, updated_at', rls: 'Full CRUD by owner' },
-    { name: 'file_storage_tracking', cols: 'id (uuid PK), user_id (uuid NOT NULL), file_name (text NOT NULL), file_type, mime_type, file_size (bigint), storage_path, tool_id, status (default active), expires_at (timestamptz), created_at, updated_at', rls: 'Full CRUD by owner' },
-  ];
-
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Database Schema Reference</h1>
-      <p className="text-muted-foreground">Complete reference for all {tables.length} tables with columns, types, defaults, and RLS policies.</p>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-2">Connection Info</h2>
-        <p className="text-sm text-muted-foreground mb-4">Use these to connect from external tools or your backend.</p>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto space-y-1">
-          <p><span className="text-muted-foreground">Project ID:</span> syqawvakxxfaohcgrenn</p>
-          <p><span className="text-muted-foreground">API URL:</span> https://syqawvakxxfaohcgrenn.supabase.co</p>
-          <p><span className="text-muted-foreground">DB Host:</span> db.syqawvakxxfaohcgrenn.supabase.co</p>
-          <p><span className="text-muted-foreground">DB Port:</span> 5432</p>
-          <p><span className="text-muted-foreground">DB Name:</span> postgres</p>
-          <p><span className="text-muted-foreground">Anon Key:</span> eyJhbGciOiJIUzI1NiIs... (see .env)</p>
-          <p className="text-muted-foreground mt-2">// Use SUPABASE_DB_URL secret for direct Postgres connections</p>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">All Tables ({tables.length})</h2>
-        <div className="space-y-3 max-h-[600px] overflow-y-auto pr-2">
-          {tables.map(t => (
-            <details key={t.name} className="border border-border rounded-lg group">
-              <summary className="p-3 cursor-pointer hover:bg-secondary/50 flex items-center justify-between">
-                <span className="font-semibold text-foreground font-mono text-sm">{t.name}</span>
-                <Badge variant="outline" className="text-[10px]">{t.rls}</Badge>
-              </summary>
-              <div className="px-3 pb-3 text-xs text-muted-foreground font-mono leading-relaxed">
-                {t.cols}
-              </div>
-            </details>
-          ))}
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Foreign Key Relationships</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto">
-          <pre>{`campaigns.template_id → templates.id
-campaign_contacts.campaign_id → campaigns.id
-campaign_contacts.contact_id → contacts.id
-campaign_send_logs.campaign_id → campaigns.id
-campaign_send_logs.campaign_contact_id → campaign_contacts.id
-email_events.campaign_contact_id → campaign_contacts.id
-email_inbox.campaign_id → campaigns.id
-email_inbox.contact_id → contacts.id
-email_inbox.campaign_contact_id → campaign_contacts.id
-follow_up_sequences.campaign_id → campaigns.id
-follow_up_sequences.template_id → templates.id
-follow_up_queue.sequence_id → follow_up_sequences.id
-follow_up_queue.campaign_contact_id → campaign_contacts.id
-dm_campaigns.template_id → templates.id
-dm_campaign_contacts.dm_campaign_id → dm_campaigns.id
-dm_campaign_contacts.creator_id → creators.id
-campaign_invitations.campaign_id → ads_campaigns.id
-campaign_invitations.creator_id → creators.id
-collaboration_contracts.creator_id → creators.id
-collaboration_contracts.invitation_id → campaign_invitations.id
-contract_activity.contract_id → collaboration_contracts.id
-content_comments.post_id → content_posts.id
-content_reports.post_id → content_posts.id
-messages.conversation_id → conversations.id
-saved_creators.creator_id → creators.id
-portfolio_items.creator_id → creators.id
-creator_earnings.creator_id → creators.id
-creator_earnings.campaign_invitation_id → campaign_invitations.id
-linkedin_leads.user_id → auth.users.id (logical, no FK)
-companies.user_id → auth.users.id (logical, no FK)`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Database Functions</h2>
-        <div className="space-y-3">
-          {[
-            { name: 'handle_new_user()', desc: 'Trigger on auth.users INSERT — creates profile, assigns role, gives 300 credits, creates creator profile if role=creator', type: 'TRIGGER' },
-            { name: 'create_sample_templates_for_user()', desc: 'Trigger on auth.users INSERT — seeds 13 email/DM templates + 4 campaign templates for new users', type: 'TRIGGER' },
-            { name: 'create_default_contract_templates()', desc: 'Trigger on auth.users INSERT — seeds 3 default contract templates', type: 'TRIGGER' },
-            { name: 'update_updated_at_column()', desc: 'Generic trigger to set updated_at = now() before UPDATE on any attached table', type: 'TRIGGER' },
-            { name: 'deduct_credits(user_id, amount, tool, desc)', desc: 'Deducts credits from user balance. Admins bypass deduction. Returns boolean success.', type: 'FUNCTION' },
-            { name: 'has_role(user_id, role)', desc: 'Security definer function checking user_roles. Used in RLS policies to avoid recursion.', type: 'FUNCTION' },
-            { name: 'toggle_favorite(user_id, tool_id)', desc: 'Inserts or removes a user_favorites row. Returns TRUE if favorited, FALSE if unfavorited.', type: 'FUNCTION' },
-            { name: 'get_user_top_tools(user_id, limit)', desc: 'Returns top tools by usage count from tool_usage_analytics. Includes tool_id, category, count, last_used.', type: 'FUNCTION' },
-          ].map(fn => (
-            <div key={fn.name} className="p-3 border border-border rounded-lg">
-              <div className="flex items-center gap-2 mb-1">
-                <Code className="w-4 h-4 text-primary shrink-0" />
-                <span className="font-mono text-sm text-foreground font-semibold">{fn.name}</span>
-                <Badge variant="outline" className="text-[10px]">{fn.type}</Badge>
-              </div>
-              <p className="text-xs text-muted-foreground ml-6">{fn.desc}</p>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Storage Buckets</h2>
-        <div className="space-y-2">
-          {[
-            { name: 'avatars', public: true, desc: 'User and creator profile images' },
-            { name: 'portfolio', public: true, desc: 'Creator portfolio images' },
-            { name: 'documents', public: false, desc: 'Private documents and contracts' },
-          ].map(b => (
-            <div key={b.name} className="p-3 border border-border rounded-lg flex items-center justify-between">
-              <div>
-                <span className="font-mono text-sm text-foreground">{b.name}</span>
-                <p className="text-xs text-muted-foreground">{b.desc}</p>
-              </div>
-              <Badge variant={b.public ? 'secondary' : 'outline'} className="text-[10px]">
-                {b.public ? 'Public' : 'Private'}
-              </Badge>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">RLS Policy Pattern</h2>
-        <p className="text-muted-foreground mb-3">All user-owned tables use Row-Level Security:</p>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground">
-          <pre>{`-- Direct ownership
-USING (auth.uid() = user_id)
-WITH CHECK (auth.uid() = user_id)
-
--- Via join (e.g. campaign_contacts)
-USING (EXISTS (
-  SELECT 1 FROM campaigns
-  WHERE campaigns.id = campaign_contacts.campaign_id
-  AND campaigns.user_id = auth.uid()
-))
-
--- Admin check (avoids recursion)
-SELECT public.has_role(auth.uid(), 'admin')`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Functions ({7})</h2>
-        <div className="space-y-3">
-          {[
-            { name: 'send-campaign-emails', jwt: true, desc: 'Sends emails via Brevo/SendGrid/Resend with open/click tracking pixels. Reads email_settings for provider config. Updates campaign_contacts status to sent/failed.' },
-            { name: 'track-email', jwt: false, desc: 'Pixel endpoint — records open & click events into email_events and updates campaign_contacts.opened_at / clicked_at. Returns 1x1 transparent GIF or redirects for clicks.' },
-            { name: 'inbound-email-webhook', jwt: false, desc: 'Receives inbound emails from external providers (SendGrid, Mailgun). Inserts into email_inbox, attempts to match contact by from_email.' },
-            { name: 'match-email-replies', jwt: false, desc: 'Matches incoming emails to campaigns via in_reply_to header or recent campaign_contacts. Updates status to replied.' },
-            { name: 'process-follow-ups', jwt: false, desc: 'Cron-triggered. Checks follow_up_queue for entries with scheduled_at <= now() and status=pending, sends via email provider.' },
-            { name: 'process-scheduled-campaigns', jwt: false, desc: 'Cron-triggered. Finds campaigns with status=scheduled and scheduled_at <= now(). Sends all pending contacts and marks campaign completed.' },
-            { name: 'test-deliverability', jwt: true, desc: 'Tests SPF/DKIM/DMARC records and spam score for a given email address. Writes results to email_deliverability_tests.' },
-          ].map(fn => (
-            <div key={fn.name} className="p-3 border border-border rounded-lg flex items-start gap-3">
-              <Code className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-              <div>
-                <div className="flex items-center gap-2">
-                  <span className="font-mono text-foreground text-sm">{fn.name}</span>
-                  <Badge variant="outline" className="text-[10px]">{fn.jwt ? 'JWT required' : 'Public'}</Badge>
-                </div>
-                <p className="text-xs text-muted-foreground mt-1">{fn.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Secrets / Environment Variables</h2>
-        <div className="space-y-2">
-          {[
-            { name: 'SUPABASE_URL', desc: 'Supabase project API URL', scope: 'Edge Functions' },
-            { name: 'SUPABASE_ANON_KEY', desc: 'Public anon key for client-side access', scope: 'Client + Edge' },
-            { name: 'SUPABASE_SERVICE_ROLE_KEY', desc: 'Service role key — bypasses RLS. Never expose to client.', scope: 'Edge Functions only' },
-            { name: 'SUPABASE_DB_URL', desc: 'Direct Postgres connection string for migrations/admin', scope: 'Backend only' },
-            { name: 'RESEND_API_KEY', desc: 'Resend email provider API key (fallback provider)', scope: 'Edge Functions' },
-            { name: 'LOVABLE_API_KEY', desc: 'AI Gateway key for LLM calls from edge functions', scope: 'Edge Functions' },
-          ].map(s => (
-            <div key={s.name} className="p-3 border border-border rounded-lg flex items-center justify-between">
-              <div>
-                <span className="font-mono text-sm text-foreground">{s.name}</span>
-                <p className="text-xs text-muted-foreground">{s.desc}</p>
-              </div>
-              <Badge variant="outline" className="text-[10px] shrink-0">{s.scope}</Badge>
-            </div>
-          ))}
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Enum Types</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground">
-          <pre>{`-- Custom enum for user roles
-CREATE TYPE public.app_role AS ENUM ('admin', 'user', 'creator');
-
--- Used in: user_roles.role column
--- Checked by: has_role() function`}</pre>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-function BackupScriptsDocs() {
-  return (
-    <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Backup SQL Scripts</h1>
-      <p className="text-muted-foreground">Copy these scripts to recreate the schema. Run in the Supabase SQL Editor or any PostgreSQL client.</p>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Core Outreach Tables</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[500px] overflow-y-auto">
-          <pre>{`-- contacts
-CREATE TABLE IF NOT EXISTS public.contacts (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL,
-  first_name text, last_name text, email text,
-  business_name text, phone text, instagram text, tiktok text, linkedin text,
-  job_title text, location text, city text, state text, country text,
-  timezone text DEFAULT 'UTC', status text DEFAULT 'pending',
-  tags text[] DEFAULT '{}', bounced boolean DEFAULT false,
-  bounce_type text, bounced_at timestamptz,
-  unsubscribed boolean DEFAULT false, unsubscribed_at timestamptz,
-  email_sent boolean DEFAULT false, dm_sent boolean DEFAULT false,
-  voicemail_sent boolean DEFAULT false,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
-
--- templates
-CREATE TABLE IF NOT EXISTS public.templates (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, name text NOT NULL,
-  subject text, content text, type text DEFAULT 'email',
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.templates ENABLE ROW LEVEL SECURITY;
-
--- campaigns
-CREATE TABLE IF NOT EXISTS public.campaigns (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, name text NOT NULL,
-  status text DEFAULT 'draft', template_id uuid REFERENCES public.templates(id),
-  scheduled_at timestamptz, started_at timestamptz, completed_at timestamptz,
-  total_contacts int DEFAULT 0, sent_count int DEFAULT 0,
-  open_count int DEFAULT 0, click_count int DEFAULT 0,
-  ab_testing_enabled boolean DEFAULT false,
-  variant_a_subject text, variant_a_content text, variant_a_sent int DEFAULT 0,
-  variant_a_opens int DEFAULT 0, variant_a_clicks int DEFAULT 0,
-  variant_b_subject text, variant_b_content text, variant_b_sent int DEFAULT 0,
-  variant_b_opens int DEFAULT 0, variant_b_clicks int DEFAULT 0,
-  use_recipient_timezone boolean DEFAULT false, optimal_send_hour int DEFAULT 9,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.campaigns ENABLE ROW LEVEL SECURITY;
-
--- campaign_contacts
-CREATE TABLE IF NOT EXISTS public.campaign_contacts (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  campaign_id uuid NOT NULL REFERENCES public.campaigns(id),
-  contact_id uuid NOT NULL REFERENCES public.contacts(id),
-  status text DEFAULT 'pending', variant text,
-  sent_at timestamptz, opened_at timestamptz, clicked_at timestamptz,
-  bounced_at timestamptz, bounce_type text, error_message text
-);
-ALTER TABLE public.campaign_contacts ENABLE ROW LEVEL SECURITY;
-
--- campaign_templates
-CREATE TABLE IF NOT EXISTS public.campaign_templates (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, name text NOT NULL,
-  description text, category text DEFAULT 'Sales',
-  steps int DEFAULT 1, featured boolean DEFAULT false,
-  sequence_data jsonb DEFAULT '[]'::jsonb,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.campaign_templates ENABLE ROW LEVEL SECURITY;
-
--- campaign_send_logs
-CREATE TABLE IF NOT EXISTS public.campaign_send_logs (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  campaign_id uuid NOT NULL REFERENCES public.campaigns(id),
-  campaign_contact_id uuid NOT NULL REFERENCES public.campaign_contacts(id),
-  event_type text NOT NULL, status text NOT NULL,
-  error_message text, error_code text, provider text,
-  message_id text, metadata jsonb DEFAULT '{}'::jsonb,
-  ip_address text, user_agent text,
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.campaign_send_logs ENABLE ROW LEVEL SECURITY;
-
--- email_events
-CREATE TABLE IF NOT EXISTS public.email_events (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  campaign_contact_id uuid NOT NULL REFERENCES public.campaign_contacts(id),
-  event_type text NOT NULL, metadata jsonb DEFAULT '{}'::jsonb,
-  ip_address text, user_agent text,
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.email_events ENABLE ROW LEVEL SECURITY;
-
--- email_inbox
-CREATE TABLE IF NOT EXISTS public.email_inbox (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, from_email text NOT NULL, to_email text NOT NULL,
-  from_name text, subject text, body_text text, body_html text,
-  is_read boolean DEFAULT false, is_starred boolean DEFAULT false,
-  folder text DEFAULT 'inbox', message_id text, in_reply_to text,
-  campaign_id uuid REFERENCES public.campaigns(id),
-  campaign_contact_id uuid REFERENCES public.campaign_contacts(id),
-  contact_id uuid REFERENCES public.contacts(id),
-  received_at timestamptz DEFAULT now(), created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.email_inbox ENABLE ROW LEVEL SECURITY;
-
--- email_settings
-CREATE TABLE IF NOT EXISTS public.email_settings (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL,
-  smtp_host text, smtp_port text DEFAULT '587', smtp_user text, smtp_password text,
-  brevo_api_key text, sendgrid_key text,
-  twilio_sid text, twilio_token text, twilio_number text,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.email_settings ENABLE ROW LEVEL SECURITY;
-
--- email_warmup_schedules
-CREATE TABLE IF NOT EXISTS public.email_warmup_schedules (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, domain text NOT NULL,
-  warmup_start_date date DEFAULT CURRENT_DATE,
-  current_daily_limit int DEFAULT 10, target_daily_limit int DEFAULT 500,
-  increment_per_day int DEFAULT 10, emails_sent_today int DEFAULT 0,
-  last_send_date date, status text DEFAULT 'active',
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.email_warmup_schedules ENABLE ROW LEVEL SECURITY;
-
--- email_deliverability_tests
-CREATE TABLE IF NOT EXISTS public.email_deliverability_tests (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, email text NOT NULL,
-  test_type text DEFAULT 'inbox_placement', status text DEFAULT 'pending',
-  spam_score numeric, inbox_placement text,
-  result jsonb DEFAULT '{}'::jsonb, authentication_results jsonb DEFAULT '{}'::jsonb,
-  warnings text[], completed_at timestamptz,
-  created_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.email_deliverability_tests ENABLE ROW LEVEL SECURITY;`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Follow-ups & DM Tables</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[400px] overflow-y-auto">
-          <pre>{`-- follow_up_sequences
-CREATE TABLE IF NOT EXISTS public.follow_up_sequences (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, campaign_id uuid REFERENCES public.campaigns(id),
-  template_id uuid REFERENCES public.templates(id),
-  name text NOT NULL, trigger_type text DEFAULT 'opened_not_clicked',
-  delay_hours int DEFAULT 24, subject text, content text,
-  status text DEFAULT 'active',
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-
--- follow_up_queue
-CREATE TABLE IF NOT EXISTS public.follow_up_queue (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  sequence_id uuid NOT NULL REFERENCES public.follow_up_sequences(id),
-  campaign_contact_id uuid NOT NULL REFERENCES public.campaign_contacts(id),
-  scheduled_at timestamptz NOT NULL, sent_at timestamptz,
-  status text DEFAULT 'pending', created_at timestamptz DEFAULT now()
-);
-
--- dm_campaigns
-CREATE TABLE IF NOT EXISTS public.dm_campaigns (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, name text NOT NULL, platform text NOT NULL,
-  status text DEFAULT 'draft', template_id uuid REFERENCES public.templates(id),
-  total_contacts int DEFAULT 0, sent_count int DEFAULT 0, reply_count int DEFAULT 0,
-  scheduled_at timestamptz, started_at timestamptz, completed_at timestamptz,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-
--- dm_campaign_contacts
-CREATE TABLE IF NOT EXISTS public.dm_campaign_contacts (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  dm_campaign_id uuid NOT NULL REFERENCES public.dm_campaigns(id),
-  creator_id uuid NOT NULL REFERENCES public.creators(id),
-  status text DEFAULT 'pending', sent_at timestamptz, replied_at timestamptz,
-  error_message text, created_at timestamptz DEFAULT now()
-);
-
--- creators
-CREATE TABLE IF NOT EXISTS public.creators (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid, name text NOT NULL, handle text NOT NULL,
-  platform text DEFAULT 'instagram', bio text, avatar text,
-  followers text, engagement text, avg_likes text,
-  category text[], location text, recent_post text,
-  verified boolean DEFAULT false,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Collaboration & Content Tables</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[400px] overflow-y-auto">
-          <pre>{`-- ads_campaigns
-CREATE TABLE IF NOT EXISTS public.ads_campaigns (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, name text NOT NULL,
-  status text DEFAULT 'draft', platforms text[] DEFAULT ARRAY['facebook'],
-  budget numeric, spent numeric DEFAULT 0, objective text,
-  reach int DEFAULT 0, impressions int DEFAULT 0, clicks int DEFAULT 0,
-  ctr numeric DEFAULT 0, cpc numeric DEFAULT 0,
-  results int DEFAULT 0, result_type text,
-  start_date date, end_date date,
-  target_audience jsonb, ad_creative jsonb,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-
--- collaboration_contracts
-CREATE TABLE IF NOT EXISTS public.collaboration_contracts (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  brand_user_id uuid NOT NULL,
-  creator_id uuid REFERENCES public.creators(id),
-  invitation_id uuid REFERENCES public.campaign_invitations(id),
-  title text NOT NULL, description text, terms text NOT NULL,
-  deliverables jsonb DEFAULT '[]'::jsonb,
-  payment_amount numeric, payment_currency text DEFAULT 'USD',
-  payment_terms text, start_date date, end_date date,
-  status text DEFAULT 'draft',
-  brand_signature text, brand_signed_at timestamptz,
-  creator_signature text, creator_signed_at timestamptz,
-  exclusivity_clause text, usage_rights text,
-  cancellation_terms text, expires_at timestamptz,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-
--- content_posts
-CREATE TABLE IF NOT EXISTS public.content_posts (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, title text NOT NULL,
-  content text, type text DEFAULT 'image', status text DEFAULT 'draft',
-  platforms text[] DEFAULT ARRAY['instagram'],
-  media_urls text[] DEFAULT ARRAY[]::text[],
-  thumbnail_url text, scheduled_for timestamptz, published_at timestamptz,
-  views_count int DEFAULT 0, likes_count int DEFAULT 0,
-  comments_count int DEFAULT 0, shares_count int DEFAULT 0,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-
--- profiles
-CREATE TABLE IF NOT EXISTS public.profiles (
-  id uuid PRIMARY KEY, -- matches auth.users.id
-  email text, full_name text, avatar_url text,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-
--- activity_logs
-CREATE TABLE IF NOT EXISTS public.activity_logs (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, entity_type text NOT NULL,
-  entity_id uuid, action_type text NOT NULL,
-  metadata jsonb DEFAULT '{}'::jsonb,
-  created_at timestamptz DEFAULT now()
-);
-
--- linkedin_leads
-CREATE TABLE IF NOT EXISTS public.linkedin_leads (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, linkedin_url text NOT NULL,
-  first_name text, last_name text, company_name text,
-  headline text, location text, about text,
-  profile_image_url text, working_status text,
-  experience jsonb, skills jsonb, scraped_data jsonb,
-  scraped_at timestamptz,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.linkedin_leads ENABLE ROW LEVEL SECURITY;
-
--- companies
-CREATE TABLE IF NOT EXISTS public.companies (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, name text NOT NULL,
-  website text, linkedin_url text, industry text, size text,
-  headquarters text, description text, founded text,
-  specialties text[], logo_url text, phone text, email text,
-  employee_count int, annual_revenue text,
-  metadata jsonb DEFAULT '{}'::jsonb,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
-
--- file_storage_tracking
-CREATE TABLE IF NOT EXISTS public.file_storage_tracking (
-  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
-  user_id uuid NOT NULL, file_name text NOT NULL,
-  file_type text, mime_type text, file_size bigint DEFAULT 0,
-  storage_path text, tool_id text, status text DEFAULT 'active',
-  expires_at timestamptz,
-  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
-);
-ALTER TABLE public.file_storage_tracking ENABLE ROW LEVEL SECURITY;`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Stored Procedures & Triggers</h2>
-        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[400px] overflow-y-auto">
-          <pre>{`-- Auto-update timestamps trigger
-CREATE OR REPLACE FUNCTION public.update_updated_at_column()
-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
-BEGIN NEW.updated_at = now(); RETURN NEW; END; $$;
-
--- Attach to tables:
-CREATE TRIGGER update_contacts_updated_at BEFORE UPDATE ON public.contacts
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-CREATE TRIGGER update_templates_updated_at BEFORE UPDATE ON public.templates
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-CREATE TRIGGER update_campaigns_updated_at BEFORE UPDATE ON public.campaigns
-  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
-
--- New user handler (creates profile + role + credits)
-CREATE OR REPLACE FUNCTION public.handle_new_user()
-RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
-DECLARE user_role TEXT;
-BEGIN
-  user_role := COALESCE(NEW.raw_user_meta_data ->> 'role', 'user');
-  INSERT INTO public.profiles (id, email, full_name)
-  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data ->> 'full_name');
-  INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, user_role::app_role);
-  INSERT INTO public.user_credits (user_id, balance, total_purchased) VALUES (NEW.id, 300, 0);
-  IF user_role = 'creator' THEN
-    INSERT INTO public.creators (user_id, name, handle, bio)
-    VALUES (NEW.id, COALESCE(NEW.raw_user_meta_data ->> 'full_name', 'Creator'),
-            LOWER(REPLACE(COALESCE(NEW.raw_user_meta_data ->> 'full_name', 'creator'), ' ', '_'))
-            || '_' || SUBSTRING(NEW.id::text, 1, 8), '');
-  END IF;
-  RETURN NEW;
-END; $$;
-
--- Credit deduction function
-CREATE OR REPLACE FUNCTION public.deduct_credits(
-  p_user_id uuid, p_amount int, p_tool text, p_description text
-) RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER
-SET search_path = public AS $$
-DECLARE current_balance INTEGER; is_admin BOOLEAN;
-BEGIN
-  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = p_user_id AND role = 'admin') INTO is_admin;
-  IF is_admin THEN
-    INSERT INTO public.credit_transactions (user_id, amount, type, tool_used, description)
-    VALUES (p_user_id, 0, 'admin_usage', p_tool, p_description);
-    RETURN TRUE;
-  END IF;
-  SELECT balance INTO current_balance FROM public.user_credits WHERE user_id = p_user_id FOR UPDATE;
-  IF current_balance IS NULL OR current_balance < p_amount THEN RETURN FALSE; END IF;
-  UPDATE public.user_credits SET balance = balance - p_amount, updated_at = now() WHERE user_id = p_user_id;
-  INSERT INTO public.credit_transactions (user_id, amount, type, tool_used, description)
-  VALUES (p_user_id, -p_amount, 'usage', p_tool, p_description);
-  RETURN TRUE;
-END; $$;
-
--- Role check (prevents RLS recursion)
-CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
-RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER
-SET search_path = public AS $$
-  SELECT EXISTS (SELECT 1 FROM public.user_roles WHERE user_id = _user_id AND role = _role)
-$$;`}</pre>
-        </div>
-      </div>
-
-      <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Functions</h2>
-        <div className="space-y-3">
-          {[
-            { name: 'send-campaign-emails', desc: 'Sends emails via Brevo/SendGrid with tracking pixels. Reads email_settings, updates campaign_contacts status.' },
-            { name: 'track-email', desc: 'Handles open/click tracking pixel requests. Inserts into email_events and updates campaign_contacts.' },
-            { name: 'inbound-email-webhook', desc: 'Webhook endpoint for inbound email providers. Inserts into email_inbox, matches via message_id.' },
-            { name: 'match-email-replies', desc: 'Background function to match unlinked inbox emails to campaign contacts.' },
-            { name: 'process-follow-ups', desc: 'Processes follow_up_queue entries whose scheduled_at has passed.' },
-            { name: 'process-scheduled-campaigns', desc: 'Checks campaigns with status=scheduled and scheduled_at <= now(), launches them.' },
-            { name: 'test-deliverability', desc: 'Tests SPF/DKIM/DMARC records and spam score for a given email address.' },
-          ].map(fn => (
-            <div key={fn.name} className="p-3 border border-border rounded-lg flex items-start gap-3">
-              <Code className="w-4 h-4 text-primary mt-0.5 shrink-0" />
-              <div>
-                <span className="font-mono text-foreground text-sm">{fn.name}</span>
-                <p className="text-xs text-muted-foreground">{fn.desc}</p>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// Helper Components
+/* ========== HELPER COMPONENTS ========== */
 function Step({ number, title, children }: { number: number; title: string; children: React.ReactNode }) {
   return (
     <div className="flex items-start gap-4">
@@ -1847,6 +131,2037 @@ function ChecklistItem({ children }: { children: React.ReactNode }) {
         <CheckCircle className="w-3 h-3 text-transparent" />
       </div>
       <span className="text-muted-foreground">{children}</span>
+    </div>
+  );
+}
+
+function SqlBlock({ title, children }: { title?: string; children: string }) {
+  return (
+    <div className="space-y-1">
+      {title && <h3 className="font-semibold text-foreground text-sm">{title}</h3>}
+      <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs text-foreground overflow-x-auto max-h-[500px] overflow-y-auto">
+        <pre>{children}</pre>
+      </div>
+    </div>
+  );
+}
+
+function TableSchema({ name, description, columns, foreignKeys, indexes }: {
+  name: string;
+  description: string;
+  columns: { name: string; type: string; nullable: boolean; default_val: string | null; note?: string }[];
+  foreignKeys?: string[];
+  indexes?: string[];
+}) {
+  return (
+    <div className="glass-card rounded-xl p-6 space-y-4">
+      <div>
+        <h3 className="text-lg font-bold text-foreground font-mono">{name}</h3>
+        <p className="text-sm text-muted-foreground">{description}</p>
+      </div>
+      <div className="overflow-x-auto">
+        <table className="w-full text-xs">
+          <thead>
+            <tr className="border-b border-border">
+              <th className="text-left py-2 px-2 text-foreground font-semibold">Column</th>
+              <th className="text-left py-2 px-2 text-foreground font-semibold">Type</th>
+              <th className="text-left py-2 px-2 text-foreground font-semibold">Nullable</th>
+              <th className="text-left py-2 px-2 text-foreground font-semibold">Default</th>
+              <th className="text-left py-2 px-2 text-foreground font-semibold">Notes</th>
+            </tr>
+          </thead>
+          <tbody>
+            {columns.map((col) => (
+              <tr key={col.name} className="border-b border-border/50 hover:bg-secondary/30">
+                <td className="py-1.5 px-2 font-mono text-primary">{col.name}</td>
+                <td className="py-1.5 px-2 text-muted-foreground">{col.type}</td>
+                <td className="py-1.5 px-2 text-muted-foreground">{col.nullable ? 'Yes' : 'No'}</td>
+                <td className="py-1.5 px-2 text-muted-foreground font-mono">{col.default_val ?? '—'}</td>
+                <td className="py-1.5 px-2 text-muted-foreground">{col.note ?? ''}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
+      {foreignKeys && foreignKeys.length > 0 && (
+        <div>
+          <h4 className="text-xs font-semibold text-foreground mb-1">Foreign Keys</h4>
+          <ul className="text-xs text-muted-foreground space-y-0.5">
+            {foreignKeys.map((fk, i) => <li key={i} className="font-mono">→ {fk}</li>)}
+          </ul>
+        </div>
+      )}
+      {indexes && indexes.length > 0 && (
+        <div>
+          <h4 className="text-xs font-semibold text-foreground mb-1">Indexes</h4>
+          <ul className="text-xs text-muted-foreground space-y-0.5">
+            {indexes.map((idx, i) => <li key={i} className="font-mono">{idx}</li>)}
+          </ul>
+        </div>
+      )}
+    </div>
+  );
+}
+
+/* ========== PAGE SECTIONS ========== */
+
+function GettingStarted() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div>
+        <h1 className="text-4xl font-bold text-foreground mb-4">Getting Started</h1>
+        <p className="text-lg text-muted-foreground">
+          Welcome to OutreachCopilot — your advanced automation platform for personalized outreach campaigns.
+        </p>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Quick Start Guide</h2>
+        <div className="space-y-4">
+          <Step number={1} title="Sign Up / Login">Create an account or log in. Verify email if confirmation is enabled.</Step>
+          <Step number={2} title="Import Contacts">Go to Contacts → Upload CSV. Required: First Name, Last Name, Email.</Step>
+          <Step number={3} title="Create Templates">Build templates using variables like {"{{firstName}}"}, {"{{businessName}}"}.</Step>
+          <Step number={4} title="Build Campaigns">Select contacts, choose templates, schedule. Monitor in real-time.</Step>
+          <Step number={5} title="Manage Companies">Import company data with 80+ fields via CSV. Link person-level contacts.</Step>
+          <Step number={6} title="View Analytics">Check open rates, click rates, and engagement metrics.</Step>
+          <Step number={7} title="Automate with n8n">Export workflow to automate multi-channel outreach.</Step>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">System Requirements</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" />Modern browser (Chrome, Firefox, Safari, Edge)</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" />Brevo/SendGrid API key for email sending</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" />n8n instance (self-hosted or cloud) for advanced automation</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" />Supabase project for backend (already configured)</li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6 border-primary/30">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Initial Setup Checklist</h2>
+        <div className="space-y-3">
+          <ChecklistItem>Create your account and verify email</ChecklistItem>
+          <ChecklistItem>Set up Brevo/SendGrid API key (Settings → API Keys)</ChecklistItem>
+          <ChecklistItem>Import your first batch of contacts via CSV</ChecklistItem>
+          <ChecklistItem>Create at least one email template</ChecklistItem>
+          <ChecklistItem>Create a test campaign with 1-2 contacts</ChecklistItem>
+          <ChecklistItem>Import companies with firmographic data</ChecklistItem>
+          <ChecklistItem>Verify emails are being received</ChecklistItem>
+          <ChecklistItem>Set up n8n for automation (optional)</ChecklistItem>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function ContactsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Managing Contacts</h1>
+      
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">CSV Import Format</h2>
+        <p className="text-muted-foreground mb-4">Your CSV file should have the following columns (header row required):</p>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-sm overflow-x-auto">
+          <pre className="text-foreground">First Name,Last Name,Business Name,Email,Phone,Instagram,TikTok,Timezone</pre>
+          <pre className="text-muted-foreground">John,Smith,Acme Corp,john@acme.com,+1234567890,@johnsmith,@johnsmith_tt,America/New_York</pre>
+        </div>
+        <div className="mt-4 p-4 bg-warning/10 rounded-lg border border-warning/30">
+          <p className="text-sm text-warning flex items-center gap-2">
+            <AlertCircle className="w-4 h-4" />
+            Only Email is required for email campaigns. Other fields are optional.
+          </p>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database Table: contacts</h2>
+        <p className="text-muted-foreground mb-2">Columns: id, user_id, first_name, last_name, email, business_name, phone, instagram, tiktok, linkedin, job_title, location, city, state, country, timezone, status, tags[], bounced, bounce_type, bounced_at, unsubscribed, unsubscribed_at, email_sent, dm_sent, voicemail_sent, created_at, updated_at</p>
+        <p className="text-muted-foreground text-sm">RLS: Full CRUD restricted to owner (auth.uid() = user_id)</p>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Contact Statuses</h2>
+        <ul className="space-y-3">
+          <li className="flex items-center gap-3"><span className="w-3 h-3 rounded-full bg-warning" /><span className="font-medium text-foreground">Pending</span><span className="text-muted-foreground">— Not yet contacted</span></li>
+          <li className="flex items-center gap-3"><span className="w-3 h-3 rounded-full bg-success" /><span className="font-medium text-foreground">Sent</span><span className="text-muted-foreground">— Message delivered</span></li>
+          <li className="flex items-center gap-3"><span className="w-3 h-3 rounded-full bg-destructive" /><span className="font-medium text-foreground">Failed</span><span className="text-muted-foreground">— Delivery failed</span></li>
+          <li className="flex items-center gap-3"><span className="w-3 h-3 rounded-full bg-blue-500" /><span className="font-medium text-foreground">Bounced</span><span className="text-muted-foreground">— Invalid address</span></li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Frontend Hook: useContacts</h2>
+        <SqlBlock>{`import { useContacts } from '@/hooks/useContacts';
+
+const { contacts, isLoading, createContact, createManyContacts, updateContact, deleteContact } = useContacts();
+
+// Create single contact
+createContact.mutate({ first_name: 'John', last_name: 'Doe', email: 'john@example.com' });
+
+// Bulk import from CSV
+createManyContacts.mutate(parsedCSVRows);
+
+// Update a contact
+updateContact.mutate({ id: 'uuid', first_name: 'Jane' });
+
+// Delete a contact
+deleteContact.mutate('uuid');`}</SqlBlock>
+      </div>
+    </div>
+  );
+}
+
+function InlineEditingDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Inline Editing</h1>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Click-to-Edit Fields</h2>
+        <p className="text-muted-foreground mb-4">Click on any field in the contacts table to edit it directly.</p>
+        <div className="space-y-4">
+          <Step number={1} title="Click on a Field">A pencil icon appears on hover.</Step>
+          <Step number={2} title="Edit the Value">Type your changes in the input field.</Step>
+          <Step number={3} title="Save Changes">Press Enter to save or Escape to cancel.</Step>
+        </div>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Editable Fields</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          {['First Name', 'Last Name', 'Email', 'Business Name', 'Phone', 'Job Title'].map(f => (
+            <li key={f} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">{f}</strong></li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function TemplatesDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Templates</h1>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Available Variables</h2>
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            { var: '{{firstName}}', desc: "Contact's first name" },
+            { var: '{{lastName}}', desc: "Contact's last name" },
+            { var: '{{businessName}}', desc: "Business/company name" },
+            { var: '{{email}}', desc: "Contact's email address" },
+            { var: '{{handle}}', desc: 'Social media handle' },
+            { var: '{{platform}}', desc: 'Platform name' },
+          ].map(v => (
+            <div key={v.var} className="bg-secondary/50 rounded-lg p-3">
+              <code className="text-primary">{v.var}</code>
+              <p className="text-sm text-muted-foreground mt-1">{v.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Template Types</h2>
+        <div className="space-y-3">
+          {[
+            { icon: '📧', name: 'Email', desc: 'Full HTML emails with subject lines' },
+            { icon: '📱', name: 'Instagram DM', desc: 'Short messages for Instagram DMs' },
+            { icon: '🎵', name: 'TikTok DM', desc: 'Brief content for TikTok messages' },
+            { icon: '🎙️', name: 'Voicemail Scripts', desc: 'Script templates for voice messages' },
+          ].map(t => (
+            <div key={t.name} className="p-4 border border-border rounded-lg">
+              <h3 className="font-semibold text-foreground mb-1">{t.icon} {t.name}</h3>
+              <p className="text-muted-foreground text-sm">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database: templates table</h2>
+        <p className="text-muted-foreground text-sm font-mono">id (uuid PK), user_id (uuid), name (text NOT NULL), subject (text), content (text), type (text: email|instagram|tiktok|linkedin|voicemail), created_at, updated_at</p>
+      </div>
+    </div>
+  );
+}
+
+function CampaignsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Campaigns (OutreachCopilot)</h1>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Campaign Wizard</h2>
+        <p className="text-muted-foreground mb-4">Create campaigns using the step-by-step wizard:</p>
+        <ol className="space-y-3 list-decimal list-inside text-muted-foreground">
+          <li><strong className="text-foreground">Company Info</strong> — Enter company name, select AI or Manual mode</li>
+          <li><strong className="text-foreground">Lead Selection</strong> — Import leads via CSV, existing contacts, or manual</li>
+          <li><strong className="text-foreground">Review Leads</strong> — Preview and select contacts</li>
+          <li><strong className="text-foreground">Build Sequence</strong> — Add email, DM, follow-up steps with drag-and-drop</li>
+          <li><strong className="text-foreground">Launch</strong> — Review and launch campaign</li>
+        </ol>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Campaign Statuses</h2>
+        <ul className="space-y-3">
+          <li className="flex items-center gap-3"><Badge variant="secondary">draft</Badge><span className="text-muted-foreground">Created but not launched</span></li>
+          <li className="flex items-center gap-3"><Badge className="bg-warning/10 text-warning">scheduled</Badge><span className="text-muted-foreground">Set for future launch</span></li>
+          <li className="flex items-center gap-3"><Badge className="bg-primary/10 text-primary">running</Badge><span className="text-muted-foreground">Currently sending</span></li>
+          <li className="flex items-center gap-3"><Badge className="bg-success/10 text-success">completed</Badge><span className="text-muted-foreground">All messages sent</span></li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">A/B Testing</h2>
+        <p className="text-muted-foreground">Enable A/B testing to split contacts into Variant A and B with different subjects/content. Track opens and clicks per variant.</p>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Frontend Hook: useCampaigns</h2>
+        <SqlBlock>{`import { useCampaigns } from '@/hooks/useCampaigns';
+
+const { campaigns, isLoading, createCampaign, updateCampaign, launchCampaign, deleteCampaign, getCampaignContacts } = useCampaigns();
+
+// Create campaign with contacts
+createCampaign.mutate({
+  campaign: { name: 'Q1 Outreach', status: 'draft' },
+  contactIds: ['uuid1', 'uuid2']
+});
+
+// Launch campaign (invokes send-campaign-emails edge function)
+launchCampaign.mutate('campaign-uuid');`}</SqlBlock>
+      </div>
+    </div>
+  );
+}
+
+function UnifiedInboxDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Unified Inbox</h1>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Overview</h2>
+        <p className="text-muted-foreground mb-4">Consolidates all inbound replies from email campaigns and social DM outreach into a single view.</p>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Auto-matching</strong> — Replies linked to campaigns & contacts</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Read tracking</strong> — Messages marked read when opened</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Star & Archive</strong> — Organize with stars and archiving</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" /><strong className="text-foreground">Reply inline</strong> — Compose replies directly</li>
+        </ul>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Sources</h2>
+        <div className="space-y-3">
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-1">📧 email_inbox</h3>
+            <p className="text-muted-foreground text-sm">Inbound emails matched via inbound-email-webhook. FKs: campaign_id, campaign_contact_id, contact_id</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-1">💬 dm_campaign_contacts</h3>
+            <p className="text-muted-foreground text-sm">DM replies tracked via replied_at. Joins with creators and dm_campaigns.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function SocialDMDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Social DM Outreach</h1>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Supported Platforms</h2>
+        <div className="grid grid-cols-3 gap-4">
+          {['Instagram', 'TikTok', 'Twitter/X'].map(p => (
+            <div key={p} className="p-4 border border-border rounded-lg text-center">
+              <span className="text-foreground font-semibold">{p}</span>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Anti-Block Protection</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li>• Set sending hours (9 AM - 9 PM) to mimic human behavior</li>
+          <li>• Random delays between 30s-10min to avoid detection</li>
+          <li>• Recommended: 30-50 DMs per account per day</li>
+          <li>• Warm up new accounts before high-volume sending</li>
+        </ul>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database Tables</h2>
+        <p className="text-muted-foreground text-sm font-mono mb-2">dm_campaigns: id, user_id, name, platform, status, template_id, total_contacts, sent_count, reply_count, scheduled_at, started_at, completed_at</p>
+        <p className="text-muted-foreground text-sm font-mono">dm_campaign_contacts: id, dm_campaign_id, creator_id, status, sent_at, replied_at, error_message</p>
+      </div>
+    </div>
+  );
+}
+
+function AnalyticsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Analytics Dashboard</h1>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Key Metrics</h2>
+        <div className="grid grid-cols-2 gap-4">
+          {[
+            { icon: '📤', name: 'Total Sent', desc: 'Total messages delivered across campaigns' },
+            { icon: '👁️', name: 'Open Rate', desc: '(Opens / Sent) × 100' },
+            { icon: '🖱️', name: 'Click Rate', desc: '(Clicks / Opens) × 100' },
+            { icon: '📊', name: 'Reply Rate', desc: 'Percentage of DMs that received a reply' },
+          ].map(m => (
+            <div key={m.name} className="p-4 border border-border rounded-lg">
+              <h3 className="font-semibold text-foreground mb-1">{m.icon} {m.name}</h3>
+              <p className="text-muted-foreground text-sm">{m.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Benchmarks</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li>• Good open rate: 20-40% (cold outreach)</li>
+          <li>• Good click rate: 2-5% of opens</li>
+          <li>• Good DM reply rate: 5-15%</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function CompaniesContactsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Companies & Company Contacts</h1>
+      
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Model (Split Architecture)</h2>
+        <p className="text-muted-foreground mb-4">
+          Data is split into two tables: <code className="text-primary">companies</code> for organizational metadata (80+ columns) and <code className="text-primary">company_contacts</code> for person-level details. Contacts link to companies via <code className="text-primary">company_id</code> foreign key.
+        </p>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">companies — All Columns (60+)</h2>
+        <div className="overflow-x-auto">
+          <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs max-h-[400px] overflow-y-auto">
+            <pre className="text-foreground">{`id                      uuid PK (gen_random_uuid)
+user_id                 uuid NOT NULL
+name                    text NOT NULL
+website                 text
+linkedin_url            text
+industry                text
+size                    text
+headquarters            text
+description             text
+short_description       text
+founded                 text
+specialties             text[]
+logo_url                text
+phone                   text
+email                   text
+employee_count          integer
+annual_revenue          text
+company_name_for_emails text
+company_phone           text
+phone_from_website      text
+instagram_url           text
+company_linkedin_url    text
+facebook_url            text
+twitter_url             text
+pinterest_url           text
+company_city            text
+company_state           text
+company_country         text
+company_address         text
+technologies            text
+keywords                text
+total_funding           text
+latest_funding          text
+latest_funding_amount   text
+subsidiary_of           text
+number_of_retail_locations text
+extracted_from          text
+website_status          text
+d2c_presence            text
+e_commerce_presence     text
+social_media_presence   text
+integrated_videos       text
+integrated_video_urls   text
+ig_username             text
+ig_bio                  text
+ig_followers_count      text
+total_post_in_3_months  text
+average_er              text
+total_collaborations    text
+ugc_example             text
+worked_with_creators    text
+hashtags                text
+mentions                text
+segmentation            text
+firmographic_score      text
+engagement_score        text
+ad_library_proof        text
+metadata                jsonb DEFAULT '{}'
+extra_data              jsonb DEFAULT '{}'
+created_at              timestamptz DEFAULT now()
+updated_at              timestamptz DEFAULT now()`}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">company_contacts — All Columns (30+)</h2>
+        <div className="overflow-x-auto">
+          <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs max-h-[400px] overflow-y-auto">
+            <pre className="text-foreground">{`id                  uuid PK (gen_random_uuid)
+user_id             uuid NOT NULL
+company_id          uuid FK → companies(id)
+first_name          text
+last_name           text
+seniority           text
+departments         text
+title               text
+email               text
+secondary_email     text
+email_from_website  text
+work_direct_phone   text
+home_phone          text
+mobile_phone        text
+corporate_phone     text
+other_phone         text
+person_linkedin_url text
+city                text
+state               text
+country             text
+job_tracking_link   text
+hiring_job_title    text
+salary_estimated    text
+job_location        text
+linkedin_job_link   text
+linkedin_job_title  text
+job_basedon         text
+mql                 text
+sql_status          text
+ig_score            text
+notes_for_sdr       text
+notes_for_data      text
+date_of_filtration  text
+extra_data          jsonb DEFAULT '{}'
+created_at          timestamptz DEFAULT now()
+updated_at          timestamptz DEFAULT now()`}</pre>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Frontend Hooks</h2>
+        <SqlBlock title="useCompanies">{`import { useCompanies } from '@/hooks/useCompanies';
+const { companies, isLoading, createCompany, updateCompany, deleteCompany } = useCompanies();
+
+createCompany.mutate({ name: 'Acme Corp', industry: 'Tech', website: 'https://acme.com' });`}</SqlBlock>
+        <div className="mt-4" />
+        <SqlBlock title="useCompanyContacts">{`import { useCompanyContacts } from '@/hooks/useCompanyContacts';
+const { contacts, isLoading, createContact, updateContact, deleteContact } = useCompanyContacts(companyId);
+
+createContact.mutate({
+  company_id: 'uuid', first_name: 'John', last_name: 'Doe',
+  email: 'john@acme.com', seniority: 'VP', mql: 'High'
+});`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">CSV Import/Export</h2>
+        <p className="text-muted-foreground">Both tables support CSV bulk import with intelligent header mapping. Headers are automatically matched to column names. Extra unmapped columns are stored in the <code className="text-primary">extra_data</code> JSONB field.</p>
+      </div>
+    </div>
+  );
+}
+
+function ConnectionInfoDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Connection & Setup Information</h1>
+      
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Supabase Project</h2>
+        <div className="space-y-3 font-mono text-sm">
+          <div className="p-3 bg-secondary/50 rounded-lg flex justify-between">
+            <span className="text-muted-foreground">Project ID</span>
+            <span className="text-foreground">syqawvakxxfaohcgrenn</span>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg flex justify-between">
+            <span className="text-muted-foreground">Region</span>
+            <span className="text-foreground">See Supabase Dashboard</span>
+          </div>
+          <div className="p-3 bg-secondary/50 rounded-lg flex justify-between">
+            <span className="text-muted-foreground">API URL</span>
+            <span className="text-foreground">https://syqawvakxxfaohcgrenn.supabase.co</span>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Environment Variables</h2>
+        <div className="space-y-2">
+          {[
+            { name: 'VITE_SUPABASE_URL', desc: 'Auto-populated from connected project' },
+            { name: 'VITE_SUPABASE_PUBLISHABLE_KEY', desc: 'Anon key (safe for frontend)' },
+            { name: 'VITE_SUPABASE_PROJECT_ID', desc: 'Project identifier' },
+          ].map(e => (
+            <div key={e.name} className="p-3 bg-secondary/50 rounded-lg">
+              <code className="text-primary text-sm">{e.name}</code>
+              <p className="text-xs text-muted-foreground mt-1">{e.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Supabase Secrets (Edge Functions)</h2>
+        <div className="space-y-2">
+          {[
+            'SUPABASE_URL', 'SUPABASE_ANON_KEY', 'SUPABASE_SERVICE_ROLE_KEY',
+            'SUPABASE_DB_URL', 'RESEND_API_KEY', 'LOVABLE_API_KEY'
+          ].map(s => (
+            <div key={s} className="p-2 bg-secondary/50 rounded-lg font-mono text-sm text-foreground">{s}</div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Frontend Client Setup</h2>
+        <SqlBlock>{`// src/integrations/supabase/client.ts
+import { createClient } from '@supabase/supabase-js';
+import type { Database } from './types';
+
+const SUPABASE_URL = import.meta.env.VITE_SUPABASE_URL;
+const SUPABASE_KEY = import.meta.env.VITE_SUPABASE_PUBLISHABLE_KEY;
+
+export const supabase = createClient<Database>(SUPABASE_URL, SUPABASE_KEY);`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Storage Buckets</h2>
+        <div className="space-y-2">
+          {[
+            { name: 'avatars', pub: true, desc: 'User profile pictures' },
+            { name: 'portfolio', pub: true, desc: 'Creator portfolio files' },
+            { name: 'documents', pub: false, desc: 'Private contract/doc files' },
+          ].map(b => (
+            <div key={b.name} className="p-3 bg-secondary/50 rounded-lg flex items-center justify-between">
+              <div>
+                <code className="text-primary text-sm">{b.name}</code>
+                <p className="text-xs text-muted-foreground">{b.desc}</p>
+              </div>
+              <Badge variant={b.pub ? 'default' : 'secondary'}>{b.pub ? 'Public' : 'Private'}</Badge>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DatabaseSchemaDocs() {
+  return (
+    <div className="space-y-6 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Database Schema — All Tables</h1>
+      <p className="text-muted-foreground">Complete reference of all 40+ PostgreSQL tables in the public schema. Every column, type, nullable flag, and default value.</p>
+
+      <TableSchema name="profiles" description="User profiles synced from auth.users via trigger"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'auth.users.id', note: 'PK, matches auth user' },
+          { name: 'email', type: 'text', nullable: true, default_val: null },
+          { name: 'full_name', type: 'text', nullable: true, default_val: null },
+          { name: 'avatar_url', type: 'text', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="contacts" description="Outreach contacts for campaigns (email, DM, voicemail)"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null, note: 'Owner' },
+          { name: 'first_name', type: 'text', nullable: true, default_val: null },
+          { name: 'last_name', type: 'text', nullable: true, default_val: null },
+          { name: 'email', type: 'text', nullable: true, default_val: null },
+          { name: 'business_name', type: 'text', nullable: true, default_val: null },
+          { name: 'phone', type: 'text', nullable: true, default_val: null },
+          { name: 'instagram', type: 'text', nullable: true, default_val: null },
+          { name: 'tiktok', type: 'text', nullable: true, default_val: null },
+          { name: 'linkedin', type: 'text', nullable: true, default_val: null },
+          { name: 'job_title', type: 'text', nullable: true, default_val: null },
+          { name: 'location', type: 'text', nullable: true, default_val: null },
+          { name: 'city', type: 'text', nullable: true, default_val: null },
+          { name: 'state', type: 'text', nullable: true, default_val: null },
+          { name: 'country', type: 'text', nullable: true, default_val: null },
+          { name: 'timezone', type: 'text', nullable: true, default_val: "'UTC'" },
+          { name: 'status', type: 'text', nullable: true, default_val: "'pending'" },
+          { name: 'tags', type: 'text[]', nullable: true, default_val: "'{}'::text[]" },
+          { name: 'bounced', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'bounce_type', type: 'text', nullable: true, default_val: null },
+          { name: 'bounced_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'unsubscribed', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'unsubscribed_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'email_sent', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'dm_sent', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'voicemail_sent', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="companies" description="Organization-level data — 60+ columns for firmographics, social, scoring"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null, note: 'Owner' },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'website', type: 'text', nullable: true, default_val: null },
+          { name: 'linkedin_url', type: 'text', nullable: true, default_val: null },
+          { name: 'industry', type: 'text', nullable: true, default_val: null },
+          { name: 'size', type: 'text', nullable: true, default_val: null },
+          { name: 'headquarters', type: 'text', nullable: true, default_val: null },
+          { name: 'description', type: 'text', nullable: true, default_val: null },
+          { name: 'short_description', type: 'text', nullable: true, default_val: null },
+          { name: 'founded', type: 'text', nullable: true, default_val: null },
+          { name: 'specialties', type: 'text[]', nullable: true, default_val: null },
+          { name: 'logo_url', type: 'text', nullable: true, default_val: null },
+          { name: 'phone', type: 'text', nullable: true, default_val: null },
+          { name: 'email', type: 'text', nullable: true, default_val: null },
+          { name: 'employee_count', type: 'integer', nullable: true, default_val: null },
+          { name: 'annual_revenue', type: 'text', nullable: true, default_val: null },
+          { name: 'company_name_for_emails', type: 'text', nullable: true, default_val: null },
+          { name: 'company_phone', type: 'text', nullable: true, default_val: null },
+          { name: 'phone_from_website', type: 'text', nullable: true, default_val: null },
+          { name: 'instagram_url', type: 'text', nullable: true, default_val: null },
+          { name: 'company_linkedin_url', type: 'text', nullable: true, default_val: null },
+          { name: 'facebook_url', type: 'text', nullable: true, default_val: null },
+          { name: 'twitter_url', type: 'text', nullable: true, default_val: null },
+          { name: 'pinterest_url', type: 'text', nullable: true, default_val: null },
+          { name: 'company_city', type: 'text', nullable: true, default_val: null },
+          { name: 'company_state', type: 'text', nullable: true, default_val: null },
+          { name: 'company_country', type: 'text', nullable: true, default_val: null },
+          { name: 'company_address', type: 'text', nullable: true, default_val: null },
+          { name: 'technologies', type: 'text', nullable: true, default_val: null },
+          { name: 'keywords', type: 'text', nullable: true, default_val: null },
+          { name: 'total_funding', type: 'text', nullable: true, default_val: null },
+          { name: 'latest_funding', type: 'text', nullable: true, default_val: null },
+          { name: 'latest_funding_amount', type: 'text', nullable: true, default_val: null },
+          { name: 'subsidiary_of', type: 'text', nullable: true, default_val: null },
+          { name: 'number_of_retail_locations', type: 'text', nullable: true, default_val: null },
+          { name: 'extracted_from', type: 'text', nullable: true, default_val: null },
+          { name: 'website_status', type: 'text', nullable: true, default_val: null },
+          { name: 'd2c_presence', type: 'text', nullable: true, default_val: null },
+          { name: 'e_commerce_presence', type: 'text', nullable: true, default_val: null },
+          { name: 'social_media_presence', type: 'text', nullable: true, default_val: null },
+          { name: 'integrated_videos', type: 'text', nullable: true, default_val: null },
+          { name: 'integrated_video_urls', type: 'text', nullable: true, default_val: null },
+          { name: 'ig_username', type: 'text', nullable: true, default_val: null },
+          { name: 'ig_bio', type: 'text', nullable: true, default_val: null },
+          { name: 'ig_followers_count', type: 'text', nullable: true, default_val: null },
+          { name: 'total_post_in_3_months', type: 'text', nullable: true, default_val: null },
+          { name: 'average_er', type: 'text', nullable: true, default_val: null },
+          { name: 'total_collaborations', type: 'text', nullable: true, default_val: null },
+          { name: 'ugc_example', type: 'text', nullable: true, default_val: null },
+          { name: 'worked_with_creators', type: 'text', nullable: true, default_val: null },
+          { name: 'hashtags', type: 'text', nullable: true, default_val: null },
+          { name: 'mentions', type: 'text', nullable: true, default_val: null },
+          { name: 'segmentation', type: 'text', nullable: true, default_val: null },
+          { name: 'firmographic_score', type: 'text', nullable: true, default_val: null },
+          { name: 'engagement_score', type: 'text', nullable: true, default_val: null },
+          { name: 'ad_library_proof', type: 'text', nullable: true, default_val: null },
+          { name: 'metadata', type: 'jsonb', nullable: true, default_val: "'{}'::jsonb" },
+          { name: 'extra_data', type: 'jsonb', nullable: true, default_val: "'{}'::jsonb" },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="company_contacts" description="Person-level contacts linked to companies"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null, note: 'Owner' },
+          { name: 'company_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → companies' },
+          { name: 'first_name', type: 'text', nullable: true, default_val: null },
+          { name: 'last_name', type: 'text', nullable: true, default_val: null },
+          { name: 'seniority', type: 'text', nullable: true, default_val: null },
+          { name: 'departments', type: 'text', nullable: true, default_val: null },
+          { name: 'title', type: 'text', nullable: true, default_val: null },
+          { name: 'email', type: 'text', nullable: true, default_val: null },
+          { name: 'secondary_email', type: 'text', nullable: true, default_val: null },
+          { name: 'email_from_website', type: 'text', nullable: true, default_val: null },
+          { name: 'work_direct_phone', type: 'text', nullable: true, default_val: null },
+          { name: 'home_phone', type: 'text', nullable: true, default_val: null },
+          { name: 'mobile_phone', type: 'text', nullable: true, default_val: null },
+          { name: 'corporate_phone', type: 'text', nullable: true, default_val: null },
+          { name: 'other_phone', type: 'text', nullable: true, default_val: null },
+          { name: 'person_linkedin_url', type: 'text', nullable: true, default_val: null },
+          { name: 'city', type: 'text', nullable: true, default_val: null },
+          { name: 'state', type: 'text', nullable: true, default_val: null },
+          { name: 'country', type: 'text', nullable: true, default_val: null },
+          { name: 'job_tracking_link', type: 'text', nullable: true, default_val: null },
+          { name: 'hiring_job_title', type: 'text', nullable: true, default_val: null },
+          { name: 'salary_estimated', type: 'text', nullable: true, default_val: null },
+          { name: 'job_location', type: 'text', nullable: true, default_val: null },
+          { name: 'linkedin_job_link', type: 'text', nullable: true, default_val: null },
+          { name: 'linkedin_job_title', type: 'text', nullable: true, default_val: null },
+          { name: 'job_basedon', type: 'text', nullable: true, default_val: null },
+          { name: 'mql', type: 'text', nullable: true, default_val: null },
+          { name: 'sql_status', type: 'text', nullable: true, default_val: null },
+          { name: 'ig_score', type: 'text', nullable: true, default_val: null },
+          { name: 'notes_for_sdr', type: 'text', nullable: true, default_val: null },
+          { name: 'notes_for_data', type: 'text', nullable: true, default_val: null },
+          { name: 'date_of_filtration', type: 'text', nullable: true, default_val: null },
+          { name: 'extra_data', type: 'jsonb', nullable: true, default_val: "'{}'::jsonb" },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+        foreignKeys={['company_contacts.company_id → public.companies.id']}
+      />
+
+      <TableSchema name="campaigns" description="Email outreach campaigns with A/B testing support"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'status', type: 'text', nullable: true, default_val: "'draft'" },
+          { name: 'template_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → templates' },
+          { name: 'scheduled_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'started_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'completed_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'total_contacts', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'sent_count', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'open_count', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'click_count', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'ab_testing_enabled', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'variant_a_subject', type: 'text', nullable: true, default_val: null },
+          { name: 'variant_a_content', type: 'text', nullable: true, default_val: null },
+          { name: 'variant_a_sent', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'variant_a_opens', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'variant_a_clicks', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'variant_b_subject', type: 'text', nullable: true, default_val: null },
+          { name: 'variant_b_content', type: 'text', nullable: true, default_val: null },
+          { name: 'variant_b_sent', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'variant_b_opens', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'variant_b_clicks', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'use_recipient_timezone', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'optimal_send_hour', type: 'integer', nullable: true, default_val: '9' },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+        foreignKeys={['campaigns.template_id → public.templates.id']}
+      />
+
+      <TableSchema name="campaign_contacts" description="Junction table linking campaigns to contacts with delivery tracking"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'campaign_id', type: 'uuid', nullable: false, default_val: null, note: 'FK → campaigns' },
+          { name: 'contact_id', type: 'uuid', nullable: false, default_val: null, note: 'FK → contacts' },
+          { name: 'status', type: 'text', nullable: true, default_val: "'pending'" },
+          { name: 'sent_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'opened_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'clicked_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'bounced_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'bounce_type', type: 'text', nullable: true, default_val: null },
+          { name: 'error_message', type: 'text', nullable: true, default_val: null },
+          { name: 'variant', type: 'text', nullable: true, default_val: null },
+        ]}
+        foreignKeys={['campaign_contacts.campaign_id → campaigns.id', 'campaign_contacts.contact_id → contacts.id']}
+      />
+
+      <TableSchema name="campaign_send_logs" description="Detailed send event logs per campaign email"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'campaign_id', type: 'uuid', nullable: false, default_val: null, note: 'FK → campaigns' },
+          { name: 'campaign_contact_id', type: 'uuid', nullable: false, default_val: null, note: 'FK → campaign_contacts' },
+          { name: 'event_type', type: 'text', nullable: false, default_val: null },
+          { name: 'status', type: 'text', nullable: false, default_val: null },
+          { name: 'error_message', type: 'text', nullable: true, default_val: null },
+          { name: 'error_code', type: 'text', nullable: true, default_val: null },
+          { name: 'provider', type: 'text', nullable: true, default_val: null },
+          { name: 'message_id', type: 'text', nullable: true, default_val: null },
+          { name: 'metadata', type: 'jsonb', nullable: true, default_val: "'{}'::jsonb" },
+          { name: 'ip_address', type: 'text', nullable: true, default_val: null },
+          { name: 'user_agent', type: 'text', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="campaign_templates" description="Reusable multi-step campaign sequence templates"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'description', type: 'text', nullable: true, default_val: null },
+          { name: 'category', type: 'text', nullable: true, default_val: "'Sales'" },
+          { name: 'steps', type: 'integer', nullable: true, default_val: '1' },
+          { name: 'featured', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'sequence_data', type: 'jsonb', nullable: true, default_val: "'[]'::jsonb" },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="email_events" description="Open/click tracking events for campaign emails"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'campaign_contact_id', type: 'uuid', nullable: false, default_val: null, note: 'FK → campaign_contacts' },
+          { name: 'event_type', type: 'text', nullable: false, default_val: null },
+          { name: 'metadata', type: 'jsonb', nullable: true, default_val: "'{}'::jsonb" },
+          { name: 'ip_address', type: 'text', nullable: true, default_val: null },
+          { name: 'user_agent', type: 'text', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="email_inbox" description="Inbound email replies matched to campaigns/contacts"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'from_email', type: 'text', nullable: false, default_val: null },
+          { name: 'from_name', type: 'text', nullable: true, default_val: null },
+          { name: 'to_email', type: 'text', nullable: false, default_val: null },
+          { name: 'subject', type: 'text', nullable: true, default_val: null },
+          { name: 'body_text', type: 'text', nullable: true, default_val: null },
+          { name: 'body_html', type: 'text', nullable: true, default_val: null },
+          { name: 'is_read', type: 'boolean', nullable: false, default_val: 'false' },
+          { name: 'is_starred', type: 'boolean', nullable: false, default_val: 'false' },
+          { name: 'folder', type: 'text', nullable: false, default_val: "'inbox'" },
+          { name: 'message_id', type: 'text', nullable: true, default_val: null },
+          { name: 'in_reply_to', type: 'text', nullable: true, default_val: null },
+          { name: 'campaign_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → campaigns' },
+          { name: 'campaign_contact_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → campaign_contacts' },
+          { name: 'contact_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → contacts' },
+          { name: 'received_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="email_settings" description="User SMTP/API credentials for email sending"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'smtp_host', type: 'text', nullable: true, default_val: null },
+          { name: 'smtp_port', type: 'text', nullable: true, default_val: null },
+          { name: 'smtp_user', type: 'text', nullable: true, default_val: null },
+          { name: 'smtp_password', type: 'text', nullable: true, default_val: null },
+          { name: 'brevo_api_key', type: 'text', nullable: true, default_val: null },
+          { name: 'sendgrid_key', type: 'text', nullable: true, default_val: null },
+          { name: 'twilio_sid', type: 'text', nullable: true, default_val: null },
+          { name: 'twilio_token', type: 'text', nullable: true, default_val: null },
+          { name: 'twilio_number', type: 'text', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="email_deliverability_tests" description="SPF/DKIM/DMARC deliverability test results"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'email', type: 'text', nullable: false, default_val: null },
+          { name: 'test_type', type: 'text', nullable: false, default_val: "'inbox_placement'" },
+          { name: 'status', type: 'text', nullable: false, default_val: "'pending'" },
+          { name: 'spam_score', type: 'numeric', nullable: true, default_val: null },
+          { name: 'inbox_placement', type: 'text', nullable: true, default_val: null },
+          { name: 'result', type: 'jsonb', nullable: true, default_val: "'{}'::jsonb" },
+          { name: 'authentication_results', type: 'jsonb', nullable: true, default_val: "'{}'::jsonb" },
+          { name: 'warnings', type: 'text[]', nullable: true, default_val: null },
+          { name: 'completed_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="dm_campaigns" description="Social DM outreach campaigns"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'platform', type: 'text', nullable: false, default_val: null },
+          { name: 'status', type: 'text', nullable: true, default_val: "'draft'" },
+          { name: 'template_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → templates' },
+          { name: 'total_contacts', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'sent_count', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'reply_count', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'scheduled_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'started_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'completed_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="dm_campaign_contacts" description="DM recipients per campaign"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'dm_campaign_id', type: 'uuid', nullable: false, default_val: null, note: 'FK → dm_campaigns' },
+          { name: 'creator_id', type: 'uuid', nullable: false, default_val: null, note: 'FK → creators' },
+          { name: 'status', type: 'text', nullable: true, default_val: "'pending'" },
+          { name: 'sent_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'replied_at', type: 'timestamptz', nullable: true, default_val: null },
+          { name: 'error_message', type: 'text', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="creators" description="Social media creator profiles"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: true, default_val: null },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'handle', type: 'text', nullable: false, default_val: null },
+          { name: 'platform', type: 'text', nullable: true, default_val: "'instagram'" },
+          { name: 'bio', type: 'text', nullable: true, default_val: null },
+          { name: 'avatar', type: 'text', nullable: true, default_val: null },
+          { name: 'followers', type: 'text', nullable: true, default_val: null },
+          { name: 'engagement', type: 'text', nullable: true, default_val: null },
+          { name: 'avg_likes', type: 'text', nullable: true, default_val: null },
+          { name: 'category', type: 'text[]', nullable: true, default_val: null },
+          { name: 'location', type: 'text', nullable: true, default_val: null },
+          { name: 'recent_post', type: 'text', nullable: true, default_val: null },
+          { name: 'verified', type: 'boolean', nullable: true, default_val: 'false' },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="activity_logs" description="Full audit trail of all user actions"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'entity_type', type: 'text', nullable: false, default_val: null },
+          { name: 'entity_id', type: 'uuid', nullable: true, default_val: null },
+          { name: 'action_type', type: 'text', nullable: false, default_val: null },
+          { name: 'metadata', type: 'jsonb', nullable: true, default_val: "'{}'::jsonb" },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="ads_campaigns" description="Advertising campaigns (Facebook, Google, etc.)"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'name', type: 'text', nullable: false, default_val: null },
+          { name: 'status', type: 'text', nullable: false, default_val: "'draft'" },
+          { name: 'platforms', type: 'text[]', nullable: true, default_val: "ARRAY['facebook']" },
+          { name: 'budget', type: 'numeric', nullable: true, default_val: null },
+          { name: 'spent', type: 'numeric', nullable: true, default_val: '0' },
+          { name: 'objective', type: 'text', nullable: true, default_val: null },
+          { name: 'reach', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'impressions', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'clicks', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'ctr', type: 'numeric', nullable: true, default_val: '0' },
+          { name: 'cpc', type: 'numeric', nullable: true, default_val: '0' },
+          { name: 'results', type: 'integer', nullable: true, default_val: '0' },
+          { name: 'result_type', type: 'text', nullable: true, default_val: null },
+          { name: 'start_date', type: 'date', nullable: true, default_val: null },
+          { name: 'end_date', type: 'date', nullable: true, default_val: null },
+          { name: 'target_audience', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'ad_creative', type: 'jsonb', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="collaboration_contracts" description="Brand-creator collaboration contracts"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'brand_user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'creator_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → creators' },
+          { name: 'invitation_id', type: 'uuid', nullable: true, default_val: null, note: 'FK → campaign_invitations' },
+          { name: 'title', type: 'text', nullable: false, default_val: null },
+          { name: 'terms', type: 'text', nullable: false, default_val: null },
+          { name: 'payment_amount', type: 'numeric', nullable: true, default_val: null },
+          { name: 'payment_currency', type: 'text', nullable: true, default_val: "'USD'" },
+          { name: 'status', type: 'text', nullable: true, default_val: "'draft'" },
+          { name: 'deliverables', type: 'jsonb', nullable: true, default_val: "'[]'::jsonb" },
+          { name: 'start_date', type: 'date', nullable: true, default_val: null },
+          { name: 'end_date', type: 'date', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="country_timezones" description="Reference table of countries with timezones and UTC offsets"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'country_code', type: 'text', nullable: false, default_val: null },
+          { name: 'country_name', type: 'text', nullable: false, default_val: null },
+          { name: 'timezone', type: 'text', nullable: false, default_val: null },
+          { name: 'utc_offset', type: 'integer', nullable: false, default_val: null },
+        ]}
+      />
+
+      <TableSchema name="credit_transactions" description="User credit usage tracking"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'amount', type: 'integer', nullable: false, default_val: null },
+          { name: 'type', type: 'text', nullable: false, default_val: null },
+          { name: 'tool_used', type: 'text', nullable: true, default_val: null },
+          { name: 'description', type: 'text', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <TableSchema name="business_details" description="User business/billing information"
+        columns={[
+          { name: 'id', type: 'uuid', nullable: false, default_val: 'gen_random_uuid()', note: 'PK' },
+          { name: 'user_id', type: 'uuid', nullable: false, default_val: null },
+          { name: 'company_name', type: 'text', nullable: true, default_val: null },
+          { name: 'billing_address', type: 'text', nullable: true, default_val: null },
+          { name: 'city', type: 'text', nullable: true, default_val: null },
+          { name: 'state', type: 'text', nullable: true, default_val: null },
+          { name: 'postal_code', type: 'text', nullable: true, default_val: null },
+          { name: 'country', type: 'text', nullable: true, default_val: null },
+          { name: 'phone', type: 'text', nullable: true, default_val: null },
+          { name: 'tax_id', type: 'text', nullable: true, default_val: null },
+          { name: 'created_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+          { name: 'updated_at', type: 'timestamptz', nullable: false, default_val: 'now()' },
+        ]}
+      />
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-xl font-semibold text-foreground mb-4">Additional Tables</h2>
+        <p className="text-muted-foreground text-sm mb-4">The following tables also exist in the schema (see Backup SQL Scripts for full CREATE statements):</p>
+        <div className="grid grid-cols-2 gap-2 text-sm">
+          {[
+            'campaign_invitations', 'content_posts', 'content_comments', 'content_reports',
+            'contract_activity', 'contract_templates', 'conversations', 'creator_earnings',
+            'creator_social_accounts', 'user_roles', 'user_credits', 'user_favorites',
+            'tool_usage_analytics', 'saved_creators', 'saved_filters', 'page_views',
+            'linkedin_leads', 'file_storage_tracking', 'email_warmup_schedules',
+            'follow_up_sequences', 'follow_up_queue', 'messages'
+          ].map(t => (
+            <div key={t} className="p-2 bg-secondary/50 rounded font-mono text-primary">{t}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function IndexesViewsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Indexes & Views</h1>
+      
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Primary Key Indexes (Auto-created)</h2>
+        <p className="text-muted-foreground mb-4">Every table has an auto-created unique B-tree index on its <code className="text-primary">id</code> column (uuid PK). These are created by PostgreSQL automatically.</p>
+        <SqlBlock>{`-- All PKs use gen_random_uuid() and have auto B-tree indexes:
+-- contacts_pkey ON contacts (id)
+-- campaigns_pkey ON campaigns (id)
+-- companies_pkey ON companies (id)
+-- company_contacts_pkey ON company_contacts (id)
+-- campaign_contacts_pkey ON campaign_contacts (id)
+-- templates_pkey ON templates (id)
+-- email_inbox_pkey ON email_inbox (id)
+-- activity_logs_pkey ON activity_logs (id)
+-- ... (all 40+ tables)`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Unique Constraints</h2>
+        <SqlBlock>{`-- user_roles: unique(user_id, role)
+-- creator_social_accounts: unique(user_id, platform)
+-- user_credits: unique(user_id)
+-- user_favorites: unique(user_id, tool_id)`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Recommended Additional Indexes</h2>
+        <p className="text-muted-foreground mb-4">For optimal query performance at scale, consider adding these indexes:</p>
+        <SqlBlock>{`-- High-priority indexes for common queries:
+CREATE INDEX IF NOT EXISTS idx_contacts_user_id ON contacts(user_id);
+CREATE INDEX IF NOT EXISTS idx_contacts_email ON contacts(email);
+CREATE INDEX IF NOT EXISTS idx_campaigns_user_id ON campaigns(user_id);
+CREATE INDEX IF NOT EXISTS idx_campaigns_status ON campaigns(status);
+CREATE INDEX IF NOT EXISTS idx_campaign_contacts_campaign_id ON campaign_contacts(campaign_id);
+CREATE INDEX IF NOT EXISTS idx_campaign_contacts_contact_id ON campaign_contacts(contact_id);
+CREATE INDEX IF NOT EXISTS idx_campaign_contacts_status ON campaign_contacts(status);
+CREATE INDEX IF NOT EXISTS idx_email_inbox_user_id ON email_inbox(user_id);
+CREATE INDEX IF NOT EXISTS idx_email_inbox_folder ON email_inbox(user_id, folder);
+CREATE INDEX IF NOT EXISTS idx_email_events_campaign_contact_id ON email_events(campaign_contact_id);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_user_id ON activity_logs(user_id);
+CREATE INDEX IF NOT EXISTS idx_activity_logs_created_at ON activity_logs(created_at DESC);
+CREATE INDEX IF NOT EXISTS idx_companies_user_id ON companies(user_id);
+CREATE INDEX IF NOT EXISTS idx_company_contacts_user_id ON company_contacts(user_id);
+CREATE INDEX IF NOT EXISTS idx_company_contacts_company_id ON company_contacts(company_id);
+CREATE INDEX IF NOT EXISTS idx_dm_campaigns_user_id ON dm_campaigns(user_id);
+CREATE INDEX IF NOT EXISTS idx_creators_user_id ON creators(user_id);
+
+-- GIN index for JSONB queries:
+CREATE INDEX IF NOT EXISTS idx_companies_metadata ON companies USING gin(metadata);
+CREATE INDEX IF NOT EXISTS idx_companies_extra_data ON companies USING gin(extra_data);
+
+-- Text search indexes:
+CREATE INDEX IF NOT EXISTS idx_contacts_name ON contacts(first_name, last_name);
+CREATE INDEX IF NOT EXISTS idx_companies_name ON companies(name);`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Views</h2>
+        <p className="text-muted-foreground mb-4">Currently no custom views are defined. Consider creating these for common reporting needs:</p>
+        <SqlBlock>{`-- Example: Campaign performance view
+CREATE OR REPLACE VIEW campaign_performance AS
+SELECT 
+  c.id, c.name, c.status, c.created_at,
+  c.total_contacts, c.sent_count, c.open_count, c.click_count,
+  CASE WHEN c.sent_count > 0 
+    THEN ROUND((c.open_count::numeric / c.sent_count) * 100, 2) 
+    ELSE 0 END AS open_rate,
+  CASE WHEN c.open_count > 0 
+    THEN ROUND((c.click_count::numeric / c.open_count) * 100, 2) 
+    ELSE 0 END AS click_rate,
+  c.user_id
+FROM campaigns c;
+
+-- Example: Contact engagement summary
+CREATE OR REPLACE VIEW contact_engagement AS
+SELECT 
+  co.id, co.first_name, co.last_name, co.email,
+  COUNT(DISTINCT cc.campaign_id) AS campaigns_count,
+  COUNT(CASE WHEN cc.opened_at IS NOT NULL THEN 1 END) AS opens,
+  COUNT(CASE WHEN cc.clicked_at IS NOT NULL THEN 1 END) AS clicks,
+  co.user_id
+FROM contacts co
+LEFT JOIN campaign_contacts cc ON co.id = cc.contact_id
+GROUP BY co.id;`}</SqlBlock>
+      </div>
+    </div>
+  );
+}
+
+function DatabaseFunctionsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Database Functions & Stored Procedures</h1>
+      
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">1. update_updated_at_column()</h2>
+        <Badge className="mb-3">TRIGGER FUNCTION</Badge>
+        <p className="text-muted-foreground mb-3">Auto-updates the <code className="text-primary">updated_at</code> column on any UPDATE. Attached to all tables with updated_at.</p>
+        <SqlBlock>{`CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+BEGIN
+  NEW.updated_at = now();
+  RETURN NEW;
+END;
+$$;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">2. handle_new_user()</h2>
+        <Badge className="mb-3">TRIGGER FUNCTION</Badge>
+        <p className="text-muted-foreground mb-3">Fires on INSERT into auth.users. Creates profile, assigns role, grants 300 credits, and optionally creates creator profile with social accounts.</p>
+        <SqlBlock>{`CREATE OR REPLACE FUNCTION public.handle_new_user()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE
+  user_role TEXT;
+  creator_record_id UUID;
+  creator_name TEXT;
+  generated_handle TEXT;
+BEGIN
+  user_role := COALESCE(NEW.raw_user_meta_data ->> 'role', 'user');
+  creator_name := COALESCE(NEW.raw_user_meta_data ->> 'full_name', 
+                           split_part(COALESCE(NEW.email, ''), '@', 1), 'creator');
+  generated_handle := LOWER(REGEXP_REPLACE(creator_name, '[^a-zA-Z0-9]+', '_', 'g')) 
+                      || '_' || SUBSTRING(NEW.id::text, 1, 8);
+
+  -- Create profile
+  INSERT INTO public.profiles (id, email, full_name, avatar_url)
+  VALUES (NEW.id, NEW.email, NEW.raw_user_meta_data ->> 'full_name',
+    COALESCE(NEW.raw_user_meta_data ->> 'avatar_url', NEW.raw_user_meta_data ->> 'picture'))
+  ON CONFLICT (id) DO UPDATE SET email = EXCLUDED.email, 
+    full_name = COALESCE(EXCLUDED.full_name, profiles.full_name),
+    avatar_url = COALESCE(EXCLUDED.avatar_url, profiles.avatar_url), updated_at = now();
+
+  -- Assign role
+  INSERT INTO public.user_roles (user_id, role) VALUES (NEW.id, user_role::app_role)
+  ON CONFLICT (user_id, role) DO NOTHING;
+
+  -- Grant starter credits
+  INSERT INTO public.user_credits (user_id, balance, total_purchased) VALUES (NEW.id, 300, 0)
+  ON CONFLICT (user_id) DO NOTHING;
+
+  -- Creator-specific setup (social accounts, etc.)
+  IF user_role = 'creator' THEN
+    INSERT INTO public.creators (user_id, name, handle, bio)
+    VALUES (NEW.id, creator_name, generated_handle, '')
+    RETURNING id INTO creator_record_id;
+    -- ... links social accounts from OAuth metadata
+  END IF;
+  RETURN NEW;
+END;
+$$;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">3. has_role(uuid, app_role)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Checks if a user has a specific role. Used in RLS policies to prevent recursive checks.</p>
+        <SqlBlock>{`CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER
+SET search_path = public AS $$
+  SELECT EXISTS (
+    SELECT 1 FROM public.user_roles
+    WHERE user_id = _user_id AND role = _role
+  )
+$$;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">4. deduct_credits(uuid, int, text, text)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Deducts credits from a user's balance. Admins bypass deduction. Returns boolean success.</p>
+        <SqlBlock>{`CREATE OR REPLACE FUNCTION public.deduct_credits(
+  p_user_id uuid, p_amount int, p_tool text, p_description text
+) RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE current_balance INTEGER; is_admin BOOLEAN;
+BEGIN
+  SELECT EXISTS (SELECT 1 FROM public.user_roles 
+    WHERE user_id = p_user_id AND role = 'admin') INTO is_admin;
+  IF is_admin THEN
+    INSERT INTO credit_transactions (user_id, amount, type, tool_used, description)
+    VALUES (p_user_id, 0, 'admin_usage', p_tool, p_description);
+    RETURN TRUE;
+  END IF;
+  SELECT balance INTO current_balance FROM user_credits 
+    WHERE user_id = p_user_id FOR UPDATE;
+  IF current_balance IS NULL OR current_balance < p_amount THEN RETURN FALSE; END IF;
+  UPDATE user_credits SET balance = balance - p_amount, updated_at = now() 
+    WHERE user_id = p_user_id;
+  INSERT INTO credit_transactions (user_id, amount, type, tool_used, description)
+  VALUES (p_user_id, -p_amount, 'usage', p_tool, p_description);
+  RETURN TRUE;
+END;
+$$;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">5. toggle_favorite(uuid, text)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Toggles a tool favorite on/off for a user. Returns TRUE if favorited, FALSE if unfavorited.</p>
+        <SqlBlock>{`CREATE OR REPLACE FUNCTION public.toggle_favorite(p_user_id uuid, p_tool_id text)
+RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE existing_id UUID;
+BEGIN
+  SELECT id INTO existing_id FROM user_favorites 
+    WHERE user_id = p_user_id AND tool_id = p_tool_id;
+  IF existing_id IS NOT NULL THEN
+    DELETE FROM user_favorites WHERE id = existing_id;
+    RETURN FALSE;
+  ELSE
+    INSERT INTO user_favorites (user_id, tool_id) VALUES (p_user_id, p_tool_id);
+    RETURN TRUE;
+  END IF;
+END;
+$$;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">6. get_user_top_tools(uuid, int)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Returns the top N most-used tools for a user from tool_usage_analytics.</p>
+        <SqlBlock>{`CREATE OR REPLACE FUNCTION public.get_user_top_tools(
+  p_user_id uuid, p_limit integer DEFAULT 10
+) RETURNS TABLE(tool_id text, tool_category text, usage_count bigint, last_used timestamptz)
+LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+  SELECT tool_id, tool_category, COUNT(*) as usage_count, MAX(created_at) as last_used
+  FROM tool_usage_analytics WHERE user_id = p_user_id
+  GROUP BY tool_id, tool_category ORDER BY usage_count DESC LIMIT p_limit;
+$$;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">7. create_sample_templates_for_user()</h2>
+        <Badge className="mb-3">TRIGGER FUNCTION</Badge>
+        <p className="text-muted-foreground mb-3">Creates starter email/DM templates and a sample campaign template when a new user is created.</p>
+        <SqlBlock>{`-- Inserts 4 starter templates (Welcome, Follow Up, Instagram, TikTok)
+-- and 1 campaign template (Cold Outreach - Starter) for new users`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">8. create_default_contract_templates()</h2>
+        <Badge className="mb-3">TRIGGER FUNCTION</Badge>
+        <p className="text-muted-foreground mb-3">Creates 3 default contract templates (Standard Collaboration, Influencer Campaign, Content License) for new users.</p>
+      </div>
+    </div>
+  );
+}
+
+function TriggersEnumsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Triggers & Enums</h1>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Custom Enum Types</h2>
+        <SqlBlock>{`CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'user');
+-- Used in: user_roles.role column and has_role() function`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Triggers</h2>
+        <div className="space-y-4">
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-1">on_auth_user_created</h3>
+            <p className="text-muted-foreground text-sm">AFTER INSERT on auth.users → calls handle_new_user()</p>
+            <p className="text-xs text-muted-foreground mt-1">Creates profile, assigns role, grants credits, sets up creator accounts</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-1">update_*_updated_at</h3>
+            <p className="text-muted-foreground text-sm">BEFORE UPDATE on contacts, templates, campaigns, companies, company_contacts, etc. → calls update_updated_at_column()</p>
+            <p className="text-xs text-muted-foreground mt-1">Auto-sets updated_at = now() on every row update</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-1">create_sample_templates_trigger</h3>
+            <p className="text-muted-foreground text-sm">AFTER INSERT on profiles → calls create_sample_templates_for_user()</p>
+          </div>
+          <div className="p-4 border border-border rounded-lg">
+            <h3 className="font-semibold text-foreground mb-1">create_contract_templates_trigger</h3>
+            <p className="text-muted-foreground text-sm">AFTER INSERT on profiles → calls create_default_contract_templates()</p>
+          </div>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Full Trigger SQL</h2>
+        <SqlBlock>{`-- Auth user trigger (on auth schema)
+CREATE TRIGGER on_auth_user_created
+  AFTER INSERT ON auth.users
+  FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+
+-- Updated_at triggers (applied to all major tables)
+CREATE TRIGGER update_contacts_updated_at
+  BEFORE UPDATE ON public.contacts
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+CREATE TRIGGER update_campaigns_updated_at
+  BEFORE UPDATE ON public.campaigns
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+CREATE TRIGGER update_companies_updated_at
+  BEFORE UPDATE ON public.companies
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+CREATE TRIGGER update_company_contacts_updated_at
+  BEFORE UPDATE ON public.company_contacts
+  FOR EACH ROW EXECUTE FUNCTION public.update_updated_at_column();
+
+-- Sample data triggers
+CREATE TRIGGER create_sample_templates_trigger
+  AFTER INSERT ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.create_sample_templates_for_user();
+
+CREATE TRIGGER create_contract_templates_trigger
+  AFTER INSERT ON public.profiles
+  FOR EACH ROW EXECUTE FUNCTION public.create_default_contract_templates();`}</SqlBlock>
+      </div>
+    </div>
+  );
+}
+
+function EdgeFunctionsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Supabase Edge Functions</h1>
+      <p className="text-muted-foreground">All edge functions are deployed automatically. Located in <code className="text-primary">supabase/functions/</code>.</p>
+
+      {[
+        {
+          name: 'send-campaign-emails',
+          jwt: true,
+          desc: 'Sends emails via Brevo/SendGrid/SMTP with tracking pixels. Reads email_settings for user credentials, updates campaign_contacts status, logs to campaign_send_logs.',
+          input: '{ campaignId: string }',
+          tables: 'campaigns, campaign_contacts, contacts, email_settings, templates, campaign_send_logs, activity_logs',
+        },
+        {
+          name: 'track-email',
+          jwt: false,
+          desc: 'Handles open/click tracking pixel requests. Inserts into email_events, updates campaign_contacts (opened_at, clicked_at), updates campaign counters.',
+          input: 'Query params: cc (campaign_contact_id), t (type: open|click)',
+          tables: 'campaign_contacts, campaigns, email_events',
+        },
+        {
+          name: 'inbound-email-webhook',
+          jwt: false,
+          desc: 'Webhook for inbound email providers (SendGrid, Mailgun). Parses incoming email, saves to email_inbox.',
+          input: 'Provider-specific webhook payload',
+          tables: 'email_inbox, contacts',
+        },
+        {
+          name: 'match-email-replies',
+          jwt: false,
+          desc: 'Matches inbound emails to campaigns and contacts. Uses from_email and in_reply_to headers to link replies.',
+          input: '{ from_email, to_email, subject, body_text, body_html, message_id, in_reply_to }',
+          tables: 'email_inbox, contacts, campaign_contacts, activity_logs',
+        },
+        {
+          name: 'process-follow-ups',
+          jwt: false,
+          desc: 'Processes follow_up_queue entries whose scheduled_at has passed. Sends follow-up emails based on trigger conditions.',
+          input: 'None (cron-triggered)',
+          tables: 'follow_up_queue, follow_up_sequences, campaign_contacts, email_settings',
+        },
+        {
+          name: 'process-scheduled-campaigns',
+          jwt: false,
+          desc: 'Checks campaigns with status=scheduled and scheduled_at <= now(), then launches them automatically.',
+          input: 'None (cron-triggered)',
+          tables: 'campaigns',
+        },
+        {
+          name: 'test-deliverability',
+          jwt: true,
+          desc: 'Tests SPF/DKIM/DMARC records and spam score for a given email address. Stores results in email_deliverability_tests.',
+          input: '{ email: string }',
+          tables: 'email_deliverability_tests',
+        },
+        {
+          name: 'scrape-linkedin-profile',
+          jwt: false,
+          desc: 'Scrapes public LinkedIn profile data (name, headline, experience, skills) and stores in linkedin_leads.',
+          input: '{ linkedin_url: string }',
+          tables: 'linkedin_leads',
+        },
+      ].map(fn => (
+        <div key={fn.name} className="glass-card rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <h2 className="text-lg font-bold text-foreground font-mono">{fn.name}</h2>
+            <Badge variant={fn.jwt ? 'default' : 'secondary'}>{fn.jwt ? 'JWT Required' : 'Public'}</Badge>
+          </div>
+          <p className="text-muted-foreground text-sm mb-3">{fn.desc}</p>
+          <div className="space-y-2 text-xs">
+            <div className="flex gap-2"><span className="text-foreground font-semibold">Input:</span><span className="text-muted-foreground font-mono">{fn.input}</span></div>
+            <div className="flex gap-2"><span className="text-foreground font-semibold">Tables:</span><span className="text-muted-foreground font-mono">{fn.tables}</span></div>
+          </div>
+        </div>
+      ))}
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">config.toml</h2>
+        <SqlBlock>{`project_id = "syqawvakxxfaohcgrenn"
+
+[functions.send-campaign-emails]
+verify_jwt = true
+
+[functions.track-email]
+verify_jwt = false
+
+[functions.process-scheduled-campaigns]
+verify_jwt = false
+
+[functions.process-follow-ups]
+verify_jwt = false
+
+[functions.match-email-replies]
+verify_jwt = false
+
+[functions.inbound-email-webhook]
+verify_jwt = false
+
+[functions.test-deliverability]
+verify_jwt = true
+
+[functions.scrape-linkedin-profile]
+verify_jwt = false`}</SqlBlock>
+      </div>
+    </div>
+  );
+}
+
+function RLSPoliciesDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Row Level Security (RLS) Policies</h1>
+      <p className="text-muted-foreground">All tables have RLS enabled. Policies enforce data isolation per authenticated user.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Pattern 1: Owner-based (Most Tables)</h2>
+        <p className="text-muted-foreground mb-3">Used by: contacts, campaigns, companies, company_contacts, templates, email_settings, dm_campaigns, etc.</p>
+        <SqlBlock>{`-- Full CRUD restricted to owner
+CREATE POLICY "Users can view own" ON table_name FOR SELECT USING (auth.uid() = user_id);
+CREATE POLICY "Users can insert own" ON table_name FOR INSERT WITH CHECK (auth.uid() = user_id);
+CREATE POLICY "Users can update own" ON table_name FOR UPDATE USING (auth.uid() = user_id);
+CREATE POLICY "Users can delete own" ON table_name FOR DELETE USING (auth.uid() = user_id);`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Pattern 2: Join-based (Junction Tables)</h2>
+        <p className="text-muted-foreground mb-3">Used by: campaign_contacts, dm_campaign_contacts, follow_up_queue</p>
+        <SqlBlock>{`-- Access via parent table ownership
+CREATE POLICY "Users can view campaign contacts" ON campaign_contacts
+FOR SELECT USING (
+  EXISTS (SELECT 1 FROM campaigns WHERE campaigns.id = campaign_contacts.campaign_id 
+          AND campaigns.user_id = auth.uid())
+);`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Pattern 3: Public Insert (Webhooks/Tracking)</h2>
+        <p className="text-muted-foreground mb-3">Used by: email_events, campaign_send_logs, activity_logs</p>
+        <SqlBlock>{`-- Allow public inserts (for edge functions with service role)
+CREATE POLICY "Public can insert" ON email_events FOR INSERT WITH CHECK (true);
+-- But SELECT still restricted to owner via joins
+CREATE POLICY "Users can view" ON email_events FOR SELECT USING (
+  EXISTS (SELECT 1 FROM campaign_contacts cc JOIN campaigns c ON cc.campaign_id = c.id
+          WHERE cc.id = email_events.campaign_contact_id AND c.user_id = auth.uid())
+);`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Pattern 4: Multi-party (Contracts)</h2>
+        <p className="text-muted-foreground mb-3">Used by: collaboration_contracts, contract_activity, campaign_invitations</p>
+        <SqlBlock>{`-- Brand can manage, creator can view/sign
+CREATE POLICY "Brands can manage" ON collaboration_contracts FOR ALL 
+  USING (brand_user_id = auth.uid());
+CREATE POLICY "Creators can view" ON collaboration_contracts FOR SELECT 
+  USING (creator_id IN (SELECT id FROM creators WHERE user_id = auth.uid()));`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Read-only Tables</h2>
+        <p className="text-muted-foreground">country_timezones: SELECT only, open to all authenticated users.</p>
+      </div>
+    </div>
+  );
+}
+
+function N8nDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">n8n Automation</h1>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Setup Steps</h2>
+        <div className="space-y-4">
+          <Step number={1} title="Download Workflow">Go to n8n tab → click Download to get JSON file</Step>
+          <Step number={2} title="Import to n8n">Add Workflow → Import from File → Select JSON</Step>
+          <Step number={3} title="Add Supabase Credentials">Use your project URL and service role key</Step>
+          <Step number={4} title="Configure Email Provider">Add Brevo, SendGrid, or SMTP credentials</Step>
+          <Step number={5} title="Activate Workflow">Toggle Active to enable execution</Step>
+        </div>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Tables Used by n8n</h2>
+        <div className="space-y-2 font-mono text-sm">
+          {['campaign_contacts', 'campaign_send_logs', 'activity_logs', 'email_events'].map(t => (
+            <div key={t} className="p-3 bg-secondary/50 rounded-lg text-primary">{t}</div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function DatabaseLoggingDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Database Logging</h1>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Logging Tables</h2>
+        <div className="space-y-3">
+          {[
+            { name: 'activity_logs', desc: 'Every user action: campaign creation, contact imports, template edits' },
+            { name: 'campaign_send_logs', desc: 'Detailed send events: success, failures, error codes, timestamps' },
+            { name: 'email_events', desc: 'Tracking events: opens, clicks, IP addresses, user agents' },
+            { name: 'page_views', desc: 'User navigation tracking' },
+            { name: 'contract_activity', desc: 'Contract lifecycle events (viewed, signed, edited)' },
+            { name: 'credit_transactions', desc: 'Credit usage and purchase history' },
+            { name: 'tool_usage_analytics', desc: 'Which tools users interact with most' },
+          ].map(t => (
+            <div key={t.name} className="p-4 border border-border rounded-lg">
+              <h3 className="font-semibold text-foreground font-mono mb-1">{t.name}</h3>
+              <p className="text-muted-foreground text-sm">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Retention & Access</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" />All logs retained indefinitely</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" />Export via Supabase dashboard or API</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" />RLS ensures users only see their own data</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function DatabaseMigrationDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">PostgreSQL Migration</h1>
+      <div className="glass-card rounded-xl p-6 border-warning/50">
+        <div className="flex items-center gap-2 mb-4">
+          <AlertCircle className="w-5 h-5 text-warning" />
+          <h2 className="text-2xl font-semibold text-foreground">Before You Begin</h2>
+        </div>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2"><AlertCircle className="w-4 h-4 text-warning" />Auth users are in Supabase's auth schema — need alternative auth system</li>
+          <li className="flex items-center gap-2"><AlertCircle className="w-4 h-4 text-warning" />RLS policies use auth.uid() — adapt for your auth system</li>
+          <li className="flex items-center gap-2"><AlertCircle className="w-4 h-4 text-warning" />Edge Functions need to be rewritten as backend APIs</li>
+        </ul>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Export Steps</h2>
+        <SqlBlock>{`# Export schema
+pg_dump --schema=public --schema-only --no-owner --no-privileges \\
+  "postgresql://postgres:[PASSWORD]@db.syqawvakxxfaohcgrenn.supabase.co:5432/postgres" > schema.sql
+
+# Export data
+pg_dump --schema=public --data-only --no-owner --no-privileges \\
+  "postgresql://postgres:[PASSWORD]@db.syqawvakxxfaohcgrenn.supabase.co:5432/postgres" > data.sql
+
+# Import to new PostgreSQL
+createdb outreachcopilot
+psql -d outreachcopilot -f schema.sql
+psql -d outreachcopilot -f data.sql`}</SqlBlock>
+      </div>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Auth Alternatives</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          {['Passport.js (Express)', 'Auth0 / Clerk (managed)', 'Custom JWT (bcrypt + jsonwebtoken)'].map(a => (
+            <li key={a} className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-success" />{a}</li>
+          ))}
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function ApiSetupDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">API Setup</h1>
+      {[
+        { name: 'Brevo (Recommended)', steps: ['Sign up at brevo.com', 'Settings → SMTP & API → Create API Key', 'Add BREVO_API_KEY to settings', 'Free tier: 300 emails/day'] },
+        { name: 'SendGrid', steps: ['Sign up at sendgrid.com', 'Verify sender domain', 'Create API key at Settings → API Keys', 'Free tier: 100 emails/day'] },
+        { name: 'Custom SMTP', steps: ['Get SMTP host, port, user, password from provider', 'Enter in Settings → Email Configuration', 'Test with deliverability checker'] },
+        { name: 'Twilio (Voice/SMS)', steps: ['Sign up at twilio.com', 'Get Account SID and Auth Token', 'Purchase phone number ($1/month)', 'Add credentials to settings'] },
+      ].map(api => (
+        <div key={api.name} className="glass-card rounded-xl p-6">
+          <h2 className="text-2xl font-semibold text-foreground mb-4">{api.name}</h2>
+          <ol className="space-y-2 list-decimal list-inside text-muted-foreground">
+            {api.steps.map((s, i) => <li key={i}>{s}</li>)}
+          </ol>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function PageReferenceDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Page-by-Page Reference</h1>
+      <p className="text-muted-foreground">How each page connects to the database and what hooks/functions it uses.</p>
+
+      {[
+        {
+          page: '/ (Dashboard)',
+          route: '/',
+          desc: 'Main dashboard with stats cards, activity feed, and campaign analytics.',
+          hooks: 'useCampaigns, useContacts, useActivityLog',
+          tables: 'campaigns, contacts, activity_logs, campaign_contacts',
+          component: 'Dashboard.tsx → StatsCard, ActivityFeed, CampaignAnalytics',
+        },
+        {
+          page: 'Contacts',
+          route: '/contacts (tab)',
+          desc: 'Manage outreach contacts. Import via CSV, inline editing, bulk delete.',
+          hooks: 'useContacts',
+          tables: 'contacts',
+          component: 'ContactsPage.tsx → ContactsTable, CSVUploader, ExternalImporter',
+        },
+        {
+          page: 'Campaigns',
+          route: '/campaigns (tab)',
+          desc: 'Create, manage, and monitor email campaigns. Campaign wizard, A/B testing, calendar view.',
+          hooks: 'useCampaigns, useContacts, useCampaignTemplates, useTemplates',
+          tables: 'campaigns, campaign_contacts, contacts, templates, campaign_templates',
+          component: 'CampaignsPage.tsx → CampaignWizard, CampaignList, CampaignCalendar',
+        },
+        {
+          page: 'Templates',
+          route: '/templates (tab)',
+          desc: 'Template library for email, DM, and voicemail messages.',
+          hooks: 'useTemplates, useCampaignTemplates',
+          tables: 'templates, campaign_templates',
+          component: 'TemplatesLibraryPage.tsx → RichTemplateEditor, SequenceBuilder',
+        },
+        {
+          page: 'Companies',
+          route: '/companies (tab)',
+          desc: 'Manage organizations with 60+ data fields. Link person-level contacts. CSV import/export.',
+          hooks: 'useCompanies, useCompanyContacts',
+          tables: 'companies, company_contacts',
+          component: 'CompaniesPage.tsx → CompanyFormDialog, CompanyContactsTab',
+        },
+        {
+          page: 'Unified Inbox',
+          route: '/inbox (tab)',
+          desc: 'All inbound replies (email + DM) in one view. Filter, star, archive.',
+          hooks: 'Custom queries on email_inbox',
+          tables: 'email_inbox, contacts, campaigns',
+          component: 'UnifiedInbox.tsx → EmailInbox',
+        },
+        {
+          page: 'Social DMs',
+          route: '/social-dms (tab)',
+          desc: 'Instagram/TikTok DM outreach campaigns with A/B testing.',
+          hooks: 'Custom queries on dm_campaigns, dm_campaign_contacts',
+          tables: 'dm_campaigns, dm_campaign_contacts, creators, templates',
+          component: 'SocialDMsPage.tsx → DMTemplates, DMAccountSetup, DMABTesting',
+        },
+        {
+          page: 'Analytics',
+          route: '/analytics (tab)',
+          desc: 'Campaign performance metrics, send time heatmap, unified analytics.',
+          hooks: 'useCampaigns, custom queries',
+          tables: 'campaigns, campaign_contacts, email_events',
+          component: 'AnalyticsDashboard.tsx → UnifiedAnalytics, SendTimeHeatmap',
+        },
+        {
+          page: 'LinkedIn Scraper',
+          route: '/linkedin (tab)',
+          desc: 'Scrape LinkedIn profiles, find company links.',
+          hooks: 'useLinkedinLeads',
+          tables: 'linkedin_leads',
+          component: 'LinkedInScraperPage.tsx, LinkFinderPage.tsx',
+        },
+        {
+          page: 'Settings',
+          route: '/settings (tab)',
+          desc: 'Email provider configuration, CRM webhooks, email warmup.',
+          hooks: 'useEmailSettings',
+          tables: 'email_settings, email_warmup_schedules, email_deliverability_tests',
+          component: 'SettingsPage.tsx → EmailWarmup, CRMWebhookIntegration',
+        },
+        {
+          page: 'n8n Automation',
+          route: '/n8n (tab)',
+          desc: 'Export n8n workflow JSON for multi-channel automation.',
+          hooks: 'None (static export)',
+          tables: 'Referenced: campaign_contacts, campaign_send_logs, activity_logs',
+          component: 'N8nWorkflow.tsx',
+        },
+        {
+          page: 'Documentation',
+          route: '/docs',
+          desc: 'This page. Comprehensive technical reference.',
+          hooks: 'None',
+          tables: 'None',
+          component: 'Documentation.tsx',
+        },
+      ].map(p => (
+        <div key={p.page} className="glass-card rounded-xl p-6">
+          <div className="flex items-center gap-3 mb-3">
+            <h2 className="text-lg font-bold text-foreground">{p.page}</h2>
+            <Badge variant="secondary" className="font-mono text-xs">{p.route}</Badge>
+          </div>
+          <p className="text-muted-foreground text-sm mb-3">{p.desc}</p>
+          <div className="grid grid-cols-1 gap-2 text-xs">
+            <div className="flex gap-2"><span className="text-foreground font-semibold min-w-[80px]">Hooks:</span><span className="text-muted-foreground font-mono">{p.hooks}</span></div>
+            <div className="flex gap-2"><span className="text-foreground font-semibold min-w-[80px]">Tables:</span><span className="text-muted-foreground font-mono">{p.tables}</span></div>
+            <div className="flex gap-2"><span className="text-foreground font-semibold min-w-[80px]">Components:</span><span className="text-muted-foreground font-mono">{p.component}</span></div>
+          </div>
+        </div>
+      ))}
+    </div>
+  );
+}
+
+function TroubleshootingDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Troubleshooting</h1>
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Common Issues</h2>
+        <div className="space-y-6">
+          {[
+            { title: '❌ Emails not sending', items: ['Verify API key in settings', 'Check domain verification', 'Review Edge Function logs', 'Ensure "from" email matches verified domain'] },
+            { title: '❌ CSV import fails', items: ['Ensure proper headers', 'Check encoding (use UTF-8)', 'Verify email format', 'Remove blank rows'] },
+            { title: '❌ Data not appearing', items: ['Check RLS policies (must be logged in)', 'Verify user_id matches', 'Check Supabase 1000 row limit', 'Look at browser console for errors'] },
+            { title: '❌ Edge function errors', items: ['Check function logs in Supabase dashboard', 'Verify secrets are configured', 'Check CORS headers', 'Test with curl first'] },
+          ].map(issue => (
+            <div key={issue.title} className="border-b border-border pb-4">
+              <h3 className="text-lg font-medium text-foreground mb-2">{issue.title}</h3>
+              <ul className="space-y-1 text-muted-foreground text-sm">
+                {issue.items.map((item, i) => <li key={i}>• {item}</li>)}
+              </ul>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function BackupScriptsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Backup SQL Scripts</h1>
+      <p className="text-muted-foreground">Complete CREATE TABLE statements for restoring the entire schema.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Core Tables</h2>
+        <SqlBlock>{`-- profiles
+CREATE TABLE IF NOT EXISTS public.profiles (
+  id uuid PRIMARY KEY,
+  email text, full_name text, avatar_url text,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.profiles ENABLE ROW LEVEL SECURITY;
+
+-- contacts
+CREATE TABLE IF NOT EXISTS public.contacts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, first_name text, last_name text,
+  email text, business_name text, phone text,
+  instagram text, tiktok text, linkedin text, job_title text,
+  location text, city text, state text, country text,
+  timezone text DEFAULT 'UTC', status text DEFAULT 'pending',
+  tags text[] DEFAULT '{}', bounced boolean DEFAULT false,
+  bounce_type text, bounced_at timestamptz,
+  unsubscribed boolean DEFAULT false, unsubscribed_at timestamptz,
+  email_sent boolean DEFAULT false, dm_sent boolean DEFAULT false,
+  voicemail_sent boolean DEFAULT false,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.contacts ENABLE ROW LEVEL SECURITY;
+
+-- companies (60+ columns)
+CREATE TABLE IF NOT EXISTS public.companies (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, name text NOT NULL,
+  website text, linkedin_url text, industry text, size text,
+  headquarters text, description text, short_description text,
+  founded text, specialties text[], logo_url text, phone text, email text,
+  employee_count int, annual_revenue text,
+  company_name_for_emails text, company_phone text, phone_from_website text,
+  instagram_url text, company_linkedin_url text, facebook_url text,
+  twitter_url text, pinterest_url text,
+  company_city text, company_state text, company_country text, company_address text,
+  technologies text, keywords text,
+  total_funding text, latest_funding text, latest_funding_amount text,
+  subsidiary_of text, number_of_retail_locations text,
+  extracted_from text, website_status text,
+  d2c_presence text, e_commerce_presence text, social_media_presence text,
+  integrated_videos text, integrated_video_urls text,
+  ig_username text, ig_bio text, ig_followers_count text,
+  total_post_in_3_months text, average_er text, total_collaborations text,
+  ugc_example text, worked_with_creators text, hashtags text, mentions text,
+  segmentation text, firmographic_score text, engagement_score text,
+  ad_library_proof text,
+  metadata jsonb DEFAULT '{}', extra_data jsonb DEFAULT '{}',
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.companies ENABLE ROW LEVEL SECURITY;
+
+-- company_contacts (30+ columns)
+CREATE TABLE IF NOT EXISTS public.company_contacts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, company_id uuid REFERENCES companies(id),
+  first_name text, last_name text, seniority text, departments text, title text,
+  email text, secondary_email text, email_from_website text,
+  work_direct_phone text, home_phone text, mobile_phone text,
+  corporate_phone text, other_phone text, person_linkedin_url text,
+  city text, state text, country text,
+  job_tracking_link text, hiring_job_title text, salary_estimated text,
+  job_location text, linkedin_job_link text, linkedin_job_title text, job_basedon text,
+  mql text, sql_status text, ig_score text,
+  notes_for_sdr text, notes_for_data text, date_of_filtration text,
+  extra_data jsonb DEFAULT '{}',
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.company_contacts ENABLE ROW LEVEL SECURITY;
+
+-- campaigns
+CREATE TABLE IF NOT EXISTS public.campaigns (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, name text NOT NULL,
+  status text DEFAULT 'draft', template_id uuid REFERENCES templates(id),
+  scheduled_at timestamptz, started_at timestamptz, completed_at timestamptz,
+  total_contacts int DEFAULT 0, sent_count int DEFAULT 0,
+  open_count int DEFAULT 0, click_count int DEFAULT 0,
+  ab_testing_enabled boolean DEFAULT false,
+  variant_a_subject text, variant_a_content text,
+  variant_a_sent int DEFAULT 0, variant_a_opens int DEFAULT 0, variant_a_clicks int DEFAULT 0,
+  variant_b_subject text, variant_b_content text,
+  variant_b_sent int DEFAULT 0, variant_b_opens int DEFAULT 0, variant_b_clicks int DEFAULT 0,
+  use_recipient_timezone boolean DEFAULT false, optimal_send_hour int DEFAULT 9,
+  created_at timestamptz DEFAULT now(), updated_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.campaigns ENABLE ROW LEVEL SECURITY;
+
+-- campaign_contacts
+CREATE TABLE IF NOT EXISTS public.campaign_contacts (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  campaign_id uuid NOT NULL REFERENCES campaigns(id),
+  contact_id uuid NOT NULL REFERENCES contacts(id),
+  status text DEFAULT 'pending', sent_at timestamptz, opened_at timestamptz,
+  clicked_at timestamptz, bounced_at timestamptz, bounce_type text,
+  error_message text, variant text
+);
+ALTER TABLE public.campaign_contacts ENABLE ROW LEVEL SECURITY;
+
+-- email_inbox
+CREATE TABLE IF NOT EXISTS public.email_inbox (
+  id uuid DEFAULT gen_random_uuid() PRIMARY KEY,
+  user_id uuid NOT NULL, from_email text NOT NULL, to_email text NOT NULL,
+  from_name text, subject text, body_text text, body_html text,
+  is_read boolean DEFAULT false, is_starred boolean DEFAULT false,
+  folder text DEFAULT 'inbox', message_id text, in_reply_to text,
+  campaign_id uuid REFERENCES campaigns(id),
+  campaign_contact_id uuid REFERENCES campaign_contacts(id),
+  contact_id uuid REFERENCES contacts(id),
+  received_at timestamptz DEFAULT now(), created_at timestamptz DEFAULT now()
+);
+ALTER TABLE public.email_inbox ENABLE ROW LEVEL SECURITY;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Functions & Triggers</h2>
+        <SqlBlock>{`-- Enum
+CREATE TYPE public.app_role AS ENUM ('admin', 'moderator', 'user');
+
+-- Timestamp trigger
+CREATE OR REPLACE FUNCTION public.update_updated_at_column()
+RETURNS TRIGGER LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+BEGIN NEW.updated_at = now(); RETURN NEW; END; $$;
+
+-- Role checker
+CREATE OR REPLACE FUNCTION public.has_role(_user_id uuid, _role app_role)
+RETURNS boolean LANGUAGE sql STABLE SECURITY DEFINER SET search_path = public AS $$
+  SELECT EXISTS (SELECT 1 FROM user_roles WHERE user_id = _user_id AND role = _role)
+$$;
+
+-- Credit deduction
+CREATE OR REPLACE FUNCTION public.deduct_credits(p_user_id uuid, p_amount int, p_tool text, p_description text)
+RETURNS boolean LANGUAGE plpgsql SECURITY DEFINER SET search_path = public AS $$
+DECLARE current_balance INTEGER; is_admin BOOLEAN;
+BEGIN
+  SELECT EXISTS (SELECT 1 FROM user_roles WHERE user_id = p_user_id AND role = 'admin') INTO is_admin;
+  IF is_admin THEN
+    INSERT INTO credit_transactions (user_id, amount, type, tool_used, description)
+    VALUES (p_user_id, 0, 'admin_usage', p_tool, p_description); RETURN TRUE;
+  END IF;
+  SELECT balance INTO current_balance FROM user_credits WHERE user_id = p_user_id FOR UPDATE;
+  IF current_balance IS NULL OR current_balance < p_amount THEN RETURN FALSE; END IF;
+  UPDATE user_credits SET balance = balance - p_amount, updated_at = now() WHERE user_id = p_user_id;
+  INSERT INTO credit_transactions (user_id, amount, type, tool_used, description)
+  VALUES (p_user_id, -p_amount, 'usage', p_tool, p_description); RETURN TRUE;
+END; $$;`}</SqlBlock>
+      </div>
     </div>
   );
 }
