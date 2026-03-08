@@ -1595,11 +1595,42 @@ $$;`}</SqlBlock>
         <Badge className="mb-3">TRIGGER FUNCTION</Badge>
         <p className="text-muted-foreground mb-3">Creates 3 default contract templates (Standard Collaboration, Influencer Campaign, Content License) for new users.</p>
       </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">9. calculate_lead_score(p_contact_id uuid)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Calculates lead score (0-100) for a contact based on data completeness, seniority, MQL/SQL status, and engagement. Updates lead_score and lead_score_breakdown columns.</p>
+        <SqlBlock>{`CREATE OR REPLACE FUNCTION public.calculate_lead_score(p_contact_id uuid)
+RETURNS integer LANGUAGE plpgsql SECURITY DEFINER
+SET search_path = public AS $$
+DECLARE score INTEGER := 0; breakdown JSONB := '{}';
+BEGIN
+  -- Scores based on: seniority (25), email (20), phone (15),
+  -- mql (15), sql_status (15), linkedin (10), engagement (variable)
+  -- Updates company_contacts.lead_score and lead_score_breakdown
+  RETURN score;
+END; $$;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">10. batch_calculate_lead_scores(p_user_id uuid)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Batch scores all contacts for a user. Returns count of scored contacts.</p>
+        <SqlBlock>{`SELECT batch_calculate_lead_scores(auth.uid());
+-- Returns: integer (count of contacts scored)`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">11. find_duplicate_contacts(p_user_id uuid)</h2>
+        <Badge className="mb-3">SECURITY DEFINER</Badge>
+        <p className="text-muted-foreground mb-3">Finds duplicate contacts by matching email or name+company combinations.</p>
+        <SqlBlock>{`SELECT * FROM find_duplicate_contacts(auth.uid());
+-- Returns TABLE(contact_id uuid, duplicate_of_id uuid, match_type text, match_value text)`}</SqlBlock>
+      </div>
     </div>
   );
 }
 
-function TriggersEnumsDocs() {
   return (
     <div className="space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-foreground">Triggers & Enums</h1>
