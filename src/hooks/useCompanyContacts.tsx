@@ -38,6 +38,12 @@ export interface CompanyContact {
   notes_for_data: string | null;
   date_of_filtration: string | null;
   extra_data: Record<string, any> | null;
+  lead_score: number | null;
+  lead_score_breakdown: Record<string, number> | null;
+  is_duplicate: boolean | null;
+  duplicate_of: string | null;
+  tags: string[] | null;
+  pipeline_stage: string | null;
   created_at: string;
   updated_at: string;
 }

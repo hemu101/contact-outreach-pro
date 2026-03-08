@@ -116,6 +116,42 @@ export type Database = {
         }
         Relationships: []
       }
+      audit_trail: {
+        Row: {
+          action: string
+          changed_fields: string[] | null
+          created_at: string
+          id: string
+          new_data: Json | null
+          old_data: Json | null
+          record_id: string
+          table_name: string
+          user_id: string
+        }
+        Insert: {
+          action: string
+          changed_fields?: string[] | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id: string
+          table_name: string
+          user_id: string
+        }
+        Update: {
+          action?: string
+          changed_fields?: string[] | null
+          created_at?: string
+          id?: string
+          new_data?: Json | null
+          old_data?: Json | null
+          record_id?: string
+          table_name?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       business_details: {
         Row: {
           billing_address: string | null
@@ -202,6 +238,13 @@ export type Database = {
           variant?: string | null
         }
         Relationships: [
+          {
+            foreignKeyName: "campaign_contacts_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_performance"
+            referencedColumns: ["id"]
+          },
           {
             foreignKeyName: "campaign_contacts_campaign_id_fkey"
             columns: ["campaign_id"]
@@ -330,6 +373,13 @@ export type Database = {
             columns: ["campaign_contact_id"]
             isOneToOne: false
             referencedRelation: "campaign_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "campaign_send_logs_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_performance"
             referencedColumns: ["id"]
           },
           {
@@ -775,6 +825,7 @@ export type Database = {
           created_at: string
           date_of_filtration: string | null
           departments: string | null
+          duplicate_of: string | null
           email: string | null
           email_from_website: string | null
           extra_data: Json | null
@@ -783,10 +834,13 @@ export type Database = {
           home_phone: string | null
           id: string
           ig_score: string | null
+          is_duplicate: boolean | null
           job_basedon: string | null
           job_location: string | null
           job_tracking_link: string | null
           last_name: string | null
+          lead_score: number | null
+          lead_score_breakdown: Json | null
           linkedin_job_link: string | null
           linkedin_job_title: string | null
           mobile_phone: string | null
@@ -795,11 +849,13 @@ export type Database = {
           notes_for_sdr: string | null
           other_phone: string | null
           person_linkedin_url: string | null
+          pipeline_stage: string | null
           salary_estimated: string | null
           secondary_email: string | null
           seniority: string | null
           sql_status: string | null
           state: string | null
+          tags: string[] | null
           title: string | null
           updated_at: string
           user_id: string
@@ -813,6 +869,7 @@ export type Database = {
           created_at?: string
           date_of_filtration?: string | null
           departments?: string | null
+          duplicate_of?: string | null
           email?: string | null
           email_from_website?: string | null
           extra_data?: Json | null
@@ -821,10 +878,13 @@ export type Database = {
           home_phone?: string | null
           id?: string
           ig_score?: string | null
+          is_duplicate?: boolean | null
           job_basedon?: string | null
           job_location?: string | null
           job_tracking_link?: string | null
           last_name?: string | null
+          lead_score?: number | null
+          lead_score_breakdown?: Json | null
           linkedin_job_link?: string | null
           linkedin_job_title?: string | null
           mobile_phone?: string | null
@@ -833,11 +893,13 @@ export type Database = {
           notes_for_sdr?: string | null
           other_phone?: string | null
           person_linkedin_url?: string | null
+          pipeline_stage?: string | null
           salary_estimated?: string | null
           secondary_email?: string | null
           seniority?: string | null
           sql_status?: string | null
           state?: string | null
+          tags?: string[] | null
           title?: string | null
           updated_at?: string
           user_id: string
@@ -851,6 +913,7 @@ export type Database = {
           created_at?: string
           date_of_filtration?: string | null
           departments?: string | null
+          duplicate_of?: string | null
           email?: string | null
           email_from_website?: string | null
           extra_data?: Json | null
@@ -859,10 +922,13 @@ export type Database = {
           home_phone?: string | null
           id?: string
           ig_score?: string | null
+          is_duplicate?: boolean | null
           job_basedon?: string | null
           job_location?: string | null
           job_tracking_link?: string | null
           last_name?: string | null
+          lead_score?: number | null
+          lead_score_breakdown?: Json | null
           linkedin_job_link?: string | null
           linkedin_job_title?: string | null
           mobile_phone?: string | null
@@ -871,11 +937,13 @@ export type Database = {
           notes_for_sdr?: string | null
           other_phone?: string | null
           person_linkedin_url?: string | null
+          pipeline_stage?: string | null
           salary_estimated?: string | null
           secondary_email?: string | null
           seniority?: string | null
           sql_status?: string | null
           state?: string | null
+          tags?: string[] | null
           title?: string | null
           updated_at?: string
           user_id?: string
@@ -887,6 +955,13 @@ export type Database = {
             columns: ["company_id"]
             isOneToOne: false
             referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "company_contacts_duplicate_of_fkey"
+            columns: ["duplicate_of"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
             referencedColumns: ["id"]
           },
         ]
@@ -1439,6 +1514,79 @@ export type Database = {
         }
         Relationships: []
       }
+      deals: {
+        Row: {
+          company_contact_id: string | null
+          company_id: string | null
+          created_at: string
+          currency: string | null
+          expected_close_date: string | null
+          id: string
+          notes: string | null
+          position: number | null
+          probability: number | null
+          stage_id: string | null
+          title: string
+          updated_at: string
+          user_id: string
+          value: number | null
+        }
+        Insert: {
+          company_contact_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          currency?: string | null
+          expected_close_date?: string | null
+          id?: string
+          notes?: string | null
+          position?: number | null
+          probability?: number | null
+          stage_id?: string | null
+          title: string
+          updated_at?: string
+          user_id: string
+          value?: number | null
+        }
+        Update: {
+          company_contact_id?: string | null
+          company_id?: string | null
+          created_at?: string
+          currency?: string | null
+          expected_close_date?: string | null
+          id?: string
+          notes?: string | null
+          position?: number | null
+          probability?: number | null
+          stage_id?: string | null
+          title?: string
+          updated_at?: string
+          user_id?: string
+          value?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "deals_company_contact_id_fkey"
+            columns: ["company_contact_id"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "deals_stage_id_fkey"
+            columns: ["stage_id"]
+            isOneToOne: false
+            referencedRelation: "pipeline_stages"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       dm_campaign_contacts: {
         Row: {
           created_at: string
@@ -1702,6 +1850,13 @@ export type Database = {
             foreignKeyName: "email_inbox_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
+            referencedRelation: "campaign_performance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "email_inbox_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
           },
@@ -1945,6 +2100,13 @@ export type Database = {
             foreignKeyName: "follow_up_sequences_campaign_id_fkey"
             columns: ["campaign_id"]
             isOneToOne: false
+            referencedRelation: "campaign_performance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "follow_up_sequences_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
             referencedRelation: "campaigns"
             referencedColumns: ["id"]
           },
@@ -2075,6 +2237,33 @@ export type Database = {
           metadata?: Json | null
           page_name?: string
           path?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
+      pipeline_stages: {
+        Row: {
+          color: string | null
+          created_at: string
+          id: string
+          name: string
+          position: number
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name: string
+          position?: number
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          id?: string
+          name?: string
+          position?: number
           user_id?: string
         }
         Relationships: []
@@ -2318,6 +2507,51 @@ export type Database = {
           signature_data?: string | null
           signed_at?: string | null
           status?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      smart_lists: {
+        Row: {
+          contact_count: number | null
+          created_at: string
+          description: string | null
+          filters: Json
+          id: string
+          is_pinned: boolean | null
+          name: string
+          sort_by: string | null
+          sort_order: string | null
+          table_target: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          contact_count?: number | null
+          created_at?: string
+          description?: string | null
+          filters?: Json
+          id?: string
+          is_pinned?: boolean | null
+          name: string
+          sort_by?: string | null
+          sort_order?: string | null
+          table_target?: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          contact_count?: number | null
+          created_at?: string
+          description?: string | null
+          filters?: Json
+          id?: string
+          is_pinned?: boolean | null
+          name?: string
+          sort_by?: string | null
+          sort_order?: string | null
+          table_target?: string
           updated_at?: string
           user_id?: string
         }
@@ -2677,6 +2911,54 @@ export type Database = {
         }
         Relationships: []
       }
+      webhook_event_log: {
+        Row: {
+          created_at: string
+          direction: string
+          event_type: string | null
+          id: string
+          max_retries: number | null
+          next_retry_at: string | null
+          payload: Json | null
+          response_body: string | null
+          response_status: number | null
+          retry_count: number | null
+          status: string | null
+          user_id: string
+          webhook_url: string
+        }
+        Insert: {
+          created_at?: string
+          direction?: string
+          event_type?: string | null
+          id?: string
+          max_retries?: number | null
+          next_retry_at?: string | null
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          retry_count?: number | null
+          status?: string | null
+          user_id: string
+          webhook_url: string
+        }
+        Update: {
+          created_at?: string
+          direction?: string
+          event_type?: string | null
+          id?: string
+          max_retries?: number | null
+          next_retry_at?: string | null
+          payload?: Json | null
+          response_body?: string | null
+          response_status?: number | null
+          retry_count?: number | null
+          status?: string | null
+          user_id?: string
+          webhook_url?: string
+        }
+        Relationships: []
+      }
       workflows: {
         Row: {
           actions: Json | null
@@ -2715,6 +2997,73 @@ export type Database = {
       }
     }
     Views: {
+      campaign_performance: {
+        Row: {
+          click_count: number | null
+          click_rate: number | null
+          click_to_open_rate: number | null
+          created_at: string | null
+          id: string | null
+          name: string | null
+          open_count: number | null
+          open_rate: number | null
+          sent_count: number | null
+          status: string | null
+          total_contacts: number | null
+          user_id: string | null
+        }
+        Insert: {
+          click_count?: number | null
+          click_rate?: never
+          click_to_open_rate?: never
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          open_count?: number | null
+          open_rate?: never
+          sent_count?: number | null
+          status?: string | null
+          total_contacts?: number | null
+          user_id?: string | null
+        }
+        Update: {
+          click_count?: number | null
+          click_rate?: never
+          click_to_open_rate?: never
+          created_at?: string | null
+          id?: string | null
+          name?: string | null
+          open_count?: number | null
+          open_rate?: never
+          sent_count?: number | null
+          status?: string | null
+          total_contacts?: number | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
+      contact_engagement_summary: {
+        Row: {
+          campaigns_received: number | null
+          contact_id: string | null
+          email: string | null
+          first_name: string | null
+          last_name: string | null
+          last_opened_at: string | null
+          last_sent_at: string | null
+          total_clicks: number | null
+          total_opens: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "campaign_contacts_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       tool_rating_summary: {
         Row: {
           avg_rating: number | null
@@ -2740,6 +3089,11 @@ export type Database = {
       }
     }
     Functions: {
+      batch_calculate_lead_scores: {
+        Args: { p_user_id: string }
+        Returns: number
+      }
+      calculate_lead_score: { Args: { p_contact_id: string }; Returns: number }
       deduct_credits: {
         Args: {
           p_amount: number
@@ -2748,6 +3102,15 @@ export type Database = {
           p_user_id: string
         }
         Returns: boolean
+      }
+      find_duplicate_contacts: {
+        Args: { p_user_id: string }
+        Returns: {
+          contact_id: string
+          duplicate_of_id: string
+          match_type: string
+          match_value: string
+        }[]
       }
       get_user_top_tools: {
         Args: { p_limit?: number; p_user_id: string }

@@ -17,7 +17,9 @@ import { SocialDMsPage } from '@/components/social/SocialDMsPage';
 import { LinkFinderPage } from '@/components/linkedin/LinkFinderPage';
 import { LinkedInScraperPage } from '@/components/linkedin/LinkedInScraperPage';
 import { CompaniesPage as CompaniesInfoPage } from '@/components/linkedin/CompaniesPage';
-import { CRMWebhookIntegration } from '@/components/settings/CRMWebhookIntegration';
+import { PipelineBoard } from '@/components/pipeline/PipelineBoard';
+import { LeadScoringPanel } from '@/components/contacts/LeadScoringPanel';
+import { AuditTrailPanel } from '@/components/audit/AuditTrailPanel';
 import { useAuth } from '@/hooks/useAuth';
 import { useContacts } from '@/hooks/useContacts';
 import { useTemplates } from '@/hooks/useTemplates';
@@ -209,10 +211,16 @@ const Index = () => {
         return <SocialDMsPage />;
       case 'link-finder':
         return <LinkFinderPage />;
+      case 'pipeline':
+        return <PipelineBoard />;
+      case 'lead-scoring':
+        return <LeadScoringPanel />;
       case 'linkedin-scraper':
         return <LinkedInScraperPage />;
       case 'companies':
         return <CompaniesInfoPage />;
+      case 'audit-trail':
+        return <AuditTrailPanel />;
       case 'n8n':
         return <N8nWorkflow />;
       case 'settings':
