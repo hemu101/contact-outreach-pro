@@ -13,10 +13,12 @@ import {
   Flame,
   Shield,
   Instagram,
-  Library,
   Link2,
   UserSearch,
-  Building2
+  Building2,
+  Kanban,
+  Target,
+  History
 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
