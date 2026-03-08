@@ -1631,6 +1631,7 @@ END; $$;`}</SqlBlock>
   );
 }
 
+function TriggersEnumsDocs() {
   return (
     <div className="space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-foreground">Triggers & Enums</h1>
