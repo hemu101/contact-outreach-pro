@@ -4,7 +4,7 @@ import {
   Play, Settings, Code, ChevronRight, ExternalLink,
   CheckCircle, AlertCircle, Workflow, PieChart, Edit3, 
   Upload, MousePointer, ArrowLeft, Shield, Clock, MessageSquare,
-  Key, Server, Layers, Search, Table2, FunctionSquare
+  Key, Server, Layers, Search, Table2, FunctionSquare, Globe
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
