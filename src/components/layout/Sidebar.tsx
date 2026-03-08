@@ -11,7 +11,6 @@ import {
   LayoutDashboard,
   Inbox,
   Flame,
-  Shield,
   Instagram,
   Link2,
   UserSearch,
