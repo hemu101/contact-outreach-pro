@@ -55,7 +55,7 @@ export function InboxRotationPage() {
   const addAccount = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('Not authenticated');
-      const { error } = await supabase.from('email_accounts').insert({ ...form, user_id: user.id });
+      const { error } = await (supabase as any).from('email_accounts').insert({ ...form, user_id: user.id });
       if (error) throw error;
     },
     onSuccess: () => {
