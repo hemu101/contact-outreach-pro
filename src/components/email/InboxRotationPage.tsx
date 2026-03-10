@@ -77,7 +77,7 @@ export function InboxRotationPage() {
 
   const toggleWarmup = useMutation({
     mutationFn: async ({ id, warmup_enabled }: { id: string; warmup_enabled: boolean }) => {
-      const { error } = await supabase.from('email_accounts').update({ warmup_enabled, warmup_start_date: warmup_enabled ? new Date().toISOString().split('T')[0] : null }).eq('id', id);
+      const { error } = await (supabase as any).from('email_accounts').update({ warmup_enabled, warmup_start_date: warmup_enabled ? new Date().toISOString().split('T')[0] : null }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['email-accounts'] }); toast({ title: 'Warmup updated' }); },
