@@ -2906,7 +2906,7 @@ function WaterfallFinderDocs() {
   );
 }
 
-
+function TroubleshootingDocs() {
   return (
     <div className="space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-foreground">Troubleshooting</h1>
