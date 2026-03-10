@@ -917,6 +917,7 @@ export type Database = {
       }
       company_contacts: {
         Row: {
+          buyer_intent_score: number | null
           city: string | null
           company_id: string | null
           corporate_phone: string | null
@@ -927,16 +928,20 @@ export type Database = {
           duplicate_of: string | null
           email: string | null
           email_from_website: string | null
+          engagement_score: number | null
           extra_data: Json | null
+          facebook_url: string | null
           first_name: string | null
           hiring_job_title: string | null
           home_phone: string | null
           id: string
           ig_score: string | null
+          instagram_url: string | null
           is_duplicate: boolean | null
           job_basedon: string | null
           job_location: string | null
           job_tracking_link: string | null
+          last_activity_at: string | null
           last_name: string | null
           lead_score: number | null
           lead_score_breakdown: Json | null
@@ -955,12 +960,17 @@ export type Database = {
           sql_status: string | null
           state: string | null
           tags: string[] | null
+          tiktok_url: string | null
           title: string | null
+          twitter_url: string | null
           updated_at: string
           user_id: string
+          website_url: string | null
           work_direct_phone: string | null
+          youtube_url: string | null
         }
         Insert: {
+          buyer_intent_score?: number | null
           city?: string | null
           company_id?: string | null
           corporate_phone?: string | null
@@ -971,16 +981,20 @@ export type Database = {
           duplicate_of?: string | null
           email?: string | null
           email_from_website?: string | null
+          engagement_score?: number | null
           extra_data?: Json | null
+          facebook_url?: string | null
           first_name?: string | null
           hiring_job_title?: string | null
           home_phone?: string | null
           id?: string
           ig_score?: string | null
+          instagram_url?: string | null
           is_duplicate?: boolean | null
           job_basedon?: string | null
           job_location?: string | null
           job_tracking_link?: string | null
+          last_activity_at?: string | null
           last_name?: string | null
           lead_score?: number | null
           lead_score_breakdown?: Json | null
@@ -999,12 +1013,17 @@ export type Database = {
           sql_status?: string | null
           state?: string | null
           tags?: string[] | null
+          tiktok_url?: string | null
           title?: string | null
+          twitter_url?: string | null
           updated_at?: string
           user_id: string
+          website_url?: string | null
           work_direct_phone?: string | null
+          youtube_url?: string | null
         }
         Update: {
+          buyer_intent_score?: number | null
           city?: string | null
           company_id?: string | null
           corporate_phone?: string | null
@@ -1015,16 +1034,20 @@ export type Database = {
           duplicate_of?: string | null
           email?: string | null
           email_from_website?: string | null
+          engagement_score?: number | null
           extra_data?: Json | null
+          facebook_url?: string | null
           first_name?: string | null
           hiring_job_title?: string | null
           home_phone?: string | null
           id?: string
           ig_score?: string | null
+          instagram_url?: string | null
           is_duplicate?: boolean | null
           job_basedon?: string | null
           job_location?: string | null
           job_tracking_link?: string | null
+          last_activity_at?: string | null
           last_name?: string | null
           lead_score?: number | null
           lead_score_breakdown?: Json | null
@@ -1043,10 +1066,14 @@ export type Database = {
           sql_status?: string | null
           state?: string | null
           tags?: string[] | null
+          tiktok_url?: string | null
           title?: string | null
+          twitter_url?: string | null
           updated_at?: string
           user_id?: string
+          website_url?: string | null
           work_direct_phone?: string | null
+          youtube_url?: string | null
         }
         Relationships: [
           {
@@ -2632,6 +2659,80 @@ export type Database = {
         }
         Relationships: []
       }
+      revenue_attribution: {
+        Row: {
+          attributed_percent: number | null
+          attributed_value: number | null
+          attribution_model: string | null
+          campaign_id: string | null
+          contact_id: string | null
+          created_at: string
+          deal_id: string | null
+          id: string
+          metadata: Json | null
+          touchpoint_date: string
+          touchpoint_type: string
+          user_id: string
+        }
+        Insert: {
+          attributed_percent?: number | null
+          attributed_value?: number | null
+          attribution_model?: string | null
+          campaign_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          metadata?: Json | null
+          touchpoint_date: string
+          touchpoint_type: string
+          user_id: string
+        }
+        Update: {
+          attributed_percent?: number | null
+          attributed_value?: number | null
+          attribution_model?: string | null
+          campaign_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          deal_id?: string | null
+          id?: string
+          metadata?: Json | null
+          touchpoint_date?: string
+          touchpoint_type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "revenue_attribution_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaign_performance"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_attribution_campaign_id_fkey"
+            columns: ["campaign_id"]
+            isOneToOne: false
+            referencedRelation: "campaigns"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_attribution_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "revenue_attribution_deal_id_fkey"
+            columns: ["deal_id"]
+            isOneToOne: false
+            referencedRelation: "deals"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       saved_creators: {
         Row: {
           created_at: string
@@ -2689,6 +2790,39 @@ export type Database = {
           is_default?: boolean | null
           name?: string
           page?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      saved_searches: {
+        Row: {
+          created_at: string
+          filters: Json
+          id: string
+          last_run_at: string | null
+          name: string
+          result_count: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_run_at?: string | null
+          name: string
+          result_count?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          filters?: Json
+          id?: string
+          last_run_at?: string | null
+          name?: string
+          result_count?: number | null
           updated_at?: string
           user_id?: string
         }
@@ -3425,6 +3559,10 @@ export type Database = {
     Functions: {
       batch_calculate_lead_scores: {
         Args: { p_user_id: string }
+        Returns: number
+      }
+      calculate_buyer_intent_score: {
+        Args: { p_contact_id: string }
         Returns: number
       }
       calculate_engagement_score: {
