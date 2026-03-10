@@ -85,7 +85,7 @@ export function InboxRotationPage() {
 
   const deleteAccount = useMutation({
     mutationFn: async (id: string) => {
-      const { error } = await supabase.from('email_accounts').delete().eq('id', id);
+      const { error } = await (supabase as any).from('email_accounts').delete().eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => { qc.invalidateQueries({ queryKey: ['email-accounts'] }); toast({ title: 'Account removed' }); },
