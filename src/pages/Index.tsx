@@ -243,6 +243,12 @@ const Index = () => {
         return <RevenueForecastPage />;
       case 'report-builder':
         return <ReportBuilderPage />;
+      case 'people-search':
+        return <PeopleSearchPage />;
+      case 'inbox-rotation':
+        return <InboxRotationPage />;
+      case 'team-performance':
+        return <TeamPerformancePage />;
       case 'n8n':
         return <N8nWorkflow />;
       case 'settings':
