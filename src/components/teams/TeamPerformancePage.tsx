@@ -38,9 +38,9 @@ export function TeamPerformancePage() {
     queryKey: ['team-members', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data, error } = await supabase.from('team_members').select('*').eq('user_id', user.id).order('created_at');
+      const { data, error } = await (supabase as any).from('team_members').select('*').eq('user_id', user.id).order('created_at');
       if (error) throw error;
-      return data as TeamMember[];
+      return (data || []) as TeamMember[];
     },
     enabled: !!user,
   });
