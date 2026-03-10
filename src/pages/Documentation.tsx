@@ -117,6 +117,16 @@ export default function Documentation() {
           {activeSection === 'report-builder' && <ReportBuilderDocs />}
           {activeSection === 'revenue-forecast' && <RevenueForecastDocs />}
           {activeSection === 'email-tools' && <EmailToolsDocs />}
+          {activeSection === 'people-search' && <PeopleSearchDocs />}
+          {activeSection === 'intent-signals' && <IntentSignalsDocs />}
+          {activeSection === 'inbox-rotation' && <InboxRotationDocs />}
+          {activeSection === 'email-warmup' && <EmailWarmupDocs />}
+          {activeSection === 'team-performance' && <TeamPerformanceDocs />}
+          {activeSection === 'revenue-attribution' && <RevenueAttributionDocs />}
+          {activeSection === 'sequence-testing' && <SequenceTestingDocs />}
+          {activeSection === 'multi-channel' && <MultiChannelDocs />}
+          {activeSection === 'ai-personalization' && <AIPersonalizationDocs />}
+          {activeSection === 'waterfall-finder' && <WaterfallFinderDocs />}
           {activeSection === 'connection-info' && <ConnectionInfoDocs />}
           {activeSection === 'db-schema' && <DatabaseSchemaDocs />}
           {activeSection === 'db-indexes' && <IndexesViewsDocs />}
