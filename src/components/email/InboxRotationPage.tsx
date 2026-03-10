@@ -69,7 +69,7 @@ export function InboxRotationPage() {
 
   const toggleAccount = useMutation({
     mutationFn: async ({ id, is_active }: { id: string; is_active: boolean }) => {
-      const { error } = await supabase.from('email_accounts').update({ is_active }).eq('id', id);
+      const { error } = await (supabase as any).from('email_accounts').update({ is_active }).eq('id', id);
       if (error) throw error;
     },
     onSuccess: () => qc.invalidateQueries({ queryKey: ['email-accounts'] }),
