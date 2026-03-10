@@ -2576,7 +2576,337 @@ function EmailToolsDocs() {
 }
 
 
-function TroubleshootingDocs() {
+function PeopleSearchDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">People Search (Apollo-style)</h2>
+        <p className="text-muted-foreground mb-4">Advanced contact filtering inspired by Apollo.io, enabling multi-dimensional lead discovery across your CRM data.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">How It Works</h3>
+        <ul className="space-y-2 text-muted-foreground text-sm">
+          <li>• <strong>Multi-filter search:</strong> Filter by name, title, seniority, department, city, state, country, MQL/SQL status, pipeline stage, tags, and lead score ranges</li>
+          <li>• <strong>Quick toggles:</strong> "Has Email", "Has Phone", "Has LinkedIn" for instant data quality filtering</li>
+          <li>• <strong>Saved searches:</strong> Store frequently used filter combinations (stored in <code>saved_searches</code> table)</li>
+          <li>• <strong>CSV export:</strong> Export filtered results for offline analysis or import into other tools</li>
+          <li>• <strong>Contact detail modal:</strong> Tabbed view showing Overview, Contact Info, Scoring Breakdown, and Social links</li>
+          <li>• <strong>Hot/Warm/Cold indicators:</strong> Visual temperature gauges based on lead score thresholds (70+/40+/&lt;40)</li>
+        </ul>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Database Table: saved_searches</h3>
+        <SqlBlock>{`CREATE TABLE public.saved_searches (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  name TEXT NOT NULL,
+  filters JSONB NOT NULL DEFAULT '{}',
+  result_count INTEGER DEFAULT 0,
+  last_run_at TIMESTAMPTZ,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Implementation: How Apollo/LeadIQ Find Exact Leads</h3>
+        <p className="text-muted-foreground text-sm mb-2">These platforms use a combination of techniques:</p>
+        <ul className="space-y-1 text-muted-foreground text-sm">
+          <li>1. <strong>LinkedIn Sales Navigator:</strong> Import saved leads/accounts via CSV → map to company_contacts</li>
+          <li>2. <strong>Email pattern matching:</strong> firstname.lastname@company.com, first@company.com — generated from name + company domain</li>
+          <li>3. <strong>Waterfall email finding:</strong> Chain multiple providers (Hunter, Dropcontact, Snov.io) to maximize find rate</li>
+          <li>4. <strong>Company employee databases:</strong> Cross-reference company websites, LinkedIn company pages, and public filings</li>
+          <li>5. <strong>Hiring signals:</strong> Track job postings → identify decision makers for relevant roles</li>
+          <li>6. <strong>Technographic data:</strong> What tech stack a company uses → identify IT decision makers</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function IntentSignalsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Intent Signal Tracking</h2>
+        <p className="text-muted-foreground mb-4">Track buyer intent signals to identify hot leads — inspired by Bombora, 6sense, and ZoomInfo Intent.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Signal Types</h3>
+        <ul className="space-y-2 text-muted-foreground text-sm">
+          <li>• <strong>job_change:</strong> Contact changed roles → high buying intent (+20 score impact)</li>
+          <li>• <strong>funding_event:</strong> Company received funding → budget available (+25 score impact)</li>
+          <li>• <strong>hiring:</strong> Company posting jobs in relevant departments (+15 score impact)</li>
+          <li>• <strong>tech_adoption:</strong> Company adopted new technology stack (+10 score impact)</li>
+          <li>• <strong>content_engagement:</strong> Contact engaged with your content (+10 score impact)</li>
+          <li>• <strong>website_visit:</strong> Contact visited your website (+15 score impact)</li>
+        </ul>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Database Table: intent_signals</h3>
+        <SqlBlock>{`CREATE TABLE public.intent_signals (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  contact_id UUID REFERENCES company_contacts(id) ON DELETE CASCADE,
+  company_id UUID REFERENCES companies(id) ON DELETE CASCADE,
+  signal_type TEXT NOT NULL,
+  signal_source TEXT,
+  signal_data JSONB DEFAULT '{}',
+  score_impact INTEGER DEFAULT 0,
+  detected_at TIMESTAMPTZ DEFAULT now(),
+  created_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Buyer Intent Score Function</h3>
+        <SqlBlock>{`CREATE OR REPLACE FUNCTION calculate_buyer_intent_score(p_contact_id uuid)
+RETURNS integer AS $$
+  -- Combines: lead_score + intent_signals (30d) + activities (14d) + recency bonus
+  -- Capped at 100
+$$;`}</SqlBlock>
+      </div>
+    </div>
+  );
+}
+
+function InboxRotationDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Inbox Rotation (Smartlead-style)</h2>
+        <p className="text-muted-foreground mb-4">Rotate emails across multiple SMTP accounts to maximize deliverability — inspired by Smartlead, Instantly, and Woodpecker.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">How It Works</h3>
+        <ul className="space-y-2 text-muted-foreground text-sm">
+          <li>• <strong>Round-robin rotation:</strong> Emails distributed across accounts based on configurable weight</li>
+          <li>• <strong>Daily limits:</strong> Each account has independent daily sending caps (default: 50/day)</li>
+          <li>• <strong>Health monitoring:</strong> Track account health (healthy/warning/blocked) with error logging</li>
+          <li>• <strong>Auto-warmup:</strong> Gradually ramp new accounts from 5/day, increasing safely over weeks</li>
+          <li>• <strong>Weight system:</strong> Higher weight = more emails sent from that account (1x, 2x, 3x)</li>
+        </ul>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Database Table: email_accounts</h3>
+        <SqlBlock>{`CREATE TABLE public.email_accounts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  email_address TEXT NOT NULL,
+  display_name TEXT,
+  smtp_host TEXT NOT NULL,
+  smtp_port TEXT DEFAULT '587',
+  smtp_user TEXT NOT NULL,
+  smtp_password TEXT NOT NULL,
+  daily_limit INTEGER DEFAULT 50,
+  sent_today INTEGER DEFAULT 0,
+  warmup_enabled BOOLEAN DEFAULT false,
+  warmup_daily_target INTEGER DEFAULT 5,
+  warmup_current_volume INTEGER DEFAULT 0,
+  warmup_start_date DATE,
+  is_active BOOLEAN DEFAULT true,
+  health_status TEXT DEFAULT 'healthy',
+  last_sent_at TIMESTAMPTZ,
+  last_error TEXT,
+  rotation_weight INTEGER DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Rotation Algorithm</h3>
+        <p className="text-muted-foreground text-sm">1. Filter active accounts with remaining daily capacity → 2. Weight-based selection (higher weight = higher probability) → 3. Send via selected account's SMTP → 4. Increment sent_today counter → 5. Log any errors → 6. Reset sent_today at midnight UTC</p>
+      </div>
+    </div>
+  );
+}
+
+function EmailWarmupDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Email Warmup Engine (Lemwarm-style)</h2>
+        <p className="text-muted-foreground mb-4">Automated email warmup to build domain reputation before launching campaigns.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Warmup Progression</h3>
+        <ul className="space-y-1 text-muted-foreground text-sm">
+          <li>• Week 1: 5 emails/day (inter-account exchanges)</li>
+          <li>• Week 2: 10 emails/day</li>
+          <li>• Week 3: 20 emails/day</li>
+          <li>• Week 4: 35 emails/day</li>
+          <li>• Week 5+: Target volume (up to daily_limit)</li>
+        </ul>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Implementation Notes</h3>
+        <p className="text-muted-foreground text-sm">The warmup system sends emails between your own accounts (or a warmup network) with varied content, opens them automatically, and marks as non-spam. This trains inbox providers to recognize your domain as legitimate. The <code>email_accounts.warmup_enabled</code> flag controls this per-account.</p>
+      </div>
+    </div>
+  );
+}
+
+function TeamPerformanceDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Team Performance Dashboard</h2>
+        <p className="text-muted-foreground mb-4">Track rep-level metrics: emails sent, replies, meetings booked, pipeline generated. Includes leaderboard and performance radar charts.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Database Table: team_members</h3>
+        <SqlBlock>{`CREATE TABLE public.team_members (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  member_email TEXT NOT NULL,
+  member_name TEXT NOT NULL,
+  role TEXT DEFAULT 'sdr',
+  emails_sent INTEGER DEFAULT 0,
+  replies_received INTEGER DEFAULT 0,
+  meetings_booked INTEGER DEFAULT 0,
+  deals_created INTEGER DEFAULT 0,
+  pipeline_generated NUMERIC DEFAULT 0,
+  is_active BOOLEAN DEFAULT true,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Metrics Tracked</h3>
+        <ul className="space-y-1 text-muted-foreground text-sm">
+          <li>• <strong>Emails Sent:</strong> Total outbound emails per rep</li>
+          <li>• <strong>Reply Rate:</strong> Replies / Emails × 100%</li>
+          <li>• <strong>Meetings Booked:</strong> Scheduled meetings from outreach</li>
+          <li>• <strong>Deals Created:</strong> Opportunities generated</li>
+          <li>• <strong>Pipeline Generated:</strong> Total $ value in pipeline from rep's activities</li>
+        </ul>
+      </div>
+    </div>
+  );
+}
+
+function RevenueAttributionDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Revenue Attribution</h2>
+        <p className="text-muted-foreground mb-4">Connect outreach touchpoints to closed deals for ROI measurement. Supports multiple attribution models.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Attribution Models</h3>
+        <ul className="space-y-2 text-muted-foreground text-sm">
+          <li>• <strong>First Touch:</strong> 100% credit to the first interaction that started the relationship</li>
+          <li>• <strong>Last Touch:</strong> 100% credit to the last interaction before deal closed</li>
+          <li>• <strong>Multi-Touch (default):</strong> Credit distributed across all touchpoints weighted by recency</li>
+          <li>• <strong>Linear:</strong> Equal credit across all touchpoints</li>
+        </ul>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Database Table: revenue_attribution</h3>
+        <SqlBlock>{`CREATE TABLE public.revenue_attribution (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  deal_id UUID REFERENCES deals(id),
+  campaign_id UUID REFERENCES campaigns(id),
+  contact_id UUID REFERENCES company_contacts(id),
+  touchpoint_type TEXT NOT NULL, -- email, linkedin, dm, call, website_visit
+  touchpoint_date TIMESTAMPTZ NOT NULL,
+  attribution_model TEXT DEFAULT 'multi_touch',
+  attributed_value NUMERIC DEFAULT 0,
+  attributed_percent NUMERIC DEFAULT 0,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Touchpoint Types</h3>
+        <p className="text-muted-foreground text-sm">email | linkedin | dm (Instagram/TikTok) | call | website_visit | form_submit</p>
+      </div>
+    </div>
+  );
+}
+
+function SequenceTestingDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Sequence A/B/C/D Testing</h2>
+        <p className="text-muted-foreground mb-4">Test up to 4 complete sequence variants with statistical significance tracking — beyond simple subject line A/B tests.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">How It Differs From A/B Testing</h3>
+        <ul className="space-y-2 text-muted-foreground text-sm">
+          <li>• <strong>A/B Testing:</strong> Tests 2 variants of a single email (subject or content)</li>
+          <li>• <strong>Sequence Testing:</strong> Tests entire multi-step sequences (different step counts, delays, channels, content)</li>
+          <li>• <strong>Metrics:</strong> Tracks opens, clicks, replies, AND meetings per variant</li>
+          <li>• <strong>Statistical significance:</strong> Auto-calculates when results are statistically valid</li>
+        </ul>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Database Table: sequence_variants</h3>
+        <SqlBlock>{`CREATE TABLE public.sequence_variants (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  campaign_id UUID REFERENCES campaigns(id) ON DELETE CASCADE,
+  variant_name TEXT NOT NULL, -- A, B, C, D
+  steps JSONB DEFAULT '[]',
+  allocation_percent INTEGER DEFAULT 25,
+  total_sent INTEGER DEFAULT 0,
+  total_opens INTEGER DEFAULT 0,
+  total_clicks INTEGER DEFAULT 0,
+  total_replies INTEGER DEFAULT 0,
+  total_meetings INTEGER DEFAULT 0,
+  is_winner BOOLEAN DEFAULT false,
+  statistical_significance NUMERIC DEFAULT 0,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+      </div>
+    </div>
+  );
+}
+
+function MultiChannelDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Multi-Channel Sequences (Lemlist-style)</h2>
+        <p className="text-muted-foreground mb-4">Orchestrate outreach across Email → LinkedIn → Instagram/TikTok DM → Call in a single automated sequence.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Sequence Step Types</h3>
+        <ul className="space-y-2 text-muted-foreground text-sm">
+          <li>• <strong>Email:</strong> Automated send via SMTP (with inbox rotation)</li>
+          <li>• <strong>LinkedIn Visit:</strong> Signal intent by viewing their profile</li>
+          <li>• <strong>LinkedIn Connect:</strong> Send connection request with personalized note</li>
+          <li>• <strong>LinkedIn Message:</strong> InMail or connection message</li>
+          <li>• <strong>Instagram DM:</strong> Direct message via connected account</li>
+          <li>• <strong>TikTok DM:</strong> Direct message via connected account</li>
+          <li>• <strong>Call:</strong> Manual task reminder for phone outreach</li>
+          <li>• <strong>Manual Task:</strong> Custom action (e.g., "Send gift", "Comment on post")</li>
+        </ul>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Sequence Logic</h3>
+        <p className="text-muted-foreground text-sm">Each step has a configurable delay (days). Conditions can branch: "If email opened → send LinkedIn connect" vs "If no open → send follow-up email". Steps stored as JSONB in campaign_templates.sequence_data.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Existing Implementation</h3>
+        <p className="text-muted-foreground text-sm">The SequenceBuilder component and CampaignWizard already support drag-and-drop multi-step sequences. The campaign_templates table stores sequence_data as JSONB arrays of step objects including type, delay, subject, and content.</p>
+      </div>
+    </div>
+  );
+}
+
+function AIPersonalizationDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">AI Personalization Engine</h2>
+        <p className="text-muted-foreground mb-4">Auto-generate personalized icebreakers from LinkedIn profiles, company data, and website visits — inspired by Lemlist, Clay, and Smartlead.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Personalization Sources</h3>
+        <ul className="space-y-2 text-muted-foreground text-sm">
+          <li>• <strong>LinkedIn profile:</strong> Headline, experience, skills, recent posts → generate relevant opener</li>
+          <li>• <strong>Company data:</strong> Industry, funding, tech stack, recent news → contextualize value prop</li>
+          <li>• <strong>Website activity:</strong> Pages visited, time spent → reference specific interest areas</li>
+          <li>• <strong>Mutual connections:</strong> Shared connections or groups → build trust</li>
+        </ul>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Implementation Approach</h3>
+        <p className="text-muted-foreground text-sm">Uses Lovable AI Gateway (LOVABLE_API_KEY) via an Edge Function. The function takes contact data + company data → generates 2-3 personalized opening lines. Template variables like {"{{ai_icebreaker}}"} can be used in email/DM templates. The AI function is called at campaign launch time, not template creation time.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Template Variables for AI</h3>
+        <SqlBlock>{`Available AI-generated variables:
+{{ai_icebreaker}}     - Personalized opening line
+{{ai_value_prop}}     - Customized value proposition
+{{ai_cta}}            - Context-aware call to action
+{{ai_ps_line}}        - Relevant PS line based on profile data
+
+Standard variables still work:
+{{firstName}}, {{lastName}}, {{businessName}}, {{title}}, {{company}}`}</SqlBlock>
+      </div>
+    </div>
+  );
+}
+
+function WaterfallFinderDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Waterfall Email Finder</h2>
+        <p className="text-muted-foreground mb-4">Chain multiple email discovery providers to maximize find rate — inspired by Lemlist's waterfall enrichment and Clay's multi-source approach.</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">How Waterfall Works</h3>
+        <ul className="space-y-2 text-muted-foreground text-sm">
+          <li>1. <strong>Provider 1 (e.g., Hunter):</strong> Try to find email by name + company domain</li>
+          <li>2. <strong>If not found → Provider 2 (e.g., Dropcontact):</strong> Cross-reference LinkedIn + company data</li>
+          <li>3. <strong>If not found → Provider 3 (e.g., Snov.io):</strong> Deep web scraping + email pattern matching</li>
+          <li>4. <strong>If not found → Pattern generation:</strong> Generate email variants (first.last@, f.last@, first@) and verify via SMTP</li>
+          <li>5. <strong>Verification:</strong> All found emails run through SMTP verification (MX check → SMTP handshake)</li>
+        </ul>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Supported Providers</h3>
+        <p className="text-muted-foreground text-sm">Hunter.io | Dropcontact | Snov.io | Apollo People API | ZoomInfo | Clearbit | Lusha | RocketReach | FindThatEmail</p>
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Implementation Notes</h3>
+        <p className="text-muted-foreground text-sm">Requires API keys for each provider (stored as Supabase secrets). Edge function chains providers sequentially, returning on first verified result. Results cached in company_contacts.email field with source tracked in extra_data JSONB.</p>
+      </div>
+    </div>
+  );
+}
+
+
   return (
     <div className="space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-foreground">Troubleshooting</h1>
