@@ -48,7 +48,7 @@ export function TeamPerformancePage() {
   const addMember = useMutation({
     mutationFn: async () => {
       if (!user) throw new Error('Not authenticated');
-      const { error } = await supabase.from('team_members').insert({ ...form, user_id: user.id });
+      const { error } = await (supabase as any).from('team_members').insert({ ...form, user_id: user.id });
       if (error) throw error;
     },
     onSuccess: () => {
