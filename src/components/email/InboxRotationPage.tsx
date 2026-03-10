@@ -45,9 +45,9 @@ export function InboxRotationPage() {
     queryKey: ['email-accounts', user?.id],
     queryFn: async () => {
       if (!user) return [];
-      const { data, error } = await supabase.from('email_accounts').select('*').eq('user_id', user.id).order('created_at');
+      const { data, error } = await (supabase as any).from('email_accounts').select('*').eq('user_id', user.id).order('created_at');
       if (error) throw error;
-      return data as EmailAccount[];
+      return (data || []) as EmailAccount[];
     },
     enabled: !!user,
   });
