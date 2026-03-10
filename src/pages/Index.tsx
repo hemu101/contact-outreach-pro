@@ -27,6 +27,9 @@ import { TrackingScriptPage } from '@/components/tracking/TrackingScriptPage';
 import { EnrichmentPage } from '@/components/tracking/EnrichmentPage';
 import { RevenueForecastPage } from '@/components/reports/RevenueForecastPage';
 import { ReportBuilderPage } from '@/components/reports/ReportBuilderPage';
+import { PeopleSearchPage } from '@/components/search/PeopleSearchPage';
+import { InboxRotationPage } from '@/components/email/InboxRotationPage';
+import { TeamPerformancePage } from '@/components/teams/TeamPerformancePage';
 import { useAuth } from '@/hooks/useAuth';
 import { useContacts } from '@/hooks/useContacts';
 import { useTemplates } from '@/hooks/useTemplates';
@@ -240,6 +243,12 @@ const Index = () => {
         return <RevenueForecastPage />;
       case 'report-builder':
         return <ReportBuilderPage />;
+      case 'people-search':
+        return <PeopleSearchPage />;
+      case 'inbox-rotation':
+        return <InboxRotationPage />;
+      case 'team-performance':
+        return <TeamPerformancePage />;
       case 'n8n':
         return <N8nWorkflow />;
       case 'settings':
