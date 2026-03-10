@@ -90,7 +90,7 @@ export function PeopleSearchPage() {
 
   const handleSaveSearch = async () => {
     if (!user || !searchName) return;
-    const { error } = await supabase.from('saved_searches').insert({
+    const { error } = await (supabase as any).from('saved_searches').insert({
       user_id: user.id, name: searchName, filters: filters as any,
       result_count: filteredContacts.length, last_run_at: new Date().toISOString(),
     });
