@@ -2503,50 +2503,340 @@ function RevenueForecastDocs() {
 function EmailToolsDocs() {
   return (
     <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Email & Automation Tools</h1>
-      <p className="text-muted-foreground">Dedicated page for SMTP configuration, email provider comparison, and automation alternatives beyond n8n.</p>
+      <h1 className="text-4xl font-bold text-foreground">Email & SMTP Configuration Guide</h1>
+      <p className="text-muted-foreground text-lg">Complete setup guide for Brevo, Gmail, SendGrid, Resend, and custom SMTP — with free tier details, troubleshooting, and best practices.</p>
 
+      {/* Overview */}
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">SMTP Configuration</h2>
-        <p className="text-muted-foreground mb-3">Quick-setup for popular SMTP providers with pre-filled host/port values:</p>
-        <div className="space-y-2">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">How Email Sending Works</h2>
+        <p className="text-muted-foreground mb-4 text-sm">The platform sends emails through your own SMTP provider. When a campaign is triggered, the system:</p>
+        <ol className="space-y-2 text-muted-foreground text-sm list-decimal list-inside">
+          <li>Reads your SMTP credentials from the <code className="text-primary">email_settings</code> table (encrypted per-user)</li>
+          <li>Connects to your provider's SMTP server using TLS on port 587 (or 465 for SSL)</li>
+          <li>Sends emails in batches, respecting daily limits and timezone scheduling</li>
+          <li>Logs every send event to <code className="text-primary">campaign_send_logs</code> for deliverability tracking</li>
+          <li>If <strong>Inbox Rotation</strong> is enabled, rotates across multiple SMTP accounts from <code className="text-primary">email_accounts</code></li>
+        </ol>
+        <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+          <p className="text-sm text-foreground"><strong>💡 Tip:</strong> You only need ONE provider configured to start. We recommend <strong>Brevo</strong> for the best free tier (300 emails/day).</p>
+        </div>
+      </div>
+
+      {/* Brevo Setup */}
+      <div className="glass-card rounded-xl p-6">
+        <div className="flex items-center gap-3 mb-4">
+          <Badge className="bg-blue-500/20 text-blue-400 border-blue-500/30">Recommended</Badge>
+          <h2 className="text-2xl font-semibold text-foreground">Brevo (Sendinblue) — Free Setup</h2>
+        </div>
+        <p className="text-muted-foreground mb-4 text-sm">Best free option: <strong>300 emails/day</strong>, no credit card required, great deliverability.</p>
+        
+        <h3 className="text-lg font-medium text-foreground mb-3">Step-by-Step Setup</h3>
+        <div className="space-y-3">
           {[
-            { name: 'Brevo', host: 'smtp-relay.brevo.com:587' },
-            { name: 'Gmail', host: 'smtp.gmail.com:587' },
-            { name: 'Outlook', host: 'smtp.office365.com:587' },
-            { name: 'Mailgun', host: 'smtp.mailgun.org:587' },
-            { name: 'SendGrid', host: 'smtp.sendgrid.net:587' },
-            { name: 'Amazon SES', host: 'email-smtp.us-east-1.amazonaws.com:587' },
-          ].map(p => (
-            <div key={p.name} className="flex justify-between p-2 bg-secondary/50 rounded text-sm">
-              <span className="text-foreground">{p.name}</span>
-              <code className="text-muted-foreground">{p.host}</code>
+            { step: '1', title: 'Create a Brevo Account', desc: 'Go to brevo.com → Sign up for free → Verify your email address' },
+            { step: '2', title: 'Generate SMTP Credentials', desc: 'Dashboard → Settings → SMTP & API → Click "Generate a new SMTP key" → Copy the key' },
+            { step: '3', title: 'Configure in App', desc: 'Go to Settings → Email Tools → SMTP tab → Click "Brevo" quick-setup button' },
+            { step: '4', title: 'Enter Credentials', desc: 'SMTP Host: smtp-relay.brevo.com | Port: 587 | User: your Brevo login email | Password: the SMTP key you generated' },
+            { step: '5', title: 'Verify Domain (Optional but Recommended)', desc: 'Brevo Dashboard → Senders & Domains → Add domain → Add DNS records (SPF, DKIM, DMARC)' },
+            { step: '6', title: 'Send Test Email', desc: 'Use the "Test Email" feature in Settings to verify everything works' },
+          ].map(s => (
+            <div key={s.step} className="flex gap-3 p-3 bg-secondary/30 rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold shrink-0">{s.step}</div>
+              <div>
+                <p className="text-foreground font-medium text-sm">{s.title}</p>
+                <p className="text-muted-foreground text-xs">{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Brevo SMTP Settings</h3>
+        <SqlBlock>{`SMTP Host:     smtp-relay.brevo.com
+SMTP Port:     587 (TLS) or 465 (SSL)
+SMTP User:     your-brevo-login@email.com
+SMTP Password: xsmtpsib-xxxxxxxxxxxxxxxxxxxxxxxx (your SMTP key)
+Encryption:    STARTTLS
+Auth Method:   LOGIN`}</SqlBlock>
+
+        <h3 className="text-lg font-medium text-foreground mt-4 mb-3">Brevo Free Tier Limits</h3>
+        <div className="grid grid-cols-2 gap-3">
+          {[
+            { label: 'Daily Limit', value: '300 emails/day' },
+            { label: 'Monthly Limit', value: 'Unlimited' },
+            { label: 'API Access', value: '✅ Included' },
+            { label: 'SMTP Access', value: '✅ Included' },
+            { label: 'Contact Storage', value: 'Unlimited' },
+            { label: 'Transactional', value: '✅ Included' },
+          ].map(l => (
+            <div key={l.label} className="flex justify-between p-2 bg-secondary/50 rounded text-sm">
+              <span className="text-muted-foreground">{l.label}</span>
+              <span className="text-foreground font-medium">{l.value}</span>
             </div>
           ))}
         </div>
       </div>
 
+      {/* Gmail Setup */}
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Email Providers (Free Tiers)</h2>
-        <div className="space-y-2">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Gmail / Google Workspace — Free Setup</h2>
+        <p className="text-muted-foreground mb-4 text-sm">Use your Gmail account to send emails. Limit: <strong>500 emails/day</strong> (personal) or <strong>2,000/day</strong> (Google Workspace).</p>
+
+        <h3 className="text-lg font-medium text-foreground mb-3">Step-by-Step Setup</h3>
+        <div className="space-y-3">
           {[
-            { name: 'Brevo (Sendinblue)', free: '300 emails/day free', note: 'Recommended' },
-            { name: 'SendGrid', free: '100 emails/day free forever', note: '' },
-            { name: 'Resend', free: '100 emails/day, 3000/month', note: 'Modern API' },
-            { name: 'Mailgun', free: '100 emails/day (sandbox)', note: '' },
-            { name: 'Mailjet', free: '200 emails/day, 6000/month', note: '' },
-          ].map(p => (
-            <div key={p.name} className="flex justify-between p-2 bg-secondary/50 rounded text-sm">
-              <span className="text-foreground">{p.name} {p.note && <Badge variant="secondary" className="ml-2 text-[10px]">{p.note}</Badge>}</span>
-              <span className="text-primary text-xs">{p.free}</span>
+            { step: '1', title: 'Enable 2-Factor Authentication', desc: 'Google Account → Security → 2-Step Verification → Turn ON (required for App Passwords)' },
+            { step: '2', title: 'Generate App Password', desc: 'Google Account → Security → App Passwords → Select "Mail" → Select "Other" → Name it "CRM SMTP" → Copy the 16-character password' },
+            { step: '3', title: 'Configure in App', desc: 'Settings → Email Tools → SMTP tab → Click "Gmail" quick-setup button' },
+            { step: '4', title: 'Enter Credentials', desc: 'SMTP Host: smtp.gmail.com | Port: 587 | User: your-email@gmail.com | Password: the 16-char App Password (not your Gmail password!)' },
+            { step: '5', title: 'Send Test Email', desc: 'Use the "Test Email" feature to verify the connection works' },
+          ].map(s => (
+            <div key={s.step} className="flex gap-3 p-3 bg-secondary/30 rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold shrink-0">{s.step}</div>
+              <div>
+                <p className="text-foreground font-medium text-sm">{s.title}</p>
+                <p className="text-muted-foreground text-xs">{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">Gmail SMTP Settings</h3>
+        <SqlBlock>{`SMTP Host:     smtp.gmail.com
+SMTP Port:     587 (TLS) or 465 (SSL)
+SMTP User:     your-email@gmail.com
+SMTP Password: xxxx xxxx xxxx xxxx (16-char App Password)
+Encryption:    STARTTLS
+Auth Method:   LOGIN
+
+⚠️ IMPORTANT: Do NOT use your Gmail password.
+   You MUST use an App Password generated from Google Security settings.
+   Regular passwords are blocked by Google since May 2022.`}</SqlBlock>
+
+        <div className="mt-4 p-3 bg-yellow-500/10 border border-yellow-500/20 rounded-lg">
+          <p className="text-sm text-foreground"><strong>⚠️ Gmail Limitations:</strong> Gmail is best for low-volume sends. For campaigns over 100/day, use Brevo or SendGrid to avoid rate limiting and improve deliverability.</p>
+        </div>
+      </div>
+
+      {/* SendGrid Setup */}
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">SendGrid — Free Setup</h2>
+        <p className="text-muted-foreground mb-4 text-sm">Twilio SendGrid offers <strong>100 emails/day free forever</strong>. Great API, reliable deliverability.</p>
+
+        <h3 className="text-lg font-medium text-foreground mb-3">Step-by-Step Setup</h3>
+        <div className="space-y-3">
+          {[
+            { step: '1', title: 'Create SendGrid Account', desc: 'Go to sendgrid.com → Sign up → Complete email verification and account setup' },
+            { step: '2', title: 'Create API Key', desc: 'Settings → API Keys → Create API Key → Select "Full Access" or "Restricted (Mail Send)" → Copy the key' },
+            { step: '3', title: 'Verify Sender Identity', desc: 'Settings → Sender Authentication → Verify a Single Sender OR authenticate your domain (recommended)' },
+            { step: '4', title: 'Configure SMTP in App', desc: 'Settings → Email Tools → SMTP tab → Enter SendGrid credentials' },
+            { step: '5', title: 'Test & Verify', desc: 'Send a test email to confirm delivery. Check SendGrid Activity Feed for send logs.' },
+          ].map(s => (
+            <div key={s.step} className="flex gap-3 p-3 bg-secondary/30 rounded-lg">
+              <div className="w-8 h-8 rounded-full bg-primary/20 text-primary flex items-center justify-center text-sm font-bold shrink-0">{s.step}</div>
+              <div>
+                <p className="text-foreground font-medium text-sm">{s.title}</p>
+                <p className="text-muted-foreground text-xs">{s.desc}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">SendGrid SMTP Settings</h3>
+        <SqlBlock>{`SMTP Host:     smtp.sendgrid.net
+SMTP Port:     587 (TLS) or 465 (SSL)
+SMTP User:     apikey  (literally the word "apikey")
+SMTP Password: SG.xxxxxxxxxxxxxxxxxxxxxxxxxxxx (your API key)
+Encryption:    STARTTLS
+Auth Method:   LOGIN`}</SqlBlock>
+      </div>
+
+      {/* Resend Setup */}
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Resend — Modern Email API</h2>
+        <p className="text-muted-foreground mb-4 text-sm">Developer-friendly email API: <strong>100 emails/day, 3,000/month free</strong>. Clean dashboard and excellent docs.</p>
+
+        <h3 className="text-lg font-medium text-foreground mb-3">Resend SMTP Settings</h3>
+        <SqlBlock>{`SMTP Host:     smtp.resend.com
+SMTP Port:     587 (TLS) or 465 (SSL)
+SMTP User:     resend  (literally the word "resend")
+SMTP Password: re_xxxxxxxxxxxxxxxxxxxxxxxxxxxx (your API key)
+Encryption:    STARTTLS
+
+Setup: resend.com → API Keys → Create key → Add & verify domain`}</SqlBlock>
+      </div>
+
+      {/* Custom SMTP */}
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Custom SMTP Server</h2>
+        <p className="text-muted-foreground mb-4 text-sm">Connect any SMTP-compatible provider (Mailgun, Amazon SES, Postmark, Zoho, your own mail server).</p>
+
+        <h3 className="text-lg font-medium text-foreground mb-3">Generic SMTP Configuration</h3>
+        <SqlBlock>{`SMTP Host:     your-smtp-server.com
+SMTP Port:     587 (STARTTLS) or 465 (SSL/TLS) or 25 (unencrypted, not recommended)
+SMTP User:     your-username or email
+SMTP Password: your-password or API key
+Encryption:    STARTTLS (recommended) or SSL
+
+Common Providers:
+  Mailgun:     smtp.mailgun.org:587
+  Amazon SES:  email-smtp.{region}.amazonaws.com:587
+  Postmark:    smtp.postmarkapp.com:587  (user: Postmark API token)
+  Zoho:        smtp.zoho.com:587
+  Outlook:     smtp.office365.com:587
+  Yahoo:       smtp.mail.yahoo.com:587`}</SqlBlock>
+      </div>
+
+      {/* DNS Authentication */}
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">🔒 DNS Authentication (SPF, DKIM, DMARC)</h2>
+        <p className="text-muted-foreground mb-4 text-sm">Proper DNS setup is <strong>critical</strong> for inbox placement. Without it, emails go to spam.</p>
+
+        <h3 className="text-lg font-medium text-foreground mb-3">SPF (Sender Policy Framework)</h3>
+        <p className="text-muted-foreground text-sm mb-2">Tells receiving servers which IPs can send email on behalf of your domain.</p>
+        <SqlBlock>{`DNS Record Type: TXT
+Host:  @  (or your domain root)
+Value: v=spf1 include:_spf.brevo.com include:_spf.google.com ~all
+
+-- For multiple providers, chain includes:
+v=spf1 include:_spf.brevo.com include:sendgrid.net include:_spf.google.com ~all`}</SqlBlock>
+
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">DKIM (DomainKeys Identified Mail)</h3>
+        <p className="text-muted-foreground text-sm mb-2">Adds a cryptographic signature to emails proving they're from your domain. Get the DKIM record from your provider's dashboard.</p>
+        <SqlBlock>{`DNS Record Type: TXT
+Host:  {selector}._domainkey  (e.g., brevo._domainkey or google._domainkey)
+Value: v=DKIM1; k=rsa; p=MIGfMA0GCSqGSIb3D... (provided by your email provider)`}</SqlBlock>
+
+        <h3 className="text-lg font-medium text-foreground mt-6 mb-3">DMARC (Domain-based Message Authentication)</h3>
+        <p className="text-muted-foreground text-sm mb-2">Instructs receivers what to do when SPF/DKIM fail. Start with "none" and monitor before enforcing.</p>
+        <SqlBlock>{`DNS Record Type: TXT
+Host:  _dmarc
+Value: v=DMARC1; p=none; rua=mailto:dmarc@yourdomain.com; pct=100
+
+-- After monitoring, enforce:
+v=DMARC1; p=quarantine; rua=mailto:dmarc@yourdomain.com; pct=100`}</SqlBlock>
+
+        <div className="mt-4 p-3 bg-primary/5 border border-primary/20 rounded-lg">
+          <p className="text-sm text-foreground"><strong>✅ Verification:</strong> Use the built-in <strong>Deliverability Test</strong> (Campaigns → Deliverability tab) to check your SPF, DKIM, DMARC, and MX records automatically.</p>
+        </div>
+      </div>
+
+      {/* Provider Comparison */}
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">📊 Provider Comparison Table</h2>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border">
+                <th className="text-left py-2 text-foreground">Provider</th>
+                <th className="text-left py-2 text-foreground">Free Tier</th>
+                <th className="text-left py-2 text-foreground">Best For</th>
+                <th className="text-left py-2 text-foreground">Setup Difficulty</th>
+              </tr>
+            </thead>
+            <tbody className="text-muted-foreground">
+              {[
+                { name: 'Brevo', free: '300/day, unlimited/mo', best: 'Best overall free option', diff: '⭐ Easy' },
+                { name: 'Gmail', free: '500/day (personal)', best: 'Personal/low-volume', diff: '⭐ Easy' },
+                { name: 'SendGrid', free: '100/day forever', best: 'Transactional emails', diff: '⭐⭐ Medium' },
+                { name: 'Resend', free: '100/day, 3K/mo', best: 'Developer-friendly API', diff: '⭐ Easy' },
+                { name: 'Mailgun', free: '100/day (sandbox)', best: 'API-first workflows', diff: '⭐⭐ Medium' },
+                { name: 'Amazon SES', free: '62K/mo (from EC2)', best: 'High volume, lowest cost', diff: '⭐⭐⭐ Hard' },
+                { name: 'Postmark', free: '100/mo', best: 'Transactional only', diff: '⭐ Easy' },
+              ].map(p => (
+                <tr key={p.name} className="border-b border-border/50">
+                  <td className="py-2 font-medium text-foreground">{p.name}</td>
+                  <td className="py-2">{p.free}</td>
+                  <td className="py-2">{p.best}</td>
+                  <td className="py-2">{p.diff}</td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      {/* Database Schema */}
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database: email_settings Table</h2>
+        <p className="text-muted-foreground mb-3 text-sm">Stores per-user SMTP credentials and API keys. One row per user.</p>
+        <SqlBlock>{`CREATE TABLE public.email_settings (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  smtp_host TEXT,
+  smtp_port TEXT DEFAULT '587',
+  smtp_user TEXT,
+  smtp_password TEXT,              -- Stored encrypted
+  sendgrid_key TEXT,
+  brevo_api_key TEXT,
+  twilio_sid TEXT,
+  twilio_token TEXT,
+  twilio_number TEXT,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  UNIQUE(user_id)
+);
+
+-- RLS: Users can only access their own settings
+ALTER TABLE email_settings ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Users manage own settings"
+  ON email_settings FOR ALL
+  USING (auth.uid() = user_id);`}</SqlBlock>
+      </div>
+
+      {/* Inbox Rotation Schema */}
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database: email_accounts Table (Inbox Rotation)</h2>
+        <p className="text-muted-foreground mb-3 text-sm">For multi-account rotation. Each user can have multiple SMTP accounts with daily limits and warmup.</p>
+        <SqlBlock>{`CREATE TABLE public.email_accounts (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL REFERENCES auth.users(id) ON DELETE CASCADE,
+  email_address TEXT NOT NULL,
+  display_name TEXT,
+  smtp_host TEXT NOT NULL,
+  smtp_port TEXT DEFAULT '587',
+  smtp_user TEXT NOT NULL,
+  smtp_password TEXT NOT NULL,
+  daily_limit INTEGER DEFAULT 50,
+  sent_today INTEGER DEFAULT 0,
+  warmup_enabled BOOLEAN DEFAULT false,
+  warmup_daily_target INTEGER DEFAULT 5,
+  warmup_current_volume INTEGER DEFAULT 0,
+  warmup_start_date DATE,
+  is_active BOOLEAN DEFAULT true,
+  health_status TEXT DEFAULT 'healthy',  -- healthy | warning | error
+  last_sent_at TIMESTAMPTZ,
+  last_error TEXT,
+  rotation_weight INTEGER DEFAULT 1,
+  created_at TIMESTAMPTZ DEFAULT now(),
+  updated_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+      </div>
+
+      {/* Troubleshooting */}
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">🛠️ Troubleshooting Common Issues</h2>
+        <div className="space-y-4">
+          {[
+            { issue: 'Connection Refused / Timeout', fix: 'Check SMTP host and port. Most providers use port 587 (TLS). Some firewalls block port 25. Try port 465 with SSL if 587 fails.' },
+            { issue: 'Authentication Failed (535)', fix: 'For Gmail: Use App Password, not your regular password. For Brevo: Use the SMTP key from Settings → SMTP & API. For SendGrid: Username must be literally "apikey".' },
+            { issue: 'Emails Going to Spam', fix: 'Set up SPF, DKIM, and DMARC DNS records. Verify your sender domain in your provider dashboard. Warm up new domains gradually (start with 5-10 emails/day).' },
+            { issue: 'Daily Limit Reached', fix: 'Gmail allows 500/day (personal), Brevo allows 300/day free. Use Inbox Rotation to distribute across multiple accounts and increase total volume.' },
+            { issue: 'SSL/TLS Handshake Error', fix: 'Ensure you\'re using the correct port for your encryption type: 587 for STARTTLS, 465 for SSL/TLS. Don\'t mix them.' },
+            { issue: 'Sender Address Not Verified', fix: 'Most providers require you to verify the "From" email address or domain before sending. Check your provider\'s Sender Authentication settings.' },
+            { issue: 'Emails Not Showing in Sent Folder', fix: 'SMTP relay services (Brevo, SendGrid) don\'t save to your mailbox\'s sent folder. This is normal — sent logs are tracked in the app.' },
+          ].map(t => (
+            <div key={t.issue} className="p-3 border border-border rounded-lg">
+              <p className="font-semibold text-foreground text-sm">❌ {t.issue}</p>
+              <p className="text-xs text-muted-foreground mt-1">✅ {t.fix}</p>
             </div>
           ))}
         </div>
       </div>
 
+      {/* Automation Alternatives */}
       <div className="glass-card rounded-xl p-6">
         <h2 className="text-2xl font-semibold text-foreground mb-4">Automation Alternatives</h2>
-        <p className="text-muted-foreground mb-3">Beyond n8n, these tools can be integrated for workflow automation:</p>
+        <p className="text-muted-foreground mb-3 text-sm">Beyond n8n, these tools can be integrated for workflow automation:</p>
         <div className="space-y-2">
           {[
             { name: 'Supabase Edge Functions', desc: 'Built-in — custom triggers, webhooks, scheduling' },
@@ -2563,12 +2853,18 @@ function EmailToolsDocs() {
         </div>
       </div>
 
+      {/* Component Reference */}
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Component</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Component Reference</h2>
         <div className="space-y-2 text-sm">
-          <div className="flex gap-2"><span className="text-foreground font-semibold">Page:</span><code className="text-primary">EmailToolsPage.tsx</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Settings Page:</span><code className="text-primary">EmailToolsPage.tsx</code></div>
           <div className="flex gap-2"><span className="text-foreground font-semibold">Hook:</span><code className="text-primary">useEmailSettings()</code></div>
-          <div className="flex gap-2"><span className="text-foreground font-semibold">Tabs:</span><code className="text-muted-foreground">SMTP, Providers, Automation, Testing</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Inbox Rotation:</span><code className="text-primary">InboxRotationPage.tsx</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Warmup Engine:</span><code className="text-primary">EmailWarmup.tsx</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Deliverability Test:</span><code className="text-primary">DeliverabilityTest.tsx</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Edge Function:</span><code className="text-primary">send-campaign-emails/index.ts</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Test Function:</span><code className="text-primary">test-deliverability/index.ts</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">DB Tables:</span><code className="text-muted-foreground">email_settings, email_accounts, campaign_send_logs</code></div>
         </div>
       </div>
     </div>
