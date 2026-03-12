@@ -627,6 +627,53 @@ export type Database = {
           },
         ]
       }
+      chat_messages: {
+        Row: {
+          chat_id: string
+          content: string
+          created_at: string
+          file_url: string | null
+          id: string
+          is_read: boolean | null
+          message_type: string | null
+          metadata: Json | null
+          sender_id: string | null
+          sender_type: string
+        }
+        Insert: {
+          chat_id: string
+          content: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string | null
+          metadata?: Json | null
+          sender_id?: string | null
+          sender_type: string
+        }
+        Update: {
+          chat_id?: string
+          content?: string
+          created_at?: string
+          file_url?: string | null
+          id?: string
+          is_read?: boolean | null
+          message_type?: string | null
+          metadata?: Json | null
+          sender_id?: string | null
+          sender_type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "chat_messages_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "live_chats"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       collaboration_contracts: {
         Row: {
           brand_signature: string | null
@@ -719,6 +766,75 @@ export type Database = {
             columns: ["invitation_id"]
             isOneToOne: false
             referencedRelation: "campaign_invitations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      communication_calls: {
+        Row: {
+          call_type: string
+          chat_id: string | null
+          contact_id: string | null
+          created_at: string
+          direction: string
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          notes: string | null
+          recording_url: string | null
+          started_at: string | null
+          status: string
+          transcript: string | null
+          user_id: string
+        }
+        Insert: {
+          call_type: string
+          chat_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          direction?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          recording_url?: string | null
+          started_at?: string | null
+          status?: string
+          transcript?: string | null
+          user_id: string
+        }
+        Update: {
+          call_type?: string
+          chat_id?: string | null
+          contact_id?: string | null
+          created_at?: string
+          direction?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          recording_url?: string | null
+          started_at?: string | null
+          status?: string
+          transcript?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_calls_chat_id_fkey"
+            columns: ["chat_id"]
+            isOneToOne: false
+            referencedRelation: "live_chats"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "communication_calls_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
             referencedColumns: ["id"]
           },
         ]
@@ -2528,6 +2644,81 @@ export type Database = {
         }
         Relationships: []
       }
+      live_chats: {
+        Row: {
+          assigned_agent_id: string | null
+          channel: string | null
+          contact_id: string | null
+          created_at: string
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          priority: string | null
+          rating: number | null
+          session_id: string | null
+          started_at: string
+          status: string
+          tags: string[] | null
+          user_id: string
+          visitor_email: string | null
+          visitor_id: string | null
+          visitor_name: string | null
+        }
+        Insert: {
+          assigned_agent_id?: string | null
+          channel?: string | null
+          contact_id?: string | null
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string | null
+          rating?: number | null
+          session_id?: string | null
+          started_at?: string
+          status?: string
+          tags?: string[] | null
+          user_id: string
+          visitor_email?: string | null
+          visitor_id?: string | null
+          visitor_name?: string | null
+        }
+        Update: {
+          assigned_agent_id?: string | null
+          channel?: string | null
+          contact_id?: string | null
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          priority?: string | null
+          rating?: number | null
+          session_id?: string | null
+          started_at?: string
+          status?: string
+          tags?: string[] | null
+          user_id?: string
+          visitor_email?: string | null
+          visitor_id?: string | null
+          visitor_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "live_chats_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "live_chats_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "tracking_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       messages: {
         Row: {
           content: string
@@ -2562,6 +2753,57 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      page_analytics: {
+        Row: {
+          avg_time_on_page: number | null
+          bounce_rate: number | null
+          created_at: string
+          date: string
+          exit_rate: number | null
+          id: string
+          page_title: string | null
+          page_url: string
+          scroll_depth_avg: number | null
+          top_click_elements: Json | null
+          total_clicks: number | null
+          total_views: number | null
+          unique_visitors: number | null
+          user_id: string
+        }
+        Insert: {
+          avg_time_on_page?: number | null
+          bounce_rate?: number | null
+          created_at?: string
+          date?: string
+          exit_rate?: number | null
+          id?: string
+          page_title?: string | null
+          page_url: string
+          scroll_depth_avg?: number | null
+          top_click_elements?: Json | null
+          total_clicks?: number | null
+          total_views?: number | null
+          unique_visitors?: number | null
+          user_id: string
+        }
+        Update: {
+          avg_time_on_page?: number | null
+          bounce_rate?: number | null
+          created_at?: string
+          date?: string
+          exit_rate?: number | null
+          id?: string
+          page_title?: string | null
+          page_url?: string
+          scroll_depth_avg?: number | null
+          top_click_elements?: Json | null
+          total_clicks?: number | null
+          total_views?: number | null
+          unique_visitors?: number | null
+          user_id?: string
+        }
+        Relationships: []
       }
       page_views: {
         Row: {
@@ -3082,6 +3324,68 @@ export type Database = {
         }
         Relationships: []
       }
+      social_visitors: {
+        Row: {
+          contact_id: string | null
+          created_at: string
+          dm_status: string | null
+          engagement_rate: number | null
+          follower_count: number | null
+          id: string
+          last_interaction_at: string | null
+          metadata: Json | null
+          platform: string
+          post_interactions: Json | null
+          profile_url: string | null
+          source: string | null
+          updated_at: string
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          contact_id?: string | null
+          created_at?: string
+          dm_status?: string | null
+          engagement_rate?: number | null
+          follower_count?: number | null
+          id?: string
+          last_interaction_at?: string | null
+          metadata?: Json | null
+          platform: string
+          post_interactions?: Json | null
+          profile_url?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          contact_id?: string | null
+          created_at?: string
+          dm_status?: string | null
+          engagement_rate?: number | null
+          follower_count?: number | null
+          id?: string
+          last_interaction_at?: string | null
+          metadata?: Json | null
+          platform?: string
+          post_interactions?: Json | null
+          profile_url?: string | null
+          source?: string | null
+          updated_at?: string
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_visitors_contact_id_fkey"
+            columns: ["contact_id"]
+            isOneToOne: false
+            referencedRelation: "company_contacts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       subscriptions: {
         Row: {
           amount: number | null
@@ -3264,69 +3568,99 @@ export type Database = {
       }
       tracking_sessions: {
         Row: {
+          avg_scroll_depth: number | null
           browser: string | null
           city: string | null
           contact_id: string | null
           country: string | null
           created_at: string
           device_type: string | null
+          duration_seconds: number | null
           email: string | null
+          engagement_score: number | null
           first_seen_at: string | null
           id: string
           ip_address: string | null
           is_identified: boolean | null
           landing_page: string | null
           last_seen_at: string | null
+          os: string | null
           pages_viewed: Json | null
           referrer: string | null
+          screen_resolution: string | null
+          social_source: string | null
+          total_clicks: number | null
           total_duration_seconds: number | null
           total_page_views: number | null
           user_agent: string | null
           user_id: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
           visitor_id: string
         }
         Insert: {
+          avg_scroll_depth?: number | null
           browser?: string | null
           city?: string | null
           contact_id?: string | null
           country?: string | null
           created_at?: string
           device_type?: string | null
+          duration_seconds?: number | null
           email?: string | null
+          engagement_score?: number | null
           first_seen_at?: string | null
           id?: string
           ip_address?: string | null
           is_identified?: boolean | null
           landing_page?: string | null
           last_seen_at?: string | null
+          os?: string | null
           pages_viewed?: Json | null
           referrer?: string | null
+          screen_resolution?: string | null
+          social_source?: string | null
+          total_clicks?: number | null
           total_duration_seconds?: number | null
           total_page_views?: number | null
           user_agent?: string | null
           user_id: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           visitor_id: string
         }
         Update: {
+          avg_scroll_depth?: number | null
           browser?: string | null
           city?: string | null
           contact_id?: string | null
           country?: string | null
           created_at?: string
           device_type?: string | null
+          duration_seconds?: number | null
           email?: string | null
+          engagement_score?: number | null
           first_seen_at?: string | null
           id?: string
           ip_address?: string | null
           is_identified?: boolean | null
           landing_page?: string | null
           last_seen_at?: string | null
+          os?: string | null
           pages_viewed?: Json | null
           referrer?: string | null
+          screen_resolution?: string | null
+          social_source?: string | null
+          total_clicks?: number | null
           total_duration_seconds?: number | null
           total_page_views?: number | null
           user_agent?: string | null
           user_id?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
           visitor_id?: string
         }
         Relationships: [
@@ -3443,6 +3777,107 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      visitor_events: {
+        Row: {
+          browser: string | null
+          city: string | null
+          click_x: number | null
+          click_y: number | null
+          country: string | null
+          created_at: string
+          device_type: string | null
+          duration_on_page: number | null
+          element_selector: string | null
+          element_text: string | null
+          event_type: string
+          id: string
+          metadata: Json | null
+          os: string | null
+          page_title: string | null
+          page_url: string | null
+          referrer: string | null
+          region: string | null
+          screen_resolution: string | null
+          scroll_depth: number | null
+          session_id: string | null
+          user_id: string
+          utm_campaign: string | null
+          utm_content: string | null
+          utm_medium: string | null
+          utm_source: string | null
+          utm_term: string | null
+          visitor_id: string
+        }
+        Insert: {
+          browser?: string | null
+          city?: string | null
+          click_x?: number | null
+          click_y?: number | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          duration_on_page?: number | null
+          element_selector?: string | null
+          element_text?: string | null
+          event_type: string
+          id?: string
+          metadata?: Json | null
+          os?: string | null
+          page_title?: string | null
+          page_url?: string | null
+          referrer?: string | null
+          region?: string | null
+          screen_resolution?: string | null
+          scroll_depth?: number | null
+          session_id?: string | null
+          user_id: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_id: string
+        }
+        Update: {
+          browser?: string | null
+          city?: string | null
+          click_x?: number | null
+          click_y?: number | null
+          country?: string | null
+          created_at?: string
+          device_type?: string | null
+          duration_on_page?: number | null
+          element_selector?: string | null
+          element_text?: string | null
+          event_type?: string
+          id?: string
+          metadata?: Json | null
+          os?: string | null
+          page_title?: string | null
+          page_url?: string | null
+          referrer?: string | null
+          region?: string | null
+          screen_resolution?: string | null
+          scroll_depth?: number | null
+          session_id?: string | null
+          user_id?: string
+          utm_campaign?: string | null
+          utm_content?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+          utm_term?: string | null
+          visitor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "visitor_events_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "tracking_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       webhook_event_log: {
         Row: {
