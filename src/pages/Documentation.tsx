@@ -26,7 +26,8 @@ const sections = [
   { id: 'intent-signals', label: 'Intent Signal Tracking', icon: Globe },
   { id: 'automation-rules', label: 'Workflow Automation', icon: Workflow },
   { id: 'contact-tracking', label: 'Contact Activity Tracking', icon: MousePointer },
-  { id: 'website-tracking', label: 'Website Visitor Tracking', icon: Globe },
+  { id: 'website-tracking', label: 'Website & Social Tracking', icon: Globe },
+  { id: 'live-chat', label: 'Live Chat & Communication', icon: MessageSquare },
   { id: 'enrichment', label: 'Contact Enrichment', icon: Search },
   { id: 'inbox-rotation', label: 'Inbox Rotation (Smartlead)', icon: Mail },
   { id: 'email-warmup', label: 'Email Warmup (Lemwarm)', icon: Mail },
@@ -112,6 +113,7 @@ export default function Documentation() {
           {activeSection === 'automation-rules' && <AutomationRulesDocs />}
           {activeSection === 'contact-tracking' && <ContactTrackingDocs />}
           {activeSection === 'website-tracking' && <WebsiteTrackingDocs />}
+          {activeSection === 'live-chat' && <LiveChatDocs />}
           {activeSection === 'enrichment' && <EnrichmentDocs />}
           {activeSection === 'audit-trail' && <AuditTrailDocs />}
           {activeSection === 'report-builder' && <ReportBuilderDocs />}
@@ -2344,32 +2346,355 @@ function ContactTrackingDocs() {
 function WebsiteTrackingDocs() {
   return (
     <div className="space-y-8 animate-fade-in">
-      <h1 className="text-4xl font-bold text-foreground">Website Visitor Tracking</h1>
-      <p className="text-muted-foreground">Embed a JavaScript tracking script on your website to identify visitors and match them to contacts.</p>
+      <h1 className="text-4xl font-bold text-foreground">Website & Social Media Tracking</h1>
+      <p className="text-muted-foreground">Enterprise-grade visitor tracking combining HubSpot-style website analytics, Apollo-style lead identification, and social media visitor intelligence — all in one unified CRM hub.</p>
 
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">How It Works</h2>
-        <div className="space-y-4">
-          <Step number={1} title="Embed Tracking Script">Copy the generated JavaScript snippet and add it to your website's HTML.</Step>
-          <Step number={2} title="Track Page Views">The script automatically tracks page views, referrers, and session duration.</Step>
-          <Step number={3} title="Identify Visitors">When a visitor fills a form or clicks a tracked link, they're matched to a contact by email.</Step>
-          <Step number={4} title="View Activity">All matched activities appear in the contact's timeline and activity feed.</Step>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Platform Comparison</h2>
+        <p className="text-sm text-muted-foreground mb-4">How OutreachFlow tracking compares to industry leaders:</p>
+        <div className="overflow-x-auto">
+          <table className="w-full text-sm">
+            <thead><tr className="border-b border-border">
+              <th className="text-left p-2 text-foreground">Feature</th>
+              <th className="text-center p-2 text-foreground">OutreachFlow</th>
+              <th className="text-center p-2 text-muted-foreground">HubSpot</th>
+              <th className="text-center p-2 text-muted-foreground">Apollo</th>
+              <th className="text-center p-2 text-muted-foreground">Lemlist</th>
+            </tr></thead>
+            <tbody className="text-muted-foreground">
+              <tr className="border-b border-border/50"><td className="p-2">Page View Tracking</td><td className="text-center p-2">✅</td><td className="text-center p-2">✅</td><td className="text-center p-2">❌</td><td className="text-center p-2">❌</td></tr>
+              <tr className="border-b border-border/50"><td className="p-2">Click Tracking</td><td className="text-center p-2">✅</td><td className="text-center p-2">✅</td><td className="text-center p-2">❌</td><td className="text-center p-2">❌</td></tr>
+              <tr className="border-b border-border/50"><td className="p-2">Scroll Depth</td><td className="text-center p-2">✅</td><td className="text-center p-2">❌</td><td className="text-center p-2">❌</td><td className="text-center p-2">❌</td></tr>
+              <tr className="border-b border-border/50"><td className="p-2">UTM Attribution</td><td className="text-center p-2">✅</td><td className="text-center p-2">✅</td><td className="text-center p-2">❌</td><td className="text-center p-2">✅</td></tr>
+              <tr className="border-b border-border/50"><td className="p-2">Social Referrer Detection</td><td className="text-center p-2">✅</td><td className="text-center p-2">✅</td><td className="text-center p-2">❌</td><td className="text-center p-2">❌</td></tr>
+              <tr className="border-b border-border/50"><td className="p-2">Device/Browser Analytics</td><td className="text-center p-2">✅</td><td className="text-center p-2">✅</td><td className="text-center p-2">❌</td><td className="text-center p-2">❌</td></tr>
+              <tr className="border-b border-border/50"><td className="p-2">Engagement Scoring</td><td className="text-center p-2">✅</td><td className="text-center p-2">✅</td><td className="text-center p-2">✅</td><td className="text-center p-2">❌</td></tr>
+              <tr className="border-b border-border/50"><td className="p-2">Live Chat</td><td className="text-center p-2">✅</td><td className="text-center p-2">✅</td><td className="text-center p-2">❌</td><td className="text-center p-2">❌</td></tr>
+              <tr><td className="p-2">Audio/Video Calls</td><td className="text-center p-2">✅</td><td className="text-center p-2">Add-on</td><td className="text-center p-2">❌</td><td className="text-center p-2">❌</td></tr>
+            </tbody>
+          </table>
         </div>
       </div>
 
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Function: track-website-visitor</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">How It Works (7-Tab Dashboard)</h2>
+        <div className="space-y-4">
+          <Step number={1} title="Visitors Tab">Full visitor list with device type, location (city/country), pages viewed, clicks, duration, engagement score, UTM source, and identification status. Click any row to filter events.</Step>
+          <Step number={2} title="Events Tab">Granular event log: every page_view, click, scroll, form_submit, identify, social_visit, and custom event. Shows element text, CSS selector, device, scroll depth, UTM params.</Step>
+          <Step number={3} title="Page Analytics Tab">Aggregated page performance: total views, unique visitors, avg time on page, bounce rate, exit rate, click count, average scroll depth by page URL and date.</Step>
+          <Step number={4} title="Social Tab">Social media visitors auto-detected from referrers (Instagram, LinkedIn, TikTok, Facebook, Twitter, YouTube, Pinterest). Tracks platform, username, followers, engagement rate, DM status.</Step>
+          <Step number={5} title="Live Chat Tab">Real-time chat conversations from website widget, WhatsApp, Messenger, or Instagram DMs. Shows status (active/waiting/resolved), priority, rating, and duration.</Step>
+          <Step number={6} title="Calls Tab">Audio and video call logs: type, direction (inbound/outbound), status, duration, recording availability, and auto-transcription support.</Step>
+          <Step number={7} title="Setup Tab">Advanced Tracking Script v2 with copy-to-clipboard. Includes auto click tracking, scroll depth, UTM capture, SPA navigation, social referrer detection, and custom event API.</Step>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Tracking Script v2 — What's Tracked Automatically</h2>
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+          {[
+            { title: 'Page Views', desc: 'Every page load with URL, title, referrer' },
+            { title: 'Click Events', desc: 'All clicks on <a>, <button>, [data-track] with element text, selector, coordinates' },
+            { title: 'Scroll Depth', desc: 'Maximum scroll percentage (0-100%) tracked on every page' },
+            { title: 'Time on Page', desc: 'Duration in seconds from page load to exit' },
+            { title: 'Device Info', desc: 'Device type (mobile/tablet/desktop), browser, OS' },
+            { title: 'Screen Resolution', desc: 'Visitor screen width × height' },
+            { title: 'UTM Parameters', desc: 'utm_source, utm_medium, utm_campaign, utm_term, utm_content' },
+            { title: 'Social Referrers', desc: 'Auto-detects visits from Instagram, LinkedIn, TikTok, Facebook, Twitter, YouTube, Pinterest' },
+            { title: 'SPA Navigation', desc: 'Tracks pushState/popstate for single-page apps' },
+            { title: 'Engagement Score', desc: 'Auto-calculated: page views × 10 + clicks × 5 + time + scroll + identification bonus' },
+          ].map(item => (
+            <div key={item.title} className="p-3 bg-secondary/50 rounded-lg">
+              <h4 className="text-sm font-semibold text-foreground">{item.title}</h4>
+              <p className="text-xs text-muted-foreground">{item.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Edge Function: track-website-visitor (v2)</h2>
         <div className="space-y-2 text-sm">
           <div className="flex gap-2"><span className="text-foreground font-semibold">Endpoint:</span><code className="text-primary">POST /functions/v1/track-website-visitor</code></div>
-          <div className="flex gap-2"><span className="text-foreground font-semibold">Auth:</span><code className="text-muted-foreground">Public (no JWT required)</code></div>
-          <div className="flex gap-2"><span className="text-foreground font-semibold">Input:</span><code className="text-muted-foreground">{'{ user_id, event_type, page_url, referrer, visitor_id, email?, metadata? }'}</code></div>
-          <div className="flex gap-2"><span className="text-foreground font-semibold">Tables:</span><code className="text-muted-foreground">contact_activities, company_contacts</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Auth:</span><code className="text-muted-foreground">Public (verify_jwt = false)</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Full Input:</span></div>
+        </div>
+        <SqlBlock>{`{
+  account_id: string,      // Owner user ID
+  visitor_id: string,      // Anonymous cookie ID
+  event_type: string,      // page_view | click | identify | social_visit | form_submit | page_exit | custom
+  page_url: string,
+  page_title: string,
+  referrer: string,
+  email?: string,          // For identify events
+  device_type: string,     // desktop | mobile | tablet
+  browser: string,         // Chrome | Firefox | Safari | Edge
+  os: string,              // Windows | macOS | Linux | Android | iOS
+  screen_resolution: string, // e.g. "1920x1080"
+  utm_source?: string,
+  utm_medium?: string,
+  utm_campaign?: string,
+  utm_term?: string,
+  utm_content?: string,
+  scroll_depth?: number,   // 0-100
+  click_count?: number,
+  time_on_page?: number,   // seconds
+  metadata?: object        // Custom data (element text, coordinates, etc.)
+}`}</SqlBlock>
+        <div className="mt-3 space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Tables Written:</span><code className="text-muted-foreground">tracking_sessions, visitor_events, social_visitors, contact_activities</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Logic:</span><span className="text-muted-foreground">Upserts session → logs event → detects social referrer → matches contact by email → calculates engagement score</span></div>
         </div>
       </div>
 
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Component</h2>
-        <p className="text-muted-foreground text-sm"><code className="text-primary">TrackingScriptPage.tsx</code> — Generates the embeddable script, shows visitor sessions dashboard, and provides a copy-to-clipboard snippet.</p>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database Schema — New Tables</h2>
+        <SqlBlock title="visitor_events">{`CREATE TABLE visitor_events (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  session_id UUID REFERENCES tracking_sessions(id),
+  visitor_id TEXT NOT NULL,
+  event_type TEXT NOT NULL,       -- page_view, click, scroll, form_submit, identify, social_visit, custom
+  page_url TEXT,
+  page_title TEXT,
+  element_selector TEXT,          -- CSS selector for clicks
+  element_text TEXT,              -- Clicked element text
+  click_x INTEGER,
+  click_y INTEGER,
+  scroll_depth INTEGER,           -- 0-100%
+  referrer TEXT,
+  utm_source TEXT, utm_medium TEXT, utm_campaign TEXT, utm_term TEXT, utm_content TEXT,
+  device_type TEXT,               -- desktop, mobile, tablet
+  browser TEXT, os TEXT, screen_resolution TEXT,
+  country TEXT, city TEXT, region TEXT,
+  duration_on_page INTEGER,       -- seconds
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+
+        <SqlBlock title="social_visitors">{`CREATE TABLE social_visitors (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  contact_id UUID REFERENCES company_contacts(id),
+  platform TEXT NOT NULL,         -- instagram, tiktok, linkedin, twitter, facebook, youtube
+  profile_url TEXT,
+  username TEXT,
+  follower_count INTEGER,
+  engagement_rate NUMERIC(5,2),
+  post_interactions JSONB DEFAULT '[]',  -- [{post_url, type, timestamp}]
+  dm_status TEXT DEFAULT 'none',  -- none, sent, replied, converted
+  last_interaction_at TIMESTAMPTZ,
+  source TEXT,                    -- organic, ad, referral
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+
+        <SqlBlock title="page_analytics (aggregated)">{`CREATE TABLE page_analytics (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  page_url TEXT NOT NULL,
+  page_title TEXT,
+  unique_visitors INTEGER DEFAULT 0,
+  total_views INTEGER DEFAULT 0,
+  avg_time_on_page INTEGER DEFAULT 0,
+  bounce_rate NUMERIC(5,2) DEFAULT 0,
+  exit_rate NUMERIC(5,2) DEFAULT 0,
+  total_clicks INTEGER DEFAULT 0,
+  top_click_elements JSONB DEFAULT '[]',
+  scroll_depth_avg INTEGER DEFAULT 0,
+  date DATE DEFAULT CURRENT_DATE,
+  created_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+
+        <SqlBlock title="tracking_sessions — Added Columns">{`ALTER TABLE tracking_sessions ADD COLUMN
+  device_type TEXT,
+  browser TEXT,
+  os TEXT,
+  screen_resolution TEXT,
+  country TEXT, city TEXT,
+  utm_source TEXT, utm_medium TEXT, utm_campaign TEXT,
+  total_clicks INTEGER DEFAULT 0,
+  avg_scroll_depth INTEGER DEFAULT 0,
+  engagement_score NUMERIC(5,2) DEFAULT 0,
+  social_source TEXT,
+  duration_seconds INTEGER DEFAULT 0;`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">JavaScript API Reference</h2>
+        <SqlBlock>{`// Auto-included when tracking script is embedded:
+
+// Identify visitor (converts anonymous → known lead)
+ofIdentify('user@example.com', { name: 'John Doe', company: 'Acme Inc' });
+
+// Track custom events
+ofTrack('form_submit', { metadata: { form_name: 'contact', page: '/pricing' } });
+ofTrack('video_play',  { metadata: { video_id: 'product-demo', duration: 120 } });
+ofTrack('download',    { metadata: { file: 'whitepaper.pdf', size: '2.4MB' } });
+ofTrack('cta_click',   { metadata: { button: 'Start Free Trial', page: '/home' } });
+
+// Automatic features (no code needed):
+// ✅ Page view tracking
+// ✅ Click tracking on <a>, <button>, [data-track]
+// ✅ Scroll depth measurement
+// ✅ Time on page
+// ✅ Device/browser/OS detection
+// ✅ UTM parameter capture
+// ✅ Social referrer detection (Instagram, LinkedIn, TikTok, etc.)
+// ✅ SPA navigation (pushState/popstate)
+// ✅ Engagement score calculation`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Components & Hooks</h2>
+        <div className="space-y-2 text-sm">
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Main Page:</span><code className="text-primary">TrackingScriptPage.tsx</code> — 7-tab dashboard (Visitors, Events, Pages, Social, Chat, Calls, Setup)</div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Edge Function:</span><code className="text-primary">track-website-visitor</code> — Processes all tracking events</div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">Queries:</span><code className="text-muted-foreground">tracking_sessions, visitor_events, page_analytics, social_visitors, live_chats, communication_calls</code></div>
+          <div className="flex gap-2"><span className="text-foreground font-semibold">RLS:</span><code className="text-muted-foreground">All tables user-scoped (auth.uid() = user_id)</code></div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function LiveChatDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Live Chat & Communication</h1>
+      <p className="text-muted-foreground">Multi-channel communication hub: website live chat, audio/video calls, and omnichannel messaging — inspired by HubSpot Conversations and Salesforce Service Cloud.</p>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Supported Channels</h2>
+        <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+          {[
+            { name: 'Website Widget', desc: 'Embedded chat widget for your website visitors' },
+            { name: 'WhatsApp', desc: 'Business messaging via WhatsApp API' },
+            { name: 'Facebook Messenger', desc: 'Connect with leads on Messenger' },
+            { name: 'Instagram DMs', desc: 'Direct message management' },
+            { name: 'Audio Calls', desc: 'VoIP audio calling with recording' },
+            { name: 'Video Calls', desc: 'Face-to-face video meetings with contacts' },
+          ].map(ch => (
+            <div key={ch.name} className="p-3 bg-secondary/50 rounded-lg">
+              <h4 className="text-sm font-semibold text-foreground">{ch.name}</h4>
+              <p className="text-xs text-muted-foreground">{ch.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Live Chat Features</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Real-time messaging with visitor/agent/bot senders</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Message types: text, image, file, audio, video, system</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Priority levels: low, normal, high, urgent</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Chat status: active, waiting, resolved, missed</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Agent assignment and routing</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Customer satisfaction rating (1-5 stars)</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Tags for categorization</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Session-to-contact linking via tracking_sessions</li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Audio & Video Calls</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Inbound and outbound call tracking</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Call status lifecycle: initiated → ringing → connected → ended</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Duration tracking in seconds</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Call recording storage (recording_url)</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Auto-transcription support (transcript field)</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Agent notes per call</li>
+          <li className="flex items-center gap-2"><CheckCircle className="w-4 h-4 text-green-500" />Link to contact and chat session</li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Database Schema</h2>
+        <SqlBlock title="live_chats">{`CREATE TABLE live_chats (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  visitor_id TEXT,
+  session_id UUID REFERENCES tracking_sessions(id),
+  contact_id UUID REFERENCES company_contacts(id),
+  visitor_name TEXT,
+  visitor_email TEXT,
+  status TEXT DEFAULT 'active',          -- active, waiting, resolved, missed
+  channel TEXT DEFAULT 'website',        -- website, whatsapp, messenger, instagram
+  assigned_agent_id UUID,
+  priority TEXT DEFAULT 'normal',        -- low, normal, high, urgent
+  rating INTEGER,                        -- 1-5
+  tags TEXT[],
+  started_at TIMESTAMPTZ DEFAULT now(),
+  ended_at TIMESTAMPTZ,
+  metadata JSONB DEFAULT '{}'
+);`}</SqlBlock>
+
+        <SqlBlock title="chat_messages">{`CREATE TABLE chat_messages (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  chat_id UUID REFERENCES live_chats(id) ON DELETE CASCADE,
+  sender_type TEXT NOT NULL,             -- agent, visitor, bot
+  sender_id TEXT,
+  content TEXT NOT NULL,
+  message_type TEXT DEFAULT 'text',      -- text, image, file, audio, video, system
+  file_url TEXT,
+  is_read BOOLEAN DEFAULT false,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);`}</SqlBlock>
+
+        <SqlBlock title="communication_calls">{`CREATE TABLE communication_calls (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  user_id UUID NOT NULL,
+  contact_id UUID REFERENCES company_contacts(id),
+  chat_id UUID REFERENCES live_chats(id),
+  call_type TEXT NOT NULL,               -- audio, video
+  direction TEXT DEFAULT 'outbound',     -- inbound, outbound
+  status TEXT DEFAULT 'initiated',       -- initiated, ringing, connected, ended, missed, failed
+  duration_seconds INTEGER,
+  recording_url TEXT,
+  transcript TEXT,
+  notes TEXT,
+  started_at TIMESTAMPTZ,
+  ended_at TIMESTAMPTZ,
+  metadata JSONB DEFAULT '{}'
+);`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">RLS Policies</h2>
+        <SqlBlock>{`-- Live chats: user-scoped
+CREATE POLICY "Users can manage own live_chats"
+  ON live_chats FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+-- Chat messages: via parent chat ownership
+CREATE POLICY "Users can read own chat_messages"
+  ON chat_messages FOR ALL
+  USING (EXISTS (
+    SELECT 1 FROM live_chats
+    WHERE id = chat_messages.chat_id
+    AND user_id = auth.uid()
+  ));
+
+-- Calls: user-scoped
+CREATE POLICY "Users can manage own calls"
+  ON communication_calls FOR ALL
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);`}</SqlBlock>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Integration Points</h2>
+        <div className="space-y-2 text-sm text-muted-foreground">
+          <p>• <strong className="text-foreground">Twilio</strong> — Audio/video calling via Twilio connector gateway</p>
+          <p>• <strong className="text-foreground">WhatsApp Business API</strong> — Connect via Twilio WhatsApp or direct API</p>
+          <p>• <strong className="text-foreground">Facebook Messenger</strong> — Webhook integration for incoming messages</p>
+          <p>• <strong className="text-foreground">Instagram DMs</strong> — Via Instagram Graph API</p>
+          <p>• <strong className="text-foreground">Supabase Realtime</strong> — Live message delivery via Realtime subscriptions on chat_messages table</p>
+        </div>
       </div>
     </div>
   );
