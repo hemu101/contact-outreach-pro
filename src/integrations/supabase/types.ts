@@ -723,6 +723,65 @@ export type Database = {
           },
         ]
       }
+      communication_logs: {
+        Row: {
+          contact_id: string | null
+          contact_name: string | null
+          conversation_id: string | null
+          created_at: string
+          direction: string
+          duration_seconds: number | null
+          ended_at: string | null
+          id: string
+          metadata: Json | null
+          notes: string | null
+          started_at: string | null
+          status: string
+          type: string
+          user_id: string
+        }
+        Insert: {
+          contact_id?: string | null
+          contact_name?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          direction?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          type: string
+          user_id: string
+        }
+        Update: {
+          contact_id?: string | null
+          contact_name?: string | null
+          conversation_id?: string | null
+          created_at?: string
+          direction?: string
+          duration_seconds?: number | null
+          ended_at?: string | null
+          id?: string
+          metadata?: Json | null
+          notes?: string | null
+          started_at?: string | null
+          status?: string
+          type?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "communication_logs_conversation_id_fkey"
+            columns: ["conversation_id"]
+            isOneToOne: false
+            referencedRelation: "conversations"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       companies: {
         Row: {
           ad_library_proof: string | null
@@ -1464,6 +1523,8 @@ export type Database = {
         Row: {
           created_at: string
           id: string
+          is_archived: boolean | null
+          is_starred: boolean | null
           last_message: string | null
           last_message_at: string | null
           participant_ids: string[]
@@ -1473,6 +1534,8 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
+          is_archived?: boolean | null
+          is_starred?: boolean | null
           last_message?: string | null
           last_message_at?: string | null
           participant_ids: string[]
@@ -1482,6 +1545,8 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
+          is_archived?: boolean | null
+          is_starred?: boolean | null
           last_message?: string | null
           last_message_at?: string | null
           participant_ids?: string[]
