@@ -113,6 +113,7 @@ export default function Documentation() {
           {activeSection === 'automation-rules' && <AutomationRulesDocs />}
           {activeSection === 'contact-tracking' && <ContactTrackingDocs />}
           {activeSection === 'website-tracking' && <WebsiteTrackingDocs />}
+          {activeSection === 'live-chat' && <LiveChatDocs />}
           {activeSection === 'enrichment' && <EnrichmentDocs />}
           {activeSection === 'audit-trail' && <AuditTrailDocs />}
           {activeSection === 'report-builder' && <ReportBuilderDocs />}
