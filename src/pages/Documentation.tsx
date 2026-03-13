@@ -620,7 +620,101 @@ function AnalyticsDocs() {
   );
 }
 
-function CompaniesContactsDocs() {
+function AdvancedAnalyticsDocs() {
+  return (
+    <div className="space-y-8 animate-fade-in">
+      <h1 className="text-4xl font-bold text-foreground">Advanced Analytics (Google Analytics-style)</h1>
+      
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Overview</h2>
+        <p className="text-muted-foreground mb-3">
+          A comprehensive analytics dashboard inspired by Google Analytics, providing real-time visitor tracking, 
+          acquisition analysis, engagement metrics, event logging, and social media traffic insights.
+        </p>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Dashboard Tabs</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+          {[
+            { name: 'Realtime', desc: 'Live visitor count, active sessions, device breakdown' },
+            { name: 'Acquisition', desc: 'Traffic sources, UTM campaigns, browser distribution' },
+            { name: 'Engagement', desc: 'Engagement scores, click trends, session depth' },
+            { name: 'Events', desc: 'Event types (page_view, click, identify), recent event log' },
+            { name: 'Pages & Screens', desc: 'Landing pages, bounce rates, scroll depth, avg time' },
+            { name: 'Traffic Sources', desc: 'UTM campaign performance, source/medium breakdown' },
+            { name: 'Social', desc: 'Social media visitor breakdown by platform' },
+            { name: 'Visitors', desc: 'Full session records with all metadata columns' },
+          ].map(t => (
+            <div key={t.name} className="p-3 border border-border rounded-lg">
+              <h4 className="font-semibold text-foreground text-sm">{t.name}</h4>
+              <p className="text-muted-foreground text-xs mt-1">{t.desc}</p>
+            </div>
+          ))}
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">KPI Metrics</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li>📊 <strong>Sessions</strong> — Total visitor sessions in the selected date range</li>
+          <li>👁️ <strong>Page Views</strong> — Aggregate page views across all sessions</li>
+          <li>🖱️ <strong>Total Clicks</strong> — All tracked click events</li>
+          <li>⚡ <strong>Identified</strong> — Visitors matched to known contacts via email</li>
+          <li>⏱️ <strong>Avg Duration</strong> — Average session time on site</li>
+          <li>📈 <strong>Engagement Score</strong> — Calculated from views, clicks, scroll depth, and identification</li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Engagement Score Formula</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs">
+          <pre className="text-foreground">{`score = (page_views × 10) 
+      + (clicks × 5) 
+      + (min(duration, 600) / 10) 
+      + (scroll_depth / 5)
+      + (identified ? 20 : 0)
+
+Max score: 100`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Data Sources</h2>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs">
+          <pre className="text-foreground">{`tracking_sessions — Session-level aggregates
+  visitor_id, device_type, browser, os, utm_source,
+  total_page_views, total_clicks, duration_seconds,
+  engagement_score, social_source, is_identified
+
+visitor_events — Granular event log
+  event_type, page_url, page_title, scroll_depth,
+  click_x, click_y, element_selector, duration_on_page
+
+page_analytics — Aggregated page metrics
+  page_url, unique_visitors, total_views,
+  avg_time_on_page, avg_scroll_depth, bounce_rate
+
+social_visitors — Social referrer tracking
+  platform, source, contact_id, last_interaction_at`}</pre>
+        </div>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Setup Guide</h2>
+        <ol className="space-y-2 text-muted-foreground list-decimal pl-5">
+          <li>Go to <strong>Website Tracking</strong> page</li>
+          <li>Copy the tracking script and paste it into your website's <code className="text-primary">&lt;head&gt;</code></li>
+          <li>The script auto-tracks: page views, clicks, scroll depth, time on page, SPA navigation, social referrers</li>
+          <li>Use <code className="text-primary">window.ofIdentify(email)</code> to link visitors to contacts</li>
+          <li>View analytics in the <strong>Advanced Analytics</strong> dashboard</li>
+        </ol>
+      </div>
+    </div>
+  );
+}
+
+
   return (
     <div className="space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-foreground">Companies & Company Contacts</h1>
