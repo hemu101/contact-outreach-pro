@@ -96,14 +96,14 @@ export function DMAccountSetup() {
   const addAccount = useMutation({
     mutationFn: async ({ platform, username }: { platform: string; username: string }) => {
       if (!user) throw new Error('Not authenticated');
+      const platformAccounts = getAccountsByPlatform(platform);
       const { data, error } = await supabase
         .from('social_accounts')
         .insert({
           user_id: user.id,
           platform,
           username,
-          is_primary: platform === 'instagram' ? instagramAccounts.length === 0 : tiktokAccounts.length === 0,
-          // Smart defaults for avoiding blocks
+          is_primary: platformAccounts.length === 0,
           daily_limit: 50,
           send_delay_min: 60,
           send_delay_max: 180,
