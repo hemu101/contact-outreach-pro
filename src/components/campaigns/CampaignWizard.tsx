@@ -376,20 +376,19 @@ export function CampaignWizard({ mode, contacts, templates, onComplete, onBack }
               
               <div>
                 <label className="text-sm font-medium text-foreground mb-1.5 block">Location</label>
-                <select
-                  value={data.location}
-                  onChange={(e) => setData(prev => ({ ...prev, location: e.target.value }))}
-                  className="w-full h-11 px-3 rounded-lg bg-background border border-input text-foreground"
-                >
-                  <option value="United States">United States</option>
-                  <option value="United Kingdom">United Kingdom</option>
-                  <option value="Canada">Canada</option>
-                  <option value="Australia">Australia</option>
-                  <option value="Germany">Germany</option>
-                  <option value="France">France</option>
-                  <option value="India">India</option>
-                  <option value="Other">Other</option>
-                </select>
+                <div className="relative">
+                  <input
+                    list="country-list"
+                    value={data.location}
+                    onChange={(e) => setData(prev => ({ ...prev, location: e.target.value }))}
+                    placeholder="Type or select a country..."
+                    className="w-full h-11 px-3 rounded-lg bg-background border border-input text-foreground"
+                  />
+                  <datalist id="country-list">
+                    {COUNTRIES.map(c => <option key={c} value={c} />)}
+                  </datalist>
+                </div>
+                <p className="text-xs text-muted-foreground mt-1">Select from the list or type any country name</p>
               </div>
             </div>
           </div>
