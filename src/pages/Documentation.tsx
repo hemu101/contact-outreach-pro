@@ -109,6 +109,7 @@ export default function Documentation() {
           {activeSection === 'unified-inbox' && <UnifiedInboxDocs />}
           {activeSection === 'social-dm' && <SocialDMDocs />}
           {activeSection === 'analytics' && <AnalyticsDocs />}
+          {activeSection === 'advanced-analytics' && <AdvancedAnalyticsDocs />}
           {activeSection === 'companies' && <CompaniesContactsDocs />}
           {activeSection === 'lead-scoring' && <LeadScoringDocs />}
           {activeSection === 'automation-rules' && <AutomationRulesDocs />}
