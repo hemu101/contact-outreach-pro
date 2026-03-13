@@ -238,6 +238,8 @@ const Index = () => {
         return <AutomationRulesPage />;
       case 'website-tracking':
         return <TrackingScriptPage />;
+      case 'advanced-analytics':
+        return <AdvancedAnalytics />;
       case 'enrichment':
         return <EnrichmentPage />;
       case 'revenue-forecast':
