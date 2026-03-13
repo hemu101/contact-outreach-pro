@@ -599,5 +599,18 @@ export function DMAccountSetup() {
         </Alert>
       </CardContent>
     </Card>
+
+    <ConfirmDialog
+      open={deleteConfirm.open}
+      onOpenChange={(open) => setDeleteConfirm(prev => ({ ...prev, open }))}
+      title="Disconnect Account?"
+      description={`Are you sure you want to disconnect @${deleteConfirm.name}? This will remove the account from rotation.`}
+      confirmLabel="Yes, disconnect"
+      onConfirm={() => {
+        deleteAccount.mutate(deleteConfirm.id);
+        setDeleteConfirm({ open: false, id: '', name: '' });
+      }}
+    />
+    </>
   );
 }
