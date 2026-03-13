@@ -20,6 +20,7 @@ const sections = [
   { id: 'unified-inbox', label: 'Unified Inbox', icon: Mail },
   { id: 'social-dm', label: 'Social DM Outreach', icon: MessageSquare },
   { id: 'analytics', label: 'Analytics Dashboard', icon: PieChart },
+  { id: 'advanced-analytics', label: 'Advanced Analytics (GA-style)', icon: Globe },
   { id: 'companies', label: 'Companies & Contacts', icon: Layers },
   { id: 'people-search', label: 'People Search (Apollo-style)', icon: Search },
   { id: 'lead-scoring', label: 'Lead Scoring & Intelligence', icon: Zap },
