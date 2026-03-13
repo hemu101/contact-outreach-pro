@@ -274,7 +274,7 @@ export function DMAccountSetup() {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => deleteAccount.mutate(account.id)}
+              onClick={() => setDeleteConfirm({ open: true, id: account.id, name: account.username })}
               className="text-destructive hover:text-destructive"
             >
               <Trash2 className="w-4 h-4" />
