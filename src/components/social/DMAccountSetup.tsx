@@ -51,17 +51,28 @@ interface SocialAccount {
   created_at: string;
 }
 
+const ALL_PLATFORMS = [
+  { id: 'instagram', label: 'Instagram', icon: Instagram, color: 'from-purple-500 to-pink-500' },
+  { id: 'tiktok', label: 'TikTok', icon: Music2, color: 'from-gray-700 to-black' },
+  { id: 'linkedin', label: 'LinkedIn', icon: Users, color: 'from-blue-600 to-blue-800' },
+  { id: 'facebook', label: 'Facebook', icon: Users, color: 'from-blue-500 to-blue-700' },
+  { id: 'whatsapp', label: 'WhatsApp', icon: Users, color: 'from-green-500 to-green-700' },
+  { id: 'x', label: 'X (Twitter)', icon: Users, color: 'from-gray-700 to-black' },
+  { id: 'reddit', label: 'Reddit', icon: Users, color: 'from-orange-500 to-red-500' },
+  { id: 'discord', label: 'Discord', icon: Users, color: 'from-indigo-500 to-purple-600' },
+];
+
 export function DMAccountSetup() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'instagram' | 'tiktok'>('instagram');
+  const [activeTab, setActiveTab] = useState('instagram');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
   const [rotationEnabled, setRotationEnabled] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: '', name: '' });
 
-  // Fetch accounts
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['social-accounts', user?.id],
     queryFn: async () => {
@@ -77,8 +88,7 @@ export function DMAccountSetup() {
     enabled: !!user,
   });
 
-  const instagramAccounts = accounts.filter(a => a.platform === 'instagram');
-  const tiktokAccounts = accounts.filter(a => a.platform === 'tiktok');
+  const getAccountsByPlatform = (platform: string) => accounts.filter(a => a.platform === platform);
   const totalDailyLimit = accounts.reduce((sum, a) => sum + a.daily_limit, 0);
   const totalSentToday = accounts.reduce((sum, a) => sum + a.messages_sent_today, 0);
 
