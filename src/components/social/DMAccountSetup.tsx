@@ -547,25 +547,26 @@ export function DMAccountSetup() {
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v as 'instagram' | 'tiktok'); setShowAddForm(false); }}>
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="instagram" className="flex items-center gap-2">
-              <Instagram className="h-4 w-4" />
-              Instagram ({instagramAccounts.length})
-            </TabsTrigger>
-            <TabsTrigger value="tiktok" className="flex items-center gap-2">
-              <Music2 className="h-4 w-4" />
-              TikTok ({tiktokAccounts.length})
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setShowAddForm(false); }}>
+          <ScrollArea className="w-full">
+            <TabsList className="inline-flex w-auto min-w-full mb-4">
+              {ALL_PLATFORMS.map(p => {
+                const pAccounts = getAccountsByPlatform(p.id);
+                return (
+                  <TabsTrigger key={p.id} value={p.id} className="flex items-center gap-1.5 text-xs">
+                    <p.icon className="h-3.5 w-3.5" />
+                    {p.label} ({pAccounts.length})
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </ScrollArea>
 
-          <TabsContent value="instagram">
-            {renderPlatformTab('instagram', instagramAccounts)}
-          </TabsContent>
-
-          <TabsContent value="tiktok">
-            {renderPlatformTab('tiktok', tiktokAccounts)}
-          </TabsContent>
+          {ALL_PLATFORMS.map(p => (
+            <TabsContent key={p.id} value={p.id}>
+              {renderPlatformTab(p.id as any, getAccountsByPlatform(p.id))}
+            </TabsContent>
+          ))}
         </Tabs>
 
         {/* Smart Scheduling Tips */}
