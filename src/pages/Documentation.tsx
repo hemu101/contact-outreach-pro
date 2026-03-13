@@ -715,6 +715,7 @@ social_visitors — Social referrer tracking
 }
 
 
+function CompaniesContactsDocs() {
   return (
     <div className="space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-foreground">Companies & Company Contacts</h1>
