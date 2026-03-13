@@ -483,6 +483,7 @@ export function DMAccountSetup() {
   );
 
   return (
+    <>
     <Card className="glass-card">
       <CardHeader>
         <div className="flex items-center justify-between">
