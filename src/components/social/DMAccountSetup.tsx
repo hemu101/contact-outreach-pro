@@ -1,11 +1,13 @@
 import { useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
+import { ConfirmDialog } from '@/components/ui/confirm-dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { ScrollArea } from '@/components/ui/scroll-area';
 import { Slider } from '@/components/ui/slider';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
@@ -51,17 +53,28 @@ interface SocialAccount {
   created_at: string;
 }
 
+const ALL_PLATFORMS = [
+  { id: 'instagram', label: 'Instagram', icon: Instagram, color: 'from-purple-500 to-pink-500' },
+  { id: 'tiktok', label: 'TikTok', icon: Music2, color: 'from-gray-700 to-black' },
+  { id: 'linkedin', label: 'LinkedIn', icon: Users, color: 'from-blue-600 to-blue-800' },
+  { id: 'facebook', label: 'Facebook', icon: Users, color: 'from-blue-500 to-blue-700' },
+  { id: 'whatsapp', label: 'WhatsApp', icon: Users, color: 'from-green-500 to-green-700' },
+  { id: 'x', label: 'X (Twitter)', icon: Users, color: 'from-gray-700 to-black' },
+  { id: 'reddit', label: 'Reddit', icon: Users, color: 'from-orange-500 to-red-500' },
+  { id: 'discord', label: 'Discord', icon: Users, color: 'from-indigo-500 to-purple-600' },
+];
+
 export function DMAccountSetup() {
   const { user } = useAuth();
   const { toast } = useToast();
   const queryClient = useQueryClient();
-  const [activeTab, setActiveTab] = useState<'instagram' | 'tiktok'>('instagram');
+  const [activeTab, setActiveTab] = useState('instagram');
   const [showAddForm, setShowAddForm] = useState(false);
   const [newUsername, setNewUsername] = useState('');
   const [isConnecting, setIsConnecting] = useState(false);
   const [rotationEnabled, setRotationEnabled] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; id: string; name: string }>({ open: false, id: '', name: '' });
 
-  // Fetch accounts
   const { data: accounts = [], isLoading } = useQuery({
     queryKey: ['social-accounts', user?.id],
     queryFn: async () => {
@@ -77,8 +90,7 @@ export function DMAccountSetup() {
     enabled: !!user,
   });
 
-  const instagramAccounts = accounts.filter(a => a.platform === 'instagram');
-  const tiktokAccounts = accounts.filter(a => a.platform === 'tiktok');
+  const getAccountsByPlatform = (platform: string) => accounts.filter(a => a.platform === platform);
   const totalDailyLimit = accounts.reduce((sum, a) => sum + a.daily_limit, 0);
   const totalSentToday = accounts.reduce((sum, a) => sum + a.messages_sent_today, 0);
 
@@ -86,14 +98,14 @@ export function DMAccountSetup() {
   const addAccount = useMutation({
     mutationFn: async ({ platform, username }: { platform: string; username: string }) => {
       if (!user) throw new Error('Not authenticated');
+      const platformAccounts = getAccountsByPlatform(platform);
       const { data, error } = await supabase
         .from('social_accounts')
         .insert({
           user_id: user.id,
           platform,
           username,
-          is_primary: platform === 'instagram' ? instagramAccounts.length === 0 : tiktokAccounts.length === 0,
-          // Smart defaults for avoiding blocks
+          is_primary: platformAccounts.length === 0,
           daily_limit: 50,
           send_delay_min: 60,
           send_delay_max: 180,
@@ -263,7 +275,7 @@ export function DMAccountSetup() {
             <Button 
               variant="ghost" 
               size="icon"
-              onClick={() => deleteAccount.mutate(account.id)}
+              onClick={() => setDeleteConfirm({ open: true, id: account.id, name: account.username })}
               className="text-destructive hover:text-destructive"
             >
               <Trash2 className="w-4 h-4" />
@@ -471,6 +483,7 @@ export function DMAccountSetup() {
   );
 
   return (
+    <>
     <Card className="glass-card">
       <CardHeader>
         <div className="flex items-center justify-between">
@@ -537,25 +550,26 @@ export function DMAccountSetup() {
           </p>
         </div>
 
-        <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v as 'instagram' | 'tiktok'); setShowAddForm(false); }}>
-          <TabsList className="grid w-full grid-cols-2 mb-4">
-            <TabsTrigger value="instagram" className="flex items-center gap-2">
-              <Instagram className="h-4 w-4" />
-              Instagram ({instagramAccounts.length})
-            </TabsTrigger>
-            <TabsTrigger value="tiktok" className="flex items-center gap-2">
-              <Music2 className="h-4 w-4" />
-              TikTok ({tiktokAccounts.length})
-            </TabsTrigger>
-          </TabsList>
+        <Tabs value={activeTab} onValueChange={(v) => { setActiveTab(v); setShowAddForm(false); }}>
+          <ScrollArea className="w-full">
+            <TabsList className="inline-flex w-auto min-w-full mb-4">
+              {ALL_PLATFORMS.map(p => {
+                const pAccounts = getAccountsByPlatform(p.id);
+                return (
+                  <TabsTrigger key={p.id} value={p.id} className="flex items-center gap-1.5 text-xs">
+                    <p.icon className="h-3.5 w-3.5" />
+                    {p.label} ({pAccounts.length})
+                  </TabsTrigger>
+                );
+              })}
+            </TabsList>
+          </ScrollArea>
 
-          <TabsContent value="instagram">
-            {renderPlatformTab('instagram', instagramAccounts)}
-          </TabsContent>
-
-          <TabsContent value="tiktok">
-            {renderPlatformTab('tiktok', tiktokAccounts)}
-          </TabsContent>
+          {ALL_PLATFORMS.map(p => (
+            <TabsContent key={p.id} value={p.id}>
+              {renderPlatformTab(p.id as any, getAccountsByPlatform(p.id))}
+            </TabsContent>
+          ))}
         </Tabs>
 
         {/* Smart Scheduling Tips */}
@@ -586,5 +600,18 @@ export function DMAccountSetup() {
         </Alert>
       </CardContent>
     </Card>
+
+    <ConfirmDialog
+      open={deleteConfirm.open}
+      onOpenChange={(open) => setDeleteConfirm(prev => ({ ...prev, open }))}
+      title="Disconnect Account?"
+      description={`Are you sure you want to disconnect @${deleteConfirm.name}? This will remove the account from rotation.`}
+      confirmLabel="Yes, disconnect"
+      onConfirm={() => {
+        deleteAccount.mutate(deleteConfirm.id);
+        setDeleteConfirm({ open: false, id: '', name: '' });
+      }}
+    />
+    </>
   );
 }

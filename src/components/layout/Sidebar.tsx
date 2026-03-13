@@ -48,6 +48,7 @@ const navItems = [
   { id: 'warmup', icon: Flame, label: 'Email Warmup' },
   { id: 'social-dms', icon: Instagram, label: 'Social DMs' },
   { id: 'website-tracking', icon: Globe, label: 'Website Tracking' },
+  { id: 'advanced-analytics', icon: BarChart3, label: 'Advanced Analytics' },
   { id: 'enrichment', icon: Sparkles, label: 'Enrichment' },
   { id: 'team-performance', icon: TrendingUp, label: 'Team Performance' },
   { id: 'revenue-forecast', icon: TrendingUp, label: 'Revenue Forecast' },
