@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { COUNTRIES } from '@/data/countries';
 import { 
   Sparkles, 
   Users, 
