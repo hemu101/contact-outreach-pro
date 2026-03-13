@@ -31,6 +31,7 @@ import { PeopleSearchPage } from '@/components/search/PeopleSearchPage';
 import { InboxRotationPage } from '@/components/email/InboxRotationPage';
 import { TeamPerformancePage } from '@/components/teams/TeamPerformancePage';
 import { useAuth } from '@/hooks/useAuth';
+import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
 import { useContacts } from '@/hooks/useContacts';
 import { useTemplates } from '@/hooks/useTemplates';
 import { useCampaigns } from '@/hooks/useCampaigns';
