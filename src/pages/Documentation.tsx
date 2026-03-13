@@ -510,28 +510,77 @@ function SocialDMDocs() {
     <div className="space-y-8 animate-fade-in">
       <h1 className="text-4xl font-bold text-foreground">Social DM Outreach</h1>
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Supported Platforms</h2>
-        <div className="grid grid-cols-3 gap-4">
-          {['Instagram', 'TikTok', 'Twitter/X'].map(p => (
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Supported Platforms (8+)</h2>
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+          {['Instagram', 'TikTok', 'LinkedIn', 'Facebook', 'WhatsApp', 'X (Twitter)', 'Reddit', 'Discord'].map(p => (
             <div key={p} className="p-4 border border-border rounded-lg text-center">
               <span className="text-foreground font-semibold">{p}</span>
             </div>
           ))}
         </div>
       </div>
+
       <div className="glass-card rounded-xl p-6">
-        <h2 className="text-2xl font-semibold text-foreground mb-4">Anti-Block Protection</h2>
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Multi-Account Setup</h2>
+        <p className="text-muted-foreground mb-3">Each platform supports multiple sender accounts to distribute sending load:</p>
         <ul className="space-y-2 text-muted-foreground">
-          <li>• Set sending hours (9 AM - 9 PM) to mimic human behavior</li>
-          <li>• Random delays between 30s-10min to avoid detection</li>
-          <li>• Recommended: 30-50 DMs per account per day</li>
-          <li>• Warm up new accounts before high-volume sending</li>
+          <li>• <strong>Per-account daily limits</strong> — Set 30-50 messages/day per account</li>
+          <li>• <strong>Account rotation</strong> — Automatically distributes messages across active accounts</li>
+          <li>• <strong>Primary account</strong> — Fallback when rotation is disabled</li>
+          <li>• <strong>Cooldown management</strong> — Auto-pause accounts hitting rate limits</li>
         </ul>
       </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">How to Connect Accounts</h2>
+        <p className="text-muted-foreground mb-3">Accounts are connected via external automation tools for security:</p>
+        <ol className="space-y-2 text-muted-foreground list-decimal pl-5">
+          <li>Go to <strong>Social DMs → Accounts</strong> tab</li>
+          <li>Select the platform and click <strong>Add Account</strong></li>
+          <li>Enter your username/handle</li>
+          <li>Use an external automation tool (n8n, Make, Pipedream) to connect using session cookies or API tokens</li>
+          <li>Configure daily limits, active hours, and message delays</li>
+        </ol>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Smart Anti-Block Protection</h2>
+        <ul className="space-y-2 text-muted-foreground">
+          <li>✅ <strong>Random delays</strong> — 30s to 10min between messages (mimics human behavior)</li>
+          <li>✅ <strong>Active hours</strong> — Only send during 9 AM - 9 PM (configurable per account)</li>
+          <li>✅ <strong>Account rotation</strong> — Load distributed across all connected accounts</li>
+          <li>✅ <strong>Daily limits</strong> — Per-account caps to stay under platform radar</li>
+          <li>✅ <strong>Warm-up mode</strong> — Gradually increase sending volume for new accounts</li>
+        </ul>
+      </div>
+
+      <div className="glass-card rounded-xl p-6">
+        <h2 className="text-2xl font-semibold text-foreground mb-4">Testing Account Connection</h2>
+        <ol className="space-y-2 text-muted-foreground list-decimal pl-5">
+          <li>Add the account in the <strong>Accounts</strong> tab</li>
+          <li>Check the status badge: <strong>Active</strong> (green), <strong>Error</strong> (red), <strong>Cooldown</strong> (blue)</li>
+          <li>Send a test message to your own account first</li>
+          <li>Monitor the <strong>Daily Usage</strong> progress bar</li>
+          <li>If errors appear, check the error message and reconnect via your automation tool</li>
+        </ol>
+      </div>
+
       <div className="glass-card rounded-xl p-6">
         <h2 className="text-2xl font-semibold text-foreground mb-4">Database Tables</h2>
-        <p className="text-muted-foreground text-sm font-mono mb-2">dm_campaigns: id, user_id, name, platform, status, template_id, total_contacts, sent_count, reply_count, scheduled_at, started_at, completed_at</p>
-        <p className="text-muted-foreground text-sm font-mono">dm_campaign_contacts: id, dm_campaign_id, creator_id, status, sent_at, replied_at, error_message</p>
+        <div className="bg-secondary/50 rounded-lg p-4 font-mono text-xs">
+          <pre className="text-foreground">{`social_accounts:
+  id, user_id, platform, username, display_name, status,
+  daily_limit, messages_sent_today, send_delay_min, send_delay_max,
+  active_hours_start, active_hours_end, is_primary,
+  cooldown_until, error_message, session_data (JSONB)
+
+creators (DM contacts):
+  id, user_id, name, handle, platform, avatar, bio,
+  followers, engagement, location, category[], verified
+
+Supported platforms: instagram, tiktok, linkedin, facebook,
+  whatsapp, x, reddit, discord`}</pre>
+        </div>
       </div>
     </div>
   );
