@@ -3259,7 +3259,10 @@ export type Database = {
         Row: {
           active_hours_end: number
           active_hours_start: number
+          api_key: string | null
+          auth_method: string | null
           avatar_url: string | null
+          cookies: string | null
           cooldown_until: string | null
           created_at: string
           daily_limit: number
@@ -3269,11 +3272,15 @@ export type Database = {
           is_primary: boolean
           last_checked_at: string | null
           last_message_at: string | null
+          last_tested_at: string | null
           messages_sent_today: number
           platform: string
+          proxy_url: string | null
           send_delay_max: number
           send_delay_min: number
+          session_id: string | null
           status: string
+          test_status: string | null
           updated_at: string
           user_id: string
           username: string
@@ -3281,7 +3288,10 @@ export type Database = {
         Insert: {
           active_hours_end?: number
           active_hours_start?: number
+          api_key?: string | null
+          auth_method?: string | null
           avatar_url?: string | null
+          cookies?: string | null
           cooldown_until?: string | null
           created_at?: string
           daily_limit?: number
@@ -3291,11 +3301,15 @@ export type Database = {
           is_primary?: boolean
           last_checked_at?: string | null
           last_message_at?: string | null
+          last_tested_at?: string | null
           messages_sent_today?: number
           platform: string
+          proxy_url?: string | null
           send_delay_max?: number
           send_delay_min?: number
+          session_id?: string | null
           status?: string
+          test_status?: string | null
           updated_at?: string
           user_id: string
           username: string
@@ -3303,7 +3317,10 @@ export type Database = {
         Update: {
           active_hours_end?: number
           active_hours_start?: number
+          api_key?: string | null
+          auth_method?: string | null
           avatar_url?: string | null
+          cookies?: string | null
           cooldown_until?: string | null
           created_at?: string
           daily_limit?: number
@@ -3313,11 +3330,15 @@ export type Database = {
           is_primary?: boolean
           last_checked_at?: string | null
           last_message_at?: string | null
+          last_tested_at?: string | null
           messages_sent_today?: number
           platform?: string
+          proxy_url?: string | null
           send_delay_max?: number
           send_delay_min?: number
+          session_id?: string | null
           status?: string
+          test_status?: string | null
           updated_at?: string
           user_id?: string
           username?: string
@@ -3433,37 +3454,52 @@ export type Database = {
       }
       team_members: {
         Row: {
+          avatar_url: string | null
           created_at: string
+          department: string | null
           id: string
           invited_at: string
           joined_at: string | null
           member_email: string
           member_name: string | null
+          notes: string | null
           owner_id: string
+          phone: string | null
           role: string
           status: string
+          title: string | null
         }
         Insert: {
+          avatar_url?: string | null
           created_at?: string
+          department?: string | null
           id?: string
           invited_at?: string
           joined_at?: string | null
           member_email: string
           member_name?: string | null
+          notes?: string | null
           owner_id: string
+          phone?: string | null
           role?: string
           status?: string
+          title?: string | null
         }
         Update: {
+          avatar_url?: string | null
           created_at?: string
+          department?: string | null
           id?: string
           invited_at?: string
           joined_at?: string | null
           member_email?: string
           member_name?: string | null
+          notes?: string | null
           owner_id?: string
+          phone?: string | null
           role?: string
           status?: string
+          title?: string | null
         }
         Relationships: []
       }
