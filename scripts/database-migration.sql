@@ -1,27 +1,3 @@
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!supabaseUrl || !supabaseKey) {
-  console.error('❌ Missing SUPABASE_URL or SUPABASE_SERVICE_ROLE_KEY');
-  process.exit(1);
-}
-
-const supabase = createClient(supabaseUrl, supabaseKey);
-
-async function initializeDatabase() {
-  try {
-    console.log('[v0] Starting database initialization...');
-    console.log('[v0] This script will create all necessary tables in your Supabase database.');
-    console.log('[v0] Note: You may need to run SQL migrations manually in Supabase SQL Editor if RPC is not available.');
-    console.log('[v0] Tables that will be created: contacts, templates, campaigns, campaign_contacts, email_events, follow_ups, user_settings, integrations, activity_logs');
-    
-    console.log('✅ Database initialization script ready!');
-    console.log('\n📝 Please run the following migration in your Supabase SQL Editor (Settings > SQL Editor):');
-    console.log('\n--- Copy and paste this into Supabase SQL Editor ---\n');
-
-    const migrationSQL = `
 -- Enable required extensions
 CREATE EXTENSION IF NOT EXISTS "uuid-ossp" WITH SCHEMA public;
 CREATE EXTENSION IF NOT EXISTS "pgcrypto" WITH SCHEMA public;
@@ -338,23 +314,3 @@ CREATE POLICY "Users can view their own activity logs"
 CREATE POLICY "Users can insert their own activity logs"
   ON public.activity_logs FOR INSERT
   WITH CHECK (auth.uid() = user_id);
-    `;
-
-    console.log(migrationSQL);
-    console.log('\n--- End of SQL Migration ---\n');
-    console.log('✅ Migration SQL has been generated and displayed above.');
-    console.log('📋 Instructions:');
-    console.log('  1. Go to your Supabase project');
-    console.log('  2. Click on "SQL Editor" in the left sidebar');
-    console.log('  3. Click "New Query"');
-    console.log('  4. Copy and paste the SQL above');
-    console.log('  5. Click "Run" to execute');
-    console.log('\n✨ After running the migration, your database will be ready to use!');
-
-  } catch (error) {
-    console.error('❌ Database initialization failed:', error.message);
-    process.exit(1);
-  }
-}
-
-initializeDatabase();
