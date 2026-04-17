@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { EditableDoc } from '@/components/docs/EditableDoc';
+import { useUserRole } from '@/hooks/useUserRole';
 
 const sections = [
   { id: 'getting-started', label: 'Getting Started', icon: Zap },
