@@ -35,9 +35,12 @@ import { AdvancedAnalytics } from '@/components/analytics/AdvancedAnalytics';
 import { useContacts } from '@/hooks/useContacts';
 import { useTemplates } from '@/hooks/useTemplates';
 import { useCampaigns } from '@/hooks/useCampaigns';
-import { Loader2, LogOut, Book } from 'lucide-react';
+import { Loader2, Book } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Toaster } from '@/components/ui/toaster';
+import { ProfileMenu } from '@/components/topbar/ProfileMenu';
+import { HelpMenu } from '@/components/topbar/HelpMenu';
+import { NotificationsMenu } from '@/components/topbar/NotificationsMenu';
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { user, loading, signOut } = useAuth();
@@ -273,15 +276,14 @@ const Index = () => {
 
       <main className="flex-1 p-8 overflow-auto relative">
         {/* Top bar */}
-        <div className="absolute top-4 right-4 flex items-center gap-2">
+        <div className="absolute top-4 right-4 flex items-center gap-1">
           <Button variant="ghost" size="sm" onClick={() => navigate('/docs')}>
             <Book className="w-4 h-4 mr-2" />
             Docs
           </Button>
-          <Button variant="ghost" size="sm" onClick={signOut}>
-            <LogOut className="w-4 h-4 mr-2" />
-            Sign Out
-          </Button>
+          <ProfileMenu />
+          <HelpMenu />
+          <NotificationsMenu />
         </div>
 
         <div className="max-w-7xl mx-auto pt-8">
