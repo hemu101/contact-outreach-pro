@@ -55,7 +55,23 @@ const sections = [
   { id: 'db-migration', label: 'PostgreSQL Migration', icon: Database },
   { id: 'api-setup', label: 'API Setup', icon: Code },
   { id: 'page-reference', label: 'Page-by-Page Reference', icon: Table2 },
+  { id: 'downloads', label: 'Downloads (SQL + Python)', icon: Database },
   { id: 'troubleshooting', label: 'Troubleshooting', icon: Settings },
+];
+
+// Generated artifact bundle (SQL schema dump + Python scraper toolkit)
+// Files live in /mnt/documents/outreach-toolkit/ — see Downloads section.
+export const TOOLKIT_FILES = [
+  { name: 'outreach-toolkit.zip', desc: 'Complete bundle (SQL + Python)', size: '16 KB' },
+  { name: 'outreach-toolkit/sql/01_full_schema.sql', desc: 'Full PostgreSQL schema — 74 tables, RLS, functions, triggers (85 KB)' },
+  { name: 'outreach-toolkit/sql/00_README.md', desc: 'Connection & migration guide' },
+  { name: 'outreach-toolkit/python/email_finder.py', desc: 'Email pattern prediction + MX verification' },
+  { name: 'outreach-toolkit/python/linkedin_scraper.py', desc: 'Stealth LinkedIn profile scraper' },
+  { name: 'outreach-toolkit/python/company_scraper.py', desc: 'Company website email/phone harvester' },
+  { name: 'outreach-toolkit/python/enrichment_runner.py', desc: 'Bulk contact enrichment job' },
+  { name: 'outreach-toolkit/python/db.py', desc: 'Shared PostgreSQL connection helper' },
+  { name: 'outreach-toolkit/python/requirements.txt', desc: 'Python dependencies' },
+  { name: 'outreach-toolkit/python/README.md', desc: 'Setup + usage instructions' },
 ];
 
 export default function Documentation() {
