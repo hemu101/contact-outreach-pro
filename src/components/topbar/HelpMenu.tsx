@@ -22,8 +22,9 @@ export function HelpMenu() {
   const submit = async () => {
     if (!user || !subject.trim() || !message.trim()) return;
     setSubmitting(true);
-    const { error } = await supabase.from('support_tickets').insert({
+    const { error } = await (supabase as any).from('support_tickets').insert({
       user_id: user.id,
+      contact_email: user.email,
       subject,
       message,
       category: 'general',

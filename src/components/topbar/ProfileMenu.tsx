@@ -74,7 +74,7 @@ export function ProfileMenu() {
       .select('*')
       .eq('owner_id', user.id)
       .order('invited_at', { ascending: false });
-    setTeam((data ?? []) as TeamMember[]);
+    setTeam((data ?? []) as unknown as TeamMember[]);
   };
 
   useEffect(() => {

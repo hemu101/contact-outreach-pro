@@ -26,7 +26,7 @@ export function NotificationsMenu() {
 
   const load = async () => {
     if (!user) return;
-    const { data } = await supabase
+    const { data } = await (supabase as any)
       .from('notifications')
       .select('*')
       .eq('user_id', user.id)
@@ -56,17 +56,17 @@ export function NotificationsMenu() {
 
   const markAllRead = async () => {
     if (!user) return;
-    await supabase.from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false);
+    await (supabase as any).from('notifications').update({ is_read: true }).eq('user_id', user.id).eq('is_read', false);
     load();
   };
 
   const remove = async (id: string) => {
-    await supabase.from('notifications').delete().eq('id', id);
+    await (supabase as any).from('notifications').delete().eq('id', id);
     load();
   };
 
   const markRead = async (id: string) => {
-    await supabase.from('notifications').update({ is_read: true }).eq('id', id);
+    await (supabase as any).from('notifications').update({ is_read: true }).eq('id', id);
     load();
   };
 
