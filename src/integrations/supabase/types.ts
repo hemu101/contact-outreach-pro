@@ -251,6 +251,45 @@ export type Database = {
         }
         Relationships: []
       }
+      brand_industries: {
+        Row: {
+          company_id: string
+          created_at: string
+          id: string
+          industry_id: string
+          is_primary: boolean
+        }
+        Insert: {
+          company_id: string
+          created_at?: string
+          id?: string
+          industry_id: string
+          is_primary?: boolean
+        }
+        Update: {
+          company_id?: string
+          created_at?: string
+          id?: string
+          industry_id?: string
+          is_primary?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "brand_industries_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "brand_industries_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "industries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       business_details: {
         Row: {
           billing_address: string | null
@@ -1323,6 +1362,63 @@ export type Database = {
           },
         ]
       }
+      contact_form_submissions: {
+        Row: {
+          channel: string | null
+          created_at: string
+          email: string | null
+          form_type: string
+          id: string
+          ip_address: string | null
+          message: string | null
+          metadata: Json | null
+          name: string | null
+          page_url: string | null
+          phone: string | null
+          responded_at: string | null
+          status: string | null
+          subject: string | null
+          user_agent: string | null
+          user_id: string | null
+        }
+        Insert: {
+          channel?: string | null
+          created_at?: string
+          email?: string | null
+          form_type?: string
+          id?: string
+          ip_address?: string | null
+          message?: string | null
+          metadata?: Json | null
+          name?: string | null
+          page_url?: string | null
+          phone?: string | null
+          responded_at?: string | null
+          status?: string | null
+          subject?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Update: {
+          channel?: string | null
+          created_at?: string
+          email?: string | null
+          form_type?: string
+          id?: string
+          ip_address?: string | null
+          message?: string | null
+          metadata?: Json | null
+          name?: string | null
+          page_url?: string | null
+          phone?: string | null
+          responded_at?: string | null
+          status?: string | null
+          subject?: string | null
+          user_agent?: string | null
+          user_id?: string | null
+        }
+        Relationships: []
+      }
       contacts: {
         Row: {
           bounce_type: string | null
@@ -1743,6 +1839,45 @@ export type Database = {
           },
         ]
       }
+      creator_industries: {
+        Row: {
+          created_at: string
+          creator_id: string
+          id: string
+          industry_id: string
+          is_primary: boolean
+        }
+        Insert: {
+          created_at?: string
+          creator_id: string
+          id?: string
+          industry_id: string
+          is_primary?: boolean
+        }
+        Update: {
+          created_at?: string
+          creator_id?: string
+          id?: string
+          industry_id?: string
+          is_primary?: boolean
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_industries_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_industries_industry_id_fkey"
+            columns: ["industry_id"]
+            isOneToOne: false
+            referencedRelation: "industries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       creator_social_accounts: {
         Row: {
           created_at: string
@@ -1998,6 +2133,96 @@ export type Database = {
           },
         ]
       }
+      device_fingerprints: {
+        Row: {
+          audio_hash: string | null
+          canvas_hash: string | null
+          color_depth: number | null
+          cookies_enabled: boolean | null
+          device_memory: number | null
+          do_not_track: boolean | null
+          fingerprint_hash: string
+          first_seen_at: string
+          fonts: string[] | null
+          hardware_concurrency: number | null
+          id: string
+          language: string | null
+          languages: string[] | null
+          last_seen_at: string
+          metadata: Json | null
+          pixel_ratio: number | null
+          platform: string | null
+          plugins: string[] | null
+          screen_height: number | null
+          screen_width: number | null
+          timezone: string | null
+          timezone_offset: number | null
+          touch_support: boolean | null
+          user_agent: string | null
+          user_id: string
+          webgl_renderer: string | null
+          webgl_vendor: string | null
+        }
+        Insert: {
+          audio_hash?: string | null
+          canvas_hash?: string | null
+          color_depth?: number | null
+          cookies_enabled?: boolean | null
+          device_memory?: number | null
+          do_not_track?: boolean | null
+          fingerprint_hash: string
+          first_seen_at?: string
+          fonts?: string[] | null
+          hardware_concurrency?: number | null
+          id?: string
+          language?: string | null
+          languages?: string[] | null
+          last_seen_at?: string
+          metadata?: Json | null
+          pixel_ratio?: number | null
+          platform?: string | null
+          plugins?: string[] | null
+          screen_height?: number | null
+          screen_width?: number | null
+          timezone?: string | null
+          timezone_offset?: number | null
+          touch_support?: boolean | null
+          user_agent?: string | null
+          user_id: string
+          webgl_renderer?: string | null
+          webgl_vendor?: string | null
+        }
+        Update: {
+          audio_hash?: string | null
+          canvas_hash?: string | null
+          color_depth?: number | null
+          cookies_enabled?: boolean | null
+          device_memory?: number | null
+          do_not_track?: boolean | null
+          fingerprint_hash?: string
+          first_seen_at?: string
+          fonts?: string[] | null
+          hardware_concurrency?: number | null
+          id?: string
+          language?: string | null
+          languages?: string[] | null
+          last_seen_at?: string
+          metadata?: Json | null
+          pixel_ratio?: number | null
+          platform?: string | null
+          plugins?: string[] | null
+          screen_height?: number | null
+          screen_width?: number | null
+          timezone?: string | null
+          timezone_offset?: number | null
+          touch_support?: boolean | null
+          user_agent?: string | null
+          user_id?: string
+          webgl_renderer?: string | null
+          webgl_vendor?: string | null
+        }
+        Relationships: []
+      }
       dm_campaign_contacts: {
         Row: {
           created_at: string
@@ -2104,6 +2329,36 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      doc_pages: {
+        Row: {
+          content: string
+          created_at: string
+          id: string
+          section_id: string
+          title: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          content?: string
+          created_at?: string
+          id?: string
+          section_id: string
+          title: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          content?: string
+          created_at?: string
+          id?: string
+          section_id?: string
+          title?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
       }
       email_deliverability_tests: {
         Row: {
@@ -2584,6 +2839,45 @@ export type Database = {
           },
         ]
       }
+      industries: {
+        Row: {
+          age_restricted: boolean
+          category: string
+          created_at: string
+          description: string | null
+          display_order: number
+          icon: string | null
+          id: string
+          is_regulated: boolean
+          name: string
+          slug: string
+        }
+        Insert: {
+          age_restricted?: boolean
+          category: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          icon?: string | null
+          id?: string
+          is_regulated?: boolean
+          name: string
+          slug: string
+        }
+        Update: {
+          age_restricted?: boolean
+          category?: string
+          created_at?: string
+          description?: string | null
+          display_order?: number
+          icon?: string | null
+          id?: string
+          is_regulated?: boolean
+          name?: string
+          slug?: string
+        }
+        Relationships: []
+      }
       linkedin_leads: {
         Row: {
           about: string | null
@@ -2754,6 +3048,57 @@ export type Database = {
           },
         ]
       }
+      oauth_provider_data: {
+        Row: {
+          created_at: string
+          display_name: string | null
+          email: string | null
+          id: string
+          permissions: Json | null
+          profile_image_url: string | null
+          provider: string
+          provider_user_id: string | null
+          raw_profile: Json | null
+          refresh_token_present: boolean | null
+          scopes_granted: string[] | null
+          token_expires_at: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          permissions?: Json | null
+          profile_image_url?: string | null
+          provider: string
+          provider_user_id?: string | null
+          raw_profile?: Json | null
+          refresh_token_present?: boolean | null
+          scopes_granted?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          display_name?: string | null
+          email?: string | null
+          id?: string
+          permissions?: Json | null
+          profile_image_url?: string | null
+          provider?: string
+          provider_user_id?: string | null
+          raw_profile?: Json | null
+          refresh_token_present?: boolean | null
+          scopes_granted?: string[] | null
+          token_expires_at?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
       page_analytics: {
         Row: {
           avg_time_on_page: number | null
@@ -2808,29 +3153,64 @@ export type Database = {
       page_views: {
         Row: {
           created_at: string
+          exit_page: boolean | null
           id: string
           metadata: Json | null
           page_name: string
+          page_path: string | null
+          page_title: string | null
+          page_url: string | null
           path: string | null
+          referrer: string | null
+          scroll_depth_percent: number | null
+          session_id: string | null
+          time_on_page_seconds: number | null
           user_id: string
+          viewed_at: string | null
         }
         Insert: {
           created_at?: string
+          exit_page?: boolean | null
           id?: string
           metadata?: Json | null
           page_name: string
+          page_path?: string | null
+          page_title?: string | null
+          page_url?: string | null
           path?: string | null
+          referrer?: string | null
+          scroll_depth_percent?: number | null
+          session_id?: string | null
+          time_on_page_seconds?: number | null
           user_id: string
+          viewed_at?: string | null
         }
         Update: {
           created_at?: string
+          exit_page?: boolean | null
           id?: string
           metadata?: Json | null
           page_name?: string
+          page_path?: string | null
+          page_title?: string | null
+          page_url?: string | null
           path?: string | null
+          referrer?: string | null
+          scroll_depth_percent?: number | null
+          session_id?: string | null
+          time_on_page_seconds?: number | null
           user_id?: string
+          viewed_at?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "page_views_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "user_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       pipeline_stages: {
         Row: {
@@ -3345,6 +3725,83 @@ export type Database = {
         }
         Relationships: []
       }
+      social_data_snapshots: {
+        Row: {
+          audience_demographics: Json | null
+          avg_comments: number | null
+          avg_likes: number | null
+          avg_views: number | null
+          bio: string | null
+          engagement_rate: number | null
+          followers_count: number | null
+          following_count: number | null
+          id: string
+          is_verified: boolean | null
+          platform: string
+          posts_count: number | null
+          profile_image_url: string | null
+          raw_data: Json | null
+          recent_posts: Json | null
+          snapshot_at: string
+          social_account_id: string | null
+          top_hashtags: string[] | null
+          user_id: string
+          username: string | null
+        }
+        Insert: {
+          audience_demographics?: Json | null
+          avg_comments?: number | null
+          avg_likes?: number | null
+          avg_views?: number | null
+          bio?: string | null
+          engagement_rate?: number | null
+          followers_count?: number | null
+          following_count?: number | null
+          id?: string
+          is_verified?: boolean | null
+          platform: string
+          posts_count?: number | null
+          profile_image_url?: string | null
+          raw_data?: Json | null
+          recent_posts?: Json | null
+          snapshot_at?: string
+          social_account_id?: string | null
+          top_hashtags?: string[] | null
+          user_id: string
+          username?: string | null
+        }
+        Update: {
+          audience_demographics?: Json | null
+          avg_comments?: number | null
+          avg_likes?: number | null
+          avg_views?: number | null
+          bio?: string | null
+          engagement_rate?: number | null
+          followers_count?: number | null
+          following_count?: number | null
+          id?: string
+          is_verified?: boolean | null
+          platform?: string
+          posts_count?: number | null
+          profile_image_url?: string | null
+          raw_data?: Json | null
+          recent_posts?: Json | null
+          snapshot_at?: string
+          social_account_id?: string | null
+          top_hashtags?: string[] | null
+          user_id?: string
+          username?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "social_data_snapshots_social_account_id_fkey"
+            columns: ["social_account_id"]
+            isOneToOne: false
+            referencedRelation: "creator_social_accounts"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       social_visitors: {
         Row: {
           contact_id: string | null
@@ -3449,6 +3906,63 @@ export type Database = {
           status?: string
           updated_at?: string
           user_id?: string
+        }
+        Relationships: []
+      }
+      support_tickets: {
+        Row: {
+          assigned_to: string | null
+          category: string | null
+          contact_email: string
+          contact_name: string | null
+          created_at: string
+          id: string
+          message: string
+          metadata: Json | null
+          priority: string | null
+          resolved_at: string | null
+          resolved_by: string | null
+          source: string | null
+          status: string
+          subject: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          assigned_to?: string | null
+          category?: string | null
+          contact_email: string
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          message: string
+          metadata?: Json | null
+          priority?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          source?: string | null
+          status?: string
+          subject: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          assigned_to?: string | null
+          category?: string | null
+          contact_email?: string
+          contact_name?: string | null
+          created_at?: string
+          id?: string
+          message?: string
+          metadata?: Json | null
+          priority?: string | null
+          resolved_at?: string | null
+          resolved_by?: string | null
+          source?: string | null
+          status?: string
+          subject?: string
+          updated_at?: string
+          user_id?: string | null
         }
         Relationships: []
       }
@@ -3757,6 +4271,77 @@ export type Database = {
         }
         Relationships: []
       }
+      user_locations: {
+        Row: {
+          accuracy_meters: number | null
+          altitude: number | null
+          city: string | null
+          country: string | null
+          country_code: string | null
+          id: string
+          ip_address: string | null
+          isp: string | null
+          latitude: number | null
+          longitude: number | null
+          metadata: Json | null
+          postal_code: string | null
+          recorded_at: string
+          region: string | null
+          session_id: string | null
+          source: string
+          timezone: string | null
+          user_id: string
+        }
+        Insert: {
+          accuracy_meters?: number | null
+          altitude?: number | null
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          id?: string
+          ip_address?: string | null
+          isp?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          metadata?: Json | null
+          postal_code?: string | null
+          recorded_at?: string
+          region?: string | null
+          session_id?: string | null
+          source?: string
+          timezone?: string | null
+          user_id: string
+        }
+        Update: {
+          accuracy_meters?: number | null
+          altitude?: number | null
+          city?: string | null
+          country?: string | null
+          country_code?: string | null
+          id?: string
+          ip_address?: string | null
+          isp?: string | null
+          latitude?: number | null
+          longitude?: number | null
+          metadata?: Json | null
+          postal_code?: string | null
+          recorded_at?: string
+          region?: string | null
+          session_id?: string | null
+          source?: string
+          timezone?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "user_locations_session_id_fkey"
+            columns: ["session_id"]
+            isOneToOne: false
+            referencedRelation: "user_sessions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       user_roles: {
         Row: {
           id: string
@@ -3772,6 +4357,93 @@ export type Database = {
           id?: string
           role?: Database["public"]["Enums"]["app_role"]
           user_id?: string
+        }
+        Relationships: []
+      }
+      user_sessions: {
+        Row: {
+          browser: string | null
+          browser_version: string | null
+          city: string | null
+          country: string | null
+          device_type: string | null
+          ended_at: string | null
+          id: string
+          ip_address: string | null
+          is_mobile: boolean | null
+          landing_page: string | null
+          language: string | null
+          last_activity_at: string
+          latitude: number | null
+          longitude: number | null
+          os: string | null
+          os_version: string | null
+          referrer: string | null
+          region: string | null
+          session_token: string | null
+          started_at: string
+          timezone: string | null
+          user_agent: string | null
+          user_id: string
+          utm_campaign: string | null
+          utm_medium: string | null
+          utm_source: string | null
+        }
+        Insert: {
+          browser?: string | null
+          browser_version?: string | null
+          city?: string | null
+          country?: string | null
+          device_type?: string | null
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          is_mobile?: boolean | null
+          landing_page?: string | null
+          language?: string | null
+          last_activity_at?: string
+          latitude?: number | null
+          longitude?: number | null
+          os?: string | null
+          os_version?: string | null
+          referrer?: string | null
+          region?: string | null
+          session_token?: string | null
+          started_at?: string
+          timezone?: string | null
+          user_agent?: string | null
+          user_id: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
+        }
+        Update: {
+          browser?: string | null
+          browser_version?: string | null
+          city?: string | null
+          country?: string | null
+          device_type?: string | null
+          ended_at?: string | null
+          id?: string
+          ip_address?: string | null
+          is_mobile?: boolean | null
+          landing_page?: string | null
+          language?: string | null
+          last_activity_at?: string
+          latitude?: number | null
+          longitude?: number | null
+          os?: string | null
+          os_version?: string | null
+          referrer?: string | null
+          region?: string | null
+          session_token?: string | null
+          started_at?: string
+          timezone?: string | null
+          user_agent?: string | null
+          user_id?: string
+          utm_campaign?: string | null
+          utm_medium?: string | null
+          utm_source?: string | null
         }
         Relationships: []
       }
@@ -3963,6 +4635,54 @@ export type Database = {
         }
         Relationships: []
       }
+      webinar_registrations: {
+        Row: {
+          attended: boolean | null
+          company: string | null
+          created_at: string
+          email: string
+          full_name: string | null
+          id: string
+          metadata: Json | null
+          phone: string | null
+          reminded_at: string | null
+          user_id: string | null
+          webinar_date: string | null
+          webinar_id: string
+          webinar_title: string
+        }
+        Insert: {
+          attended?: boolean | null
+          company?: string | null
+          created_at?: string
+          email: string
+          full_name?: string | null
+          id?: string
+          metadata?: Json | null
+          phone?: string | null
+          reminded_at?: string | null
+          user_id?: string | null
+          webinar_date?: string | null
+          webinar_id: string
+          webinar_title: string
+        }
+        Update: {
+          attended?: boolean | null
+          company?: string | null
+          created_at?: string
+          email?: string
+          full_name?: string | null
+          id?: string
+          metadata?: Json | null
+          phone?: string | null
+          reminded_at?: string | null
+          user_id?: string | null
+          webinar_date?: string | null
+          webinar_id?: string
+          webinar_title?: string
+        }
+        Relationships: []
+      }
       workflows: {
         Row: {
           actions: Json | null
@@ -4140,9 +4860,15 @@ export type Database = {
         }
         Returns: boolean
       }
+      show_limit: { Args: never; Returns: number }
+      show_trgm: { Args: { "": string }; Returns: string[] }
       toggle_favorite: {
         Args: { p_tool_id: string; p_user_id: string }
         Returns: boolean
+      }
+      touch_session_activity: {
+        Args: { p_session_id: string }
+        Returns: undefined
       }
     }
     Enums: {
