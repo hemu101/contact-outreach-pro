@@ -10,6 +10,8 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
+import { EditableDoc } from '@/components/docs/EditableDoc';
+import { useUserRole } from '@/hooks/useUserRole';
 
 const sections = [
   { id: 'getting-started', label: 'Getting Started', icon: Zap },
@@ -74,9 +76,60 @@ export const TOOLKIT_FILES = [
   { name: 'outreach-toolkit/python/README.md', desc: 'Setup + usage instructions' },
 ];
 
+const SECTION_COMPONENTS: Record<string, React.ComponentType> = {
+  'getting-started': GettingStarted,
+  'contacts': ContactsDocs,
+  'inline-editing': InlineEditingDocs,
+  'templates': TemplatesDocs,
+  'campaigns': CampaignsDocs,
+  'unified-inbox': UnifiedInboxDocs,
+  'social-dm': SocialDMDocs,
+  'analytics': AnalyticsDocs,
+  'advanced-analytics': AdvancedAnalyticsDocs,
+  'companies': CompaniesContactsDocs,
+  'lead-scoring': LeadScoringDocs,
+  'automation-rules': AutomationRulesDocs,
+  'contact-tracking': ContactTrackingDocs,
+  'website-tracking': WebsiteTrackingDocs,
+  'live-chat': LiveChatDocs,
+  'enrichment': EnrichmentDocs,
+  'audit-trail': AuditTrailDocs,
+  'report-builder': ReportBuilderDocs,
+  'revenue-forecast': RevenueForecastDocs,
+  'email-tools': EmailToolsDocs,
+  'people-search': PeopleSearchDocs,
+  'intent-signals': IntentSignalsDocs,
+  'inbox-rotation': InboxRotationDocs,
+  'email-warmup': EmailWarmupDocs,
+  'team-performance': TeamPerformanceDocs,
+  'revenue-attribution': RevenueAttributionDocs,
+  'sequence-testing': SequenceTestingDocs,
+  'multi-channel': MultiChannelDocs,
+  'ai-personalization': AIPersonalizationDocs,
+  'waterfall-finder': WaterfallFinderDocs,
+  'connection-info': ConnectionInfoDocs,
+  'db-schema': DatabaseSchemaDocs,
+  'db-indexes': IndexesViewsDocs,
+  'db-functions': DatabaseFunctionsDocs,
+  'db-triggers': TriggersEnumsDocs,
+  'edge-functions': EdgeFunctionsDocs,
+  'rls-policies': RLSPoliciesDocs,
+  'backup-scripts': BackupScriptsDocs,
+  'n8n-automation': N8nDocs,
+  'database-logging': DatabaseLoggingDocs,
+  'db-migration': DatabaseMigrationDocs,
+  'api-setup': ApiSetupDocs,
+  'page-reference': PageReferenceDocs,
+  'troubleshooting': TroubleshootingDocs,
+};
+
 export default function Documentation() {
   const [activeSection, setActiveSection] = useState('getting-started');
   const navigate = useNavigate();
+  const { isAdmin, loading: roleLoading } = useUserRole();
+
+  const ActiveComponent = SECTION_COMPONENTS[activeSection] ?? GettingStarted;
+  const activeMeta = sections.find((s) => s.id === activeSection);
 
   return (
     <div className="min-h-screen bg-background">
@@ -92,6 +145,9 @@ export default function Documentation() {
           <div className="flex items-center gap-2 mb-6 px-2">
             <Book className="w-6 h-6 text-primary" />
             <h1 className="text-xl font-bold text-foreground">Documentation</h1>
+            {!roleLoading && isAdmin && (
+              <Badge variant="secondary" className="ml-auto text-[10px]">ADMIN</Badge>
+            )}
           </div>
           <nav className="space-y-1">
             {sections.map((section) => {
@@ -117,50 +173,13 @@ export default function Documentation() {
 
         {/* Content */}
         <main className="flex-1 p-8 max-w-5xl">
-          {activeSection === 'getting-started' && <GettingStarted />}
-          {activeSection === 'contacts' && <ContactsDocs />}
-          {activeSection === 'inline-editing' && <InlineEditingDocs />}
-          {activeSection === 'templates' && <TemplatesDocs />}
-          {activeSection === 'campaigns' && <CampaignsDocs />}
-          {activeSection === 'unified-inbox' && <UnifiedInboxDocs />}
-          {activeSection === 'social-dm' && <SocialDMDocs />}
-          {activeSection === 'analytics' && <AnalyticsDocs />}
-          {activeSection === 'advanced-analytics' && <AdvancedAnalyticsDocs />}
-          {activeSection === 'companies' && <CompaniesContactsDocs />}
-          {activeSection === 'lead-scoring' && <LeadScoringDocs />}
-          {activeSection === 'automation-rules' && <AutomationRulesDocs />}
-          {activeSection === 'contact-tracking' && <ContactTrackingDocs />}
-          {activeSection === 'website-tracking' && <WebsiteTrackingDocs />}
-          {activeSection === 'live-chat' && <LiveChatDocs />}
-          {activeSection === 'enrichment' && <EnrichmentDocs />}
-          {activeSection === 'audit-trail' && <AuditTrailDocs />}
-          {activeSection === 'report-builder' && <ReportBuilderDocs />}
-          {activeSection === 'revenue-forecast' && <RevenueForecastDocs />}
-          {activeSection === 'email-tools' && <EmailToolsDocs />}
-          {activeSection === 'people-search' && <PeopleSearchDocs />}
-          {activeSection === 'intent-signals' && <IntentSignalsDocs />}
-          {activeSection === 'inbox-rotation' && <InboxRotationDocs />}
-          {activeSection === 'email-warmup' && <EmailWarmupDocs />}
-          {activeSection === 'team-performance' && <TeamPerformanceDocs />}
-          {activeSection === 'revenue-attribution' && <RevenueAttributionDocs />}
-          {activeSection === 'sequence-testing' && <SequenceTestingDocs />}
-          {activeSection === 'multi-channel' && <MultiChannelDocs />}
-          {activeSection === 'ai-personalization' && <AIPersonalizationDocs />}
-          {activeSection === 'waterfall-finder' && <WaterfallFinderDocs />}
-          {activeSection === 'connection-info' && <ConnectionInfoDocs />}
-          {activeSection === 'db-schema' && <DatabaseSchemaDocs />}
-          {activeSection === 'db-indexes' && <IndexesViewsDocs />}
-          {activeSection === 'db-functions' && <DatabaseFunctionsDocs />}
-          {activeSection === 'db-triggers' && <TriggersEnumsDocs />}
-          {activeSection === 'edge-functions' && <EdgeFunctionsDocs />}
-          {activeSection === 'rls-policies' && <RLSPoliciesDocs />}
-          {activeSection === 'backup-scripts' && <BackupScriptsDocs />}
-          {activeSection === 'n8n-automation' && <N8nDocs />}
-          {activeSection === 'database-logging' && <DatabaseLoggingDocs />}
-          {activeSection === 'db-migration' && <DatabaseMigrationDocs />}
-          {activeSection === 'api-setup' && <ApiSetupDocs />}
-          {activeSection === 'page-reference' && <PageReferenceDocs />}
-          {activeSection === 'troubleshooting' && <TroubleshootingDocs />}
+          <EditableDoc
+            key={activeSection}
+            sectionId={activeSection}
+            title={activeMeta?.label ?? activeSection}
+          >
+            <ActiveComponent />
+          </EditableDoc>
         </main>
       </div>
     </div>
