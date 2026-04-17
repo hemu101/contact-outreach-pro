@@ -43,7 +43,7 @@ import { HelpMenu } from '@/components/topbar/HelpMenu';
 import { NotificationsMenu } from '@/components/topbar/NotificationsMenu';
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
-  const { user, loading, signOut } = useAuth();
+  const { user, loading } = useAuth();
   const navigate = useNavigate();
   
   const { contacts, createManyContacts, deleteContact, updateContact } = useContacts();
