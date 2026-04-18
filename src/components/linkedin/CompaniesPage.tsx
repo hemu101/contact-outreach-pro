@@ -189,6 +189,10 @@ export function CompaniesPage() {
             <input type="file" ref={fileInputRef} accept=".csv" className="hidden" onChange={handleCSVImport} />
             <Button variant="outline" onClick={() => fileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" />Import CSV</Button>
             <Button variant="outline" onClick={handleCSVExport} disabled={companies.length === 0}><Download className="w-4 h-4 mr-2" />Export CSV</Button>
+            <Button variant="outline" onClick={verifyAll} disabled={bulkVerifying}>
+              {bulkVerifying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
+              Verify All Websites
+            </Button>
             <Button onClick={() => { resetForm(); setEditCompany(null); setShowForm(true); }}><Plus className="w-4 h-4 mr-2" />Add Company</Button>
           </div>
 
@@ -242,6 +246,10 @@ export function CompaniesPage() {
                         </TableCell>
                         <TableCell onClick={e => e.stopPropagation()}>
                           <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" title="Verify website" onClick={() => verifyOne(company)} disabled={verifyingId === company.id}>
+                              {verifyingId === company.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className={`w-4 h-4 ${(company as any).website_verified ? 'text-success' : ''}`} />}
+                            </Button>
+                            <Button variant="ghost" size="icon" title="Find employees" onClick={() => setFinderCompany(company)}><Sparkles className="w-4 h-4 text-primary" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => openEdit(company)}><Edit className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => deleteCompany.mutate(company.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                           </div>
@@ -267,6 +275,13 @@ export function CompaniesPage() {
         setForm={setForm}
         onSave={handleSave}
         isEdit={!!editCompany}
+      />
+      <EmployeeFinderDialog
+        open={!!finderCompany}
+        onClose={() => setFinderCompany(null)}
+        initialWebsite={finderCompany?.website || ''}
+        companyName={finderCompany?.name || ''}
+        companyId={finderCompany?.id}
       />
     </div>
   );
