@@ -7,6 +7,7 @@ import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import { Mail, Lock, User, Loader2, Zap } from 'lucide-react';
 import { z } from 'zod';
+import { OtpVerifyDialog } from '@/components/auth/OtpVerifyDialog';
 
 const emailSchema = z.string().email('Please enter a valid email address');
 const passwordSchema = z.string().min(6, 'Password must be at least 6 characters');
@@ -18,6 +19,7 @@ export default function Auth() {
   const [fullName, setFullName] = useState('');
   const [loading, setLoading] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [showOtp, setShowOtp] = useState(false);
   const navigate = useNavigate();
   const { toast } = useToast();
 
@@ -118,11 +120,10 @@ export default function Auth() {
             });
           }
         } else {
-          toast({
-            title: 'Account Created!',
-            description: 'Please check your email to verify your account, or log in directly if email confirmation is disabled.',
-          });
-          setIsLogin(true);
+          // Send custom OTP via our own email
+          await supabase.functions.invoke('send-otp-code', { body: { email, purpose: 'signup' } });
+          toast({ title: 'Account created!', description: 'Enter the 6-digit code sent to your email.' });
+          setShowOtp(true);
         }
       }
     } catch (error: any) {
@@ -260,6 +261,14 @@ export default function Auth() {
           Advanced AI-powered outreach automation platform
         </p>
       </div>
+
+      <OtpVerifyDialog
+        open={showOtp}
+        email={email}
+        purpose="signup"
+        onClose={() => setShowOtp(false)}
+        onVerified={() => { setShowOtp(false); setIsLogin(true); }}
+      />
     </div>
   );
 }
