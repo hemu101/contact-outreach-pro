@@ -14,24 +14,24 @@ import { Zap, AlertTriangle, Loader2, Target, Users, Merge, TrendingUp, BarChart
 
 // Three-bucket rubric matching new calculate_lead_score
 const QUALITY_KEYS = [
-  { key: 'email', label: 'Email', max: 15 },
-  { key: 'phone', label: 'Phone', max: 10 },
-  { key: 'linkedin', label: 'LinkedIn', max: 10 },
-  { key: 'seniority', label: 'Seniority', max: 25 },
-  { key: 'title', label: 'Title', max: 5 },
-  { key: 'mql', label: 'MQL', max: 5 },
-  { key: 'sql', label: 'SQL', max: 5 },
+  { key: 'email', label: 'Email', max: 15, color: 'hsl(var(--primary))' },
+  { key: 'phone', label: 'Phone', max: 10, color: 'hsl(200 70% 50%)' },
+  { key: 'linkedin', label: 'LinkedIn', max: 10, color: 'hsl(210 80% 55%)' },
+  { key: 'seniority', label: 'Seniority', max: 25, color: 'hsl(280 60% 55%)' },
+  { key: 'title', label: 'Title', max: 5, color: 'hsl(30 80% 55%)' },
+  { key: 'mql', label: 'MQL', max: 5, color: 'hsl(45 90% 50%)' },
+  { key: 'sql', label: 'SQL', max: 5, color: 'hsl(140 60% 45%)' },
 ];
 const BEHAVIOR_KEYS = [
-  { key: 'hiring_ugc', label: 'Hiring UGC', max: 10 },
-  { key: 'running_ads', label: 'Running ads', max: 10 },
-  { key: 'campaign_launch', label: 'Campaign launch', max: 10 },
+  { key: 'hiring_ugc', label: 'Hiring UGC / social role', max: 10, color: 'hsl(340 70% 55%)' },
+  { key: 'running_ads', label: 'Running ads', max: 10, color: 'hsl(20 80% 55%)' },
+  { key: 'campaign_launch', label: 'Campaign launch', max: 10, color: 'hsl(260 70% 60%)' },
 ];
 const FIT_KEYS = [
-  { key: 'industry', label: 'Industry (Beauty/CPG/Apparel/Wellness)', max: 10 },
-  { key: 'size', label: 'Company size 20–500', max: 10 },
-  { key: 'ecom_dtc', label: 'Ecom / DTC / Agency', max: 5 },
-  { key: 'marketing_team', label: 'Marketing team exists', max: 5 },
+  { key: 'industry', label: 'Industry (Beauty/CPG/Apparel/Wellness)', max: 10, color: 'hsl(160 65% 45%)' },
+  { key: 'size', label: 'Company size 20–500', max: 10, color: 'hsl(190 70% 50%)' },
+  { key: 'ecom_dtc', label: 'Ecom / DTC / Agency', max: 5, color: 'hsl(220 70% 55%)' },
+  { key: 'marketing_team', label: 'Marketing team exists', max: 5, color: 'hsl(45 80% 55%)' },
 ];
 
 const SCORE_CATEGORIES = QUALITY_KEYS;
