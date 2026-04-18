@@ -12,15 +12,29 @@ import { useLeadScoring } from '@/hooks/useLeadScoring';
 import { useCompanyContacts, CompanyContact } from '@/hooks/useCompanyContacts';
 import { Zap, AlertTriangle, Loader2, Target, Users, Merge, TrendingUp, BarChart3, Info, ExternalLink } from 'lucide-react';
 
-const SCORE_CATEGORIES = [
-  { key: 'email', label: 'Email', max: 15, color: 'hsl(var(--primary))' },
-  { key: 'phone', label: 'Phone', max: 10, color: 'hsl(200 70% 50%)' },
-  { key: 'linkedin', label: 'LinkedIn', max: 10, color: 'hsl(210 80% 55%)' },
-  { key: 'seniority', label: 'Seniority', max: 25, color: 'hsl(280 60% 55%)' },
-  { key: 'mql', label: 'MQL', max: 15, color: 'hsl(45 90% 50%)' },
-  { key: 'sql_status', label: 'SQL', max: 20, color: 'hsl(140 60% 45%)' },
-  { key: 'title', label: 'Title', max: 5, color: 'hsl(30 80% 55%)' },
+// Three-bucket rubric matching new calculate_lead_score
+const QUALITY_KEYS = [
+  { key: 'email', label: 'Email', max: 15 },
+  { key: 'phone', label: 'Phone', max: 10 },
+  { key: 'linkedin', label: 'LinkedIn', max: 10 },
+  { key: 'seniority', label: 'Seniority', max: 25 },
+  { key: 'title', label: 'Title', max: 5 },
+  { key: 'mql', label: 'MQL', max: 5 },
+  { key: 'sql', label: 'SQL', max: 5 },
 ];
+const BEHAVIOR_KEYS = [
+  { key: 'hiring_ugc', label: 'Hiring UGC', max: 10 },
+  { key: 'running_ads', label: 'Running ads', max: 10 },
+  { key: 'campaign_launch', label: 'Campaign launch', max: 10 },
+];
+const FIT_KEYS = [
+  { key: 'industry', label: 'Industry (Beauty/CPG/Apparel/Wellness)', max: 10 },
+  { key: 'size', label: 'Company size 20–500', max: 10 },
+  { key: 'ecom_dtc', label: 'Ecom / DTC / Agency', max: 5 },
+  { key: 'marketing_team', label: 'Marketing team exists', max: 5 },
+];
+
+const SCORE_CATEGORIES = QUALITY_KEYS;
 
 export function LeadScoringPanel() {
   const { contacts, isLoading, deleteContact } = useCompanyContacts();
