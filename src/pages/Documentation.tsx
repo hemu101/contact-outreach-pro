@@ -131,6 +131,27 @@ export default function Documentation() {
   const ActiveComponent = SECTION_COMPONENTS[activeSection] ?? GettingStarted;
   const activeMeta = sections.find((s) => s.id === activeSection);
 
+  if (roleLoading) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <p className="text-muted-foreground">Loading…</p>
+      </div>
+    );
+  }
+
+  if (!isAdmin) {
+    return (
+      <div className="min-h-screen bg-background flex flex-col items-center justify-center gap-4">
+        <Shield className="w-12 h-12 text-muted-foreground" />
+        <h1 className="text-2xl font-bold text-foreground">Admins only</h1>
+        <p className="text-muted-foreground">Documentation is restricted to administrators.</p>
+        <Button onClick={() => navigate('/')}>
+          <ArrowLeft className="w-4 h-4 mr-2" /> Back to app
+        </Button>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background">
       <div className="flex">

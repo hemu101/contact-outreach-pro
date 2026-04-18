@@ -41,9 +41,11 @@ import { Toaster } from '@/components/ui/toaster';
 import { ProfileMenu } from '@/components/topbar/ProfileMenu';
 import { HelpMenu } from '@/components/topbar/HelpMenu';
 import { NotificationsMenu } from '@/components/topbar/NotificationsMenu';
+import { useUserRole } from '@/hooks/useUserRole';
 const Index = () => {
   const [activeTab, setActiveTab] = useState('dashboard');
   const { user, loading } = useAuth();
+  const { isAdmin } = useUserRole();
   const navigate = useNavigate();
   
   const { contacts, createManyContacts, deleteContact, updateContact } = useContacts();
@@ -277,10 +279,12 @@ const Index = () => {
       <main className="flex-1 p-8 overflow-auto relative">
         {/* Top bar */}
         <div className="absolute top-4 right-4 flex items-center gap-1">
-          <Button variant="ghost" size="sm" onClick={() => navigate('/docs')}>
-            <Book className="w-4 h-4 mr-2" />
-            Docs
-          </Button>
+          {isAdmin && (
+            <Button variant="ghost" size="sm" onClick={() => navigate('/docs')}>
+              <Book className="w-4 h-4 mr-2" />
+              Docs
+            </Button>
+          )}
           <ProfileMenu />
           <HelpMenu />
           <NotificationsMenu />

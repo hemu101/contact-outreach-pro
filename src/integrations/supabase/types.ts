@@ -971,11 +971,14 @@ export type Database = {
           instagram_url: string | null
           integrated_video_urls: string | null
           integrated_videos: string | null
+          is_hiring_ugc: boolean | null
+          is_running_ads: boolean | null
           keywords: string | null
           latest_funding: string | null
           latest_funding_amount: string | null
           linkedin_url: string | null
           logo_url: string | null
+          marketing_team_exists: boolean | null
           mentions: string | null
           metadata: Json | null
           name: string
@@ -983,6 +986,7 @@ export type Database = {
           phone: string | null
           phone_from_website: string | null
           pinterest_url: string | null
+          recent_campaign_launch: boolean | null
           segmentation: string | null
           short_description: string | null
           size: string | null
@@ -999,6 +1003,9 @@ export type Database = {
           user_id: string
           website: string | null
           website_status: string | null
+          website_verification_data: Json | null
+          website_verified: boolean | null
+          website_verified_at: string | null
           worked_with_creators: string | null
         }
         Insert: {
@@ -1034,11 +1041,14 @@ export type Database = {
           instagram_url?: string | null
           integrated_video_urls?: string | null
           integrated_videos?: string | null
+          is_hiring_ugc?: boolean | null
+          is_running_ads?: boolean | null
           keywords?: string | null
           latest_funding?: string | null
           latest_funding_amount?: string | null
           linkedin_url?: string | null
           logo_url?: string | null
+          marketing_team_exists?: boolean | null
           mentions?: string | null
           metadata?: Json | null
           name: string
@@ -1046,6 +1056,7 @@ export type Database = {
           phone?: string | null
           phone_from_website?: string | null
           pinterest_url?: string | null
+          recent_campaign_launch?: boolean | null
           segmentation?: string | null
           short_description?: string | null
           size?: string | null
@@ -1062,6 +1073,9 @@ export type Database = {
           user_id: string
           website?: string | null
           website_status?: string | null
+          website_verification_data?: Json | null
+          website_verified?: boolean | null
+          website_verified_at?: string | null
           worked_with_creators?: string | null
         }
         Update: {
@@ -1097,11 +1111,14 @@ export type Database = {
           instagram_url?: string | null
           integrated_video_urls?: string | null
           integrated_videos?: string | null
+          is_hiring_ugc?: boolean | null
+          is_running_ads?: boolean | null
           keywords?: string | null
           latest_funding?: string | null
           latest_funding_amount?: string | null
           linkedin_url?: string | null
           logo_url?: string | null
+          marketing_team_exists?: boolean | null
           mentions?: string | null
           metadata?: Json | null
           name?: string
@@ -1109,6 +1126,7 @@ export type Database = {
           phone?: string | null
           phone_from_website?: string | null
           pinterest_url?: string | null
+          recent_campaign_launch?: boolean | null
           segmentation?: string | null
           short_description?: string | null
           size?: string | null
@@ -1125,6 +1143,9 @@ export type Database = {
           user_id?: string
           website?: string | null
           website_status?: string | null
+          website_verification_data?: Json | null
+          website_verified?: boolean | null
+          website_verified_at?: string | null
           worked_with_creators?: string | null
         }
         Relationships: []
@@ -1134,6 +1155,7 @@ export type Database = {
           buyer_intent_score: number | null
           city: string | null
           company_id: string | null
+          company_size_band: string | null
           corporate_phone: string | null
           country: string | null
           created_at: string
@@ -1150,8 +1172,12 @@ export type Database = {
           home_phone: string | null
           id: string
           ig_score: string | null
+          industry_category: string | null
           instagram_url: string | null
           is_duplicate: boolean | null
+          is_ecom_dtc_agency: boolean | null
+          is_hiring_ugc: boolean | null
+          is_running_ads: boolean | null
           job_basedon: string | null
           job_location: string | null
           job_tracking_link: string | null
@@ -1161,6 +1187,7 @@ export type Database = {
           lead_score_breakdown: Json | null
           linkedin_job_link: string | null
           linkedin_job_title: string | null
+          marketing_team_exists: boolean | null
           mobile_phone: string | null
           mql: string | null
           notes_for_data: string | null
@@ -1168,6 +1195,7 @@ export type Database = {
           other_phone: string | null
           person_linkedin_url: string | null
           pipeline_stage: string | null
+          recent_campaign_launch: boolean | null
           salary_estimated: string | null
           secondary_email: string | null
           seniority: string | null
@@ -1187,6 +1215,7 @@ export type Database = {
           buyer_intent_score?: number | null
           city?: string | null
           company_id?: string | null
+          company_size_band?: string | null
           corporate_phone?: string | null
           country?: string | null
           created_at?: string
@@ -1203,8 +1232,12 @@ export type Database = {
           home_phone?: string | null
           id?: string
           ig_score?: string | null
+          industry_category?: string | null
           instagram_url?: string | null
           is_duplicate?: boolean | null
+          is_ecom_dtc_agency?: boolean | null
+          is_hiring_ugc?: boolean | null
+          is_running_ads?: boolean | null
           job_basedon?: string | null
           job_location?: string | null
           job_tracking_link?: string | null
@@ -1214,6 +1247,7 @@ export type Database = {
           lead_score_breakdown?: Json | null
           linkedin_job_link?: string | null
           linkedin_job_title?: string | null
+          marketing_team_exists?: boolean | null
           mobile_phone?: string | null
           mql?: string | null
           notes_for_data?: string | null
@@ -1221,6 +1255,7 @@ export type Database = {
           other_phone?: string | null
           person_linkedin_url?: string | null
           pipeline_stage?: string | null
+          recent_campaign_launch?: boolean | null
           salary_estimated?: string | null
           secondary_email?: string | null
           seniority?: string | null
@@ -1240,6 +1275,7 @@ export type Database = {
           buyer_intent_score?: number | null
           city?: string | null
           company_id?: string | null
+          company_size_band?: string | null
           corporate_phone?: string | null
           country?: string | null
           created_at?: string
@@ -1256,8 +1292,12 @@ export type Database = {
           home_phone?: string | null
           id?: string
           ig_score?: string | null
+          industry_category?: string | null
           instagram_url?: string | null
           is_duplicate?: boolean | null
+          is_ecom_dtc_agency?: boolean | null
+          is_hiring_ugc?: boolean | null
+          is_running_ads?: boolean | null
           job_basedon?: string | null
           job_location?: string | null
           job_tracking_link?: string | null
@@ -1267,6 +1307,7 @@ export type Database = {
           lead_score_breakdown?: Json | null
           linkedin_job_link?: string | null
           linkedin_job_title?: string | null
+          marketing_team_exists?: boolean | null
           mobile_phone?: string | null
           mql?: string | null
           notes_for_data?: string | null
@@ -1274,6 +1315,7 @@ export type Database = {
           other_phone?: string | null
           person_linkedin_url?: string | null
           pipeline_stage?: string | null
+          recent_campaign_launch?: boolean | null
           salary_estimated?: string | null
           secondary_email?: string | null
           seniority?: string | null
@@ -3212,6 +3254,33 @@ export type Database = {
           },
         ]
       }
+      people_search_logs: {
+        Row: {
+          created_at: string
+          id: string
+          query: Json
+          result_count: number | null
+          source: string | null
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          query: Json
+          result_count?: number | null
+          source?: string | null
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          query?: Json
+          result_count?: number | null
+          source?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       pipeline_stages: {
         Row: {
           color: string | null
@@ -4682,6 +4751,50 @@ export type Database = {
           webinar_title?: string
         }
         Relationships: []
+      }
+      website_verification_logs: {
+        Row: {
+          company_id: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          method: string | null
+          response_data: Json | null
+          status: string
+          user_id: string
+          website: string
+        }
+        Insert: {
+          company_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          method?: string | null
+          response_data?: Json | null
+          status: string
+          user_id: string
+          website: string
+        }
+        Update: {
+          company_id?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          method?: string | null
+          response_data?: Json | null
+          status?: string
+          user_id?: string
+          website?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "website_verification_logs_company_id_fkey"
+            columns: ["company_id"]
+            isOneToOne: false
+            referencedRelation: "companies"
+            referencedColumns: ["id"]
+          },
+        ]
       }
       workflows: {
         Row: {
