@@ -2577,6 +2577,48 @@ export type Database = {
           },
         ]
       }
+      email_otp_codes: {
+        Row: {
+          attempts: number
+          code_hash: string
+          consumed_at: string | null
+          created_at: string
+          email: string
+          expires_at: string
+          id: string
+          ip_address: string | null
+          max_attempts: number
+          purpose: string
+          user_agent: string | null
+        }
+        Insert: {
+          attempts?: number
+          code_hash: string
+          consumed_at?: string | null
+          created_at?: string
+          email: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          max_attempts?: number
+          purpose?: string
+          user_agent?: string | null
+        }
+        Update: {
+          attempts?: number
+          code_hash?: string
+          consumed_at?: string | null
+          created_at?: string
+          email?: string
+          expires_at?: string
+          id?: string
+          ip_address?: string | null
+          max_attempts?: number
+          purpose?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       email_settings: {
         Row: {
           brevo_api_key: string | null
@@ -3253,6 +3295,48 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      people_discovery_jobs: {
+        Row: {
+          company_id: string | null
+          completed_at: string | null
+          created_at: string
+          error_message: string | null
+          id: string
+          input_url: string
+          result_count: number | null
+          results: Json | null
+          sources_used: string[] | null
+          status: string
+          user_id: string
+        }
+        Insert: {
+          company_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_url: string
+          result_count?: number | null
+          results?: Json | null
+          sources_used?: string[] | null
+          status?: string
+          user_id: string
+        }
+        Update: {
+          company_id?: string | null
+          completed_at?: string | null
+          created_at?: string
+          error_message?: string | null
+          id?: string
+          input_url?: string
+          result_count?: number | null
+          results?: Json | null
+          sources_used?: string[] | null
+          status?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       people_search_logs: {
         Row: {
@@ -4939,6 +5023,7 @@ export type Database = {
         Returns: number
       }
       calculate_lead_score: { Args: { p_contact_id: string }; Returns: number }
+      cleanup_expired_otps: { Args: never; Returns: undefined }
       deduct_credits: {
         Args: {
           p_amount: number

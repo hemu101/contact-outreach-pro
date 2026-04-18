@@ -6,10 +6,12 @@ import { Badge } from '@/components/ui/badge';
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from '@/components/ui/table';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useCompanies } from '@/hooks/useCompanies';
-import { Search, Plus, Building2, Trash2, Edit, Loader2, ExternalLink, Globe, Upload, Download, Users } from 'lucide-react';
+import { Search, Plus, Building2, Trash2, Edit, Loader2, ExternalLink, Globe, Upload, Download, Users, ShieldCheck, Sparkles } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { CompanyFormDialog } from './CompanyFormDialog';
 import { CompanyContactsTab } from './CompanyContactsTab';
+import { EmployeeFinderDialog } from './EmployeeFinderDialog';
+import { supabase } from '@/integrations/supabase/client';
 
 const ALL_COMPANY_FIELDS = [
   'name', 'company_name_for_emails', 'website', 'linkedin_url', 'company_linkedin_url',
@@ -33,7 +35,39 @@ export function CompaniesPage() {
   const [editCompany, setEditCompany] = useState<any>(null);
   const [form, setForm] = useState<Record<string, string>>({});
   const [selectedCompanyId, setSelectedCompanyId] = useState<string | undefined>();
+  const [verifyingId, setVerifyingId] = useState<string | null>(null);
+  const [bulkVerifying, setBulkVerifying] = useState(false);
+  const [finderCompany, setFinderCompany] = useState<any>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+
+  const verifyOne = async (company: any) => {
+    if (!company.website) { toast({ title: 'No website', description: 'Add a website first', variant: 'destructive' }); return; }
+    setVerifyingId(company.id);
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-website', { body: { website: company.website, company_id: company.id } });
+      if (error) throw error;
+      toast({ title: data?.result?.status === 'Proper' ? '✓ Verified' : 'Not proper', description: data?.result?.title || data?.result?.status });
+    } catch (e: any) {
+      toast({ title: 'Verify failed', description: e.message, variant: 'destructive' });
+    } finally {
+      setVerifyingId(null);
+    }
+  };
+
+  const verifyAll = async () => {
+    const targets = companies.filter(c => c.website && !c.website_verified);
+    if (!targets.length) { toast({ title: 'Nothing to verify' }); return; }
+    setBulkVerifying(true);
+    let ok = 0;
+    for (const c of targets.slice(0, 20)) {
+      try {
+        const { data } = await supabase.functions.invoke('verify-website', { body: { website: c.website, company_id: c.id } });
+        if (data?.success) ok++;
+      } catch {}
+    }
+    setBulkVerifying(false);
+    toast({ title: `Verified ${ok}/${targets.length}` });
+  };
 
   const filtered = companies.filter(c =>
     c.name?.toLowerCase().includes(search.toLowerCase()) ||
@@ -155,6 +189,10 @@ export function CompaniesPage() {
             <input type="file" ref={fileInputRef} accept=".csv" className="hidden" onChange={handleCSVImport} />
             <Button variant="outline" onClick={() => fileInputRef.current?.click()}><Upload className="w-4 h-4 mr-2" />Import CSV</Button>
             <Button variant="outline" onClick={handleCSVExport} disabled={companies.length === 0}><Download className="w-4 h-4 mr-2" />Export CSV</Button>
+            <Button variant="outline" onClick={verifyAll} disabled={bulkVerifying}>
+              {bulkVerifying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <ShieldCheck className="w-4 h-4 mr-2" />}
+              Verify All Websites
+            </Button>
             <Button onClick={() => { resetForm(); setEditCompany(null); setShowForm(true); }}><Plus className="w-4 h-4 mr-2" />Add Company</Button>
           </div>
 
@@ -208,6 +246,10 @@ export function CompaniesPage() {
                         </TableCell>
                         <TableCell onClick={e => e.stopPropagation()}>
                           <div className="flex gap-1">
+                            <Button variant="ghost" size="icon" title="Verify website" onClick={() => verifyOne(company)} disabled={verifyingId === company.id}>
+                              {verifyingId === company.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <ShieldCheck className={`w-4 h-4 ${(company as any).website_verified ? 'text-success' : ''}`} />}
+                            </Button>
+                            <Button variant="ghost" size="icon" title="Find employees" onClick={() => setFinderCompany(company)}><Sparkles className="w-4 h-4 text-primary" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => openEdit(company)}><Edit className="w-4 h-4" /></Button>
                             <Button variant="ghost" size="icon" onClick={() => deleteCompany.mutate(company.id)}><Trash2 className="w-4 h-4 text-destructive" /></Button>
                           </div>
@@ -233,6 +275,13 @@ export function CompaniesPage() {
         setForm={setForm}
         onSave={handleSave}
         isEdit={!!editCompany}
+      />
+      <EmployeeFinderDialog
+        open={!!finderCompany}
+        onClose={() => setFinderCompany(null)}
+        initialWebsite={finderCompany?.website || ''}
+        companyName={finderCompany?.name || ''}
+        companyId={finderCompany?.id}
       />
     </div>
   );
