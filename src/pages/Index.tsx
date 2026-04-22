@@ -129,6 +129,7 @@ const Index = () => {
         status: campaign.scheduledAt ? 'scheduled' : 'draft',
         scheduled_at: campaign.scheduledAt?.toISOString(),
         template_id: campaign.templates?.email?.id,
+        channel_config: campaign.channelConfig || {},
         // A/B Testing fields
         ab_testing_enabled: campaign.abTesting?.enabled || false,
         variant_a_subject: campaign.abTesting?.variantA?.subject || null,

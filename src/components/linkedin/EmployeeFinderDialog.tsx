@@ -5,9 +5,10 @@ import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Label } from '@/components/ui/label';
 import { ScrollArea } from '@/components/ui/scroll-area';
-import { Loader2, Users, ExternalLink, Mail, Linkedin, Sparkles } from 'lucide-react';
+import { Loader2, Users, ExternalLink, Mail, Linkedin, Sparkles, Download } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { contactsToCsv } from '@/lib/contactCsv';
 
 interface Person {
   name: string;
@@ -74,6 +75,34 @@ export function EmployeeFinderDialog({ open, onClose, initialWebsite = '', compa
     }
   };
 
+  const handleExport = () => {
+    const csv = contactsToCsv(sortedPeople.map((person) => ({
+      id: crypto.randomUUID(),
+      firstName: person.first_name || person.name.split(' ')[0] || '',
+      lastName: person.last_name || person.name.split(' ').slice(1).join(' '),
+      businessName: name,
+      email: person.email || person.predicted_emails?.[0] || '',
+      phone: undefined,
+      instagram: undefined,
+      tiktok: undefined,
+      linkedin: person.linkedin,
+      location: undefined,
+      jobTitle: person.title,
+      city: undefined,
+      state: undefined,
+      country: undefined,
+      status: 'pending',
+      createdAt: new Date(),
+    })));
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `${(name || 'company').toLowerCase().replace(/[^a-z0-9]+/g, '-')}-scribe-results.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+  };
+
   return (
     <Dialog open={open} onOpenChange={(o) => !o && onClose()}>
       <DialogContent className="max-w-3xl max-h-[85vh] flex flex-col">
@@ -97,9 +126,14 @@ export function EmployeeFinderDialog({ open, onClose, initialWebsite = '', compa
           </div>
         </div>
 
-        <Button onClick={handleFind} disabled={loading || !website.trim()} className="w-full">
-          {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Searching all sources...</> : <><Sparkles className="w-4 h-4 mr-2" />Find Employees</>}
-        </Button>
+        <div className="flex gap-3">
+          <Button onClick={handleFind} disabled={loading || !website.trim()} className="flex-1">
+            {loading ? <><Loader2 className="w-4 h-4 mr-2 animate-spin" />Searching all sources...</> : <><Sparkles className="w-4 h-4 mr-2" />Run Scribe</>}
+          </Button>
+          <Button variant="outline" onClick={handleExport} disabled={sortedPeople.length === 0}>
+            <Download className="w-4 h-4 mr-2" />CSV
+          </Button>
+        </div>
 
         {sources.length > 0 && (
           <div className="flex gap-1 flex-wrap">

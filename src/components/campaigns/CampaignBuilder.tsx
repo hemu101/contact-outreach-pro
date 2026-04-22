@@ -1,9 +1,10 @@
-import { useState } from 'react';
+import { useMemo, useState } from 'react';
 import { format } from 'date-fns';
-import { Calendar as CalendarIcon, Clock, Play, Mail, MessageCircle, Phone, CheckCircle, Eye } from 'lucide-react';
+import { Calendar as CalendarIcon, Clock, Play, Mail, MessageCircle, Phone, CheckCircle, Eye, Mic, Instagram, Music4 } from 'lucide-react';
 import { Template, Campaign } from '@/types/contact';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { cn } from '@/lib/utils';
@@ -20,8 +21,15 @@ interface CampaignBuilderProps {
   contacts: Contact[];
   templates: Template[];
   campaigns: Campaign[];
-  onCreateCampaign: (campaign: Campaign & { abTesting?: { enabled: boolean; variantA: { subject: string; content: string }; variantB: { subject: string; content: string } } }) => void;
+  onCreateCampaign: (campaign: Campaign & { abTesting?: { enabled: boolean; variantA: { subject: string; content: string }; variantB: { subject: string; content: string } }; channelConfig?: Record<string, { templateId?: string; subject?: string; content: string; sendTime: string; enabled: boolean }> }) => void;
 }
+
+const channelMeta = {
+  email: { label: 'Email', icon: Mail },
+  instagram: { label: 'Instagram DM', icon: Instagram },
+  tiktok: { label: 'TikTok DM', icon: Music4 },
+  voicemail: { label: 'Voicemail Drop', icon: Mic },
+} as const;
 
 export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampaign }: CampaignBuilderProps) {
   const [campaignName, setCampaignName] = useState('');
@@ -30,6 +38,12 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
   const [scheduleDate, setScheduleDate] = useState<Date | undefined>(undefined);
   const [scheduleTime, setScheduleTime] = useState('09:00');
   const [showEmailPreview, setShowEmailPreview] = useState(false);
+  const [channelConfig, setChannelConfig] = useState<Record<string, { templateId?: string; subject?: string; content: string; sendTime: string; enabled: boolean }>>({
+    email: { templateId: '', subject: '', content: '', sendTime: '09:00', enabled: true },
+    instagram: { templateId: '', content: '', sendTime: '10:00', enabled: false },
+    tiktok: { templateId: '', content: '', sendTime: '11:00', enabled: false },
+    voicemail: { templateId: '', content: '', sendTime: '12:00', enabled: false },
+  });
   
   // A/B Testing state
   const [abTestingEnabled, setAbTestingEnabled] = useState(false);
@@ -112,6 +126,7 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
         variantA,
         variantB,
       } : undefined,
+      channelConfig,
       useRecipientTimezone,
       optimalSendHour,
     };
@@ -125,6 +140,12 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
     setAbTestingEnabled(false);
     setVariantA({ subject: '', content: '' });
     setVariantB({ subject: '', content: '' });
+    setChannelConfig({
+      email: { templateId: '', subject: '', content: '', sendTime: '09:00', enabled: true },
+      instagram: { templateId: '', content: '', sendTime: '10:00', enabled: false },
+      tiktok: { templateId: '', content: '', sendTime: '11:00', enabled: false },
+      voicemail: { templateId: '', content: '', sendTime: '12:00', enabled: false },
+    });
     setUseRecipientTimezone(false);
     setOptimalSendHour(9);
   };
@@ -138,6 +159,10 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
 
   const selectedEmailTemplate = templates.find(t => t.type === 'email' && selectedTemplates.email === t.id);
   const selectedContactObjects = contacts.filter(c => selectedContacts.includes(c.id));
+  const enabledChannels = useMemo(
+    () => Object.entries(channelConfig).filter(([, config]) => config.enabled),
+    [channelConfig]
+  );
 
   return (
     <div className="space-y-6">
@@ -276,6 +301,112 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
             )}
           </div>
 
+          <div className="glass-card rounded-xl p-6 animate-slide-up space-y-4">
+            <div>
+              <h3 className="text-lg font-semibold text-foreground">Per-channel message builder</h3>
+              <p className="text-sm text-muted-foreground mt-1">Set the template, message copy, and send time for each outbound channel.</p>
+            </div>
+
+            <div className="space-y-4">
+              {Object.entries(channelMeta).map(([channel, meta]) => {
+                const Icon = meta.icon;
+                const channelTemplates = templatesByType[channel as keyof typeof templatesByType] || [];
+                const config = channelConfig[channel];
+
+                return (
+                  <div key={channel} className="rounded-xl border border-border bg-card p-4 space-y-4">
+                    <div className="flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+                      <div className="flex items-center gap-3">
+                        <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                          <Icon className="w-4 h-4 text-primary" />
+                        </div>
+                        <div>
+                          <p className="font-medium text-foreground">{meta.label}</p>
+                          <p className="text-xs text-muted-foreground">Template + custom copy + send time</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant={config.enabled ? 'gradient' : 'outline'}
+                        size="sm"
+                        onClick={() => setChannelConfig((prev) => ({
+                          ...prev,
+                          [channel]: { ...prev[channel], enabled: !prev[channel].enabled },
+                        }))}
+                      >
+                        {config.enabled ? 'Enabled' : 'Enable'}
+                      </Button>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-[1.4fr_0.8fr] gap-4">
+                      <div className="space-y-3">
+                        <select
+                          value={config.templateId || ''}
+                          onChange={(e) => {
+                            const template = channelTemplates.find((item) => item.id === e.target.value);
+                            setChannelConfig((prev) => ({
+                              ...prev,
+                              [channel]: {
+                                ...prev[channel],
+                                templateId: e.target.value,
+                                subject: template?.subject || prev[channel].subject || '',
+                                content: template?.body || prev[channel].content,
+                              },
+                            }));
+                          }}
+                          className="w-full px-3 py-2 rounded-lg bg-secondary border border-border text-foreground"
+                        >
+                          <option value="">No template</option>
+                          {channelTemplates.map((template) => (
+                            <option key={template.id} value={template.id}>{template.name}</option>
+                          ))}
+                        </select>
+
+                        {channel === 'email' && (
+                          <Input
+                            placeholder="Subject line"
+                            value={config.subject || ''}
+                            onChange={(e) => setChannelConfig((prev) => ({
+                              ...prev,
+                              [channel]: { ...prev[channel], subject: e.target.value },
+                            }))}
+                          />
+                        )}
+
+                        <Textarea
+                          value={config.content}
+                          onChange={(e) => setChannelConfig((prev) => ({
+                            ...prev,
+                            [channel]: { ...prev[channel], content: e.target.value },
+                          }))}
+                          placeholder={`Write the ${meta.label.toLowerCase()} message...`}
+                          className="min-h-[120px] resize-none"
+                        />
+                      </div>
+
+                      <div className="space-y-3">
+                        <div>
+                          <label className="text-sm text-muted-foreground mb-2 block">Send time</label>
+                          <Input
+                            type="time"
+                            value={config.sendTime}
+                            onChange={(e) => setChannelConfig((prev) => ({
+                              ...prev,
+                              [channel]: { ...prev[channel], sendTime: e.target.value },
+                            }))}
+                          />
+                        </div>
+                        <div className="rounded-lg bg-muted/30 p-3 text-xs text-muted-foreground space-y-1">
+                          <p>Uses your campaign date with a channel-specific send slot.</p>
+                          <p>{config.enabled ? 'This channel will be included in launch planning.' : 'Enable this channel to include it.'}</p>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
           {/* A/B Testing Configuration */}
           <ABTestingConfig
             enabled={abTestingEnabled}
@@ -402,6 +533,10 @@ export function CampaignBuilder({ contacts, templates, campaigns, onCreateCampai
                 <span className="text-foreground font-medium">
                   {Object.values(selectedTemplates).filter(Boolean).length}
                 </span>
+              </div>
+              <div className="flex justify-between">
+                <span className="text-muted-foreground">Channels</span>
+                <span className="text-foreground font-medium">{enabledChannels.length}</span>
               </div>
               <div className="flex justify-between">
                 <span className="text-muted-foreground">Schedule</span>

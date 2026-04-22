@@ -5,6 +5,7 @@ import { Input } from '@/components/ui/input';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { useToast } from '@/hooks/use-toast';
 import { Contact } from '@/types/contact';
+import { parseAirtableRecordsToContacts, parseCsvTextToContacts } from '@/lib/contactCsv';
 
 interface ExternalImporterProps {
   onImport: (contacts: Contact[]) => void;
@@ -128,115 +129,8 @@ export function ExternalImporter({ onImport }: ExternalImporterProps) {
     }
   };
 
-  const parseCSVToContacts = (csv: string): Contact[] => {
-    const lines = csv.trim().split('\n');
-    if (lines.length < 2) return [];
-
-    const headers = lines[0].toLowerCase().split(',').map(h => h.trim().replace(/["']/g, ''));
-    
-    const columnMappings: Record<string, string[]> = {
-      firstName: ['first name', 'firstname', 'first', 'fname'],
-      lastName: ['last name', 'lastname', 'last', 'lname'],
-      businessName: ['business', 'company', 'business name'],
-      email: ['email', 'e-mail', 'email address'],
-      phone: ['phone', 'mobile', 'telephone'],
-      instagram: ['instagram', 'insta', 'ig'],
-      tiktok: ['tiktok', 'tik tok'],
-      linkedin: ['linkedin'],
-      location: ['location', 'address'],
-      jobTitle: ['job title', 'title', 'position'],
-      city: ['city'],
-      state: ['state', 'province'],
-      country: ['country'],
-    };
-
-    const getColumnIndex = (field: string): number => {
-      const aliases = columnMappings[field] || [];
-      for (const alias of aliases) {
-        const idx = headers.findIndex(h => h === alias || h.includes(alias));
-        if (idx !== -1) return idx;
-      }
-      return -1;
-    };
-
-    const contacts: Contact[] = [];
-    
-    for (let i = 1; i < lines.length; i++) {
-      const values = parseCSVLine(lines[i]);
-      const getValue = (field: string): string => {
-        const idx = getColumnIndex(field);
-        return idx !== -1 && values[idx] ? values[idx].trim() : '';
-      };
-
-      const contact: Contact = {
-        id: crypto.randomUUID(),
-        firstName: getValue('firstName'),
-        lastName: getValue('lastName'),
-        businessName: getValue('businessName'),
-        email: getValue('email'),
-        phone: getValue('phone') || undefined,
-        instagram: getValue('instagram') || undefined,
-        tiktok: getValue('tiktok') || undefined,
-        linkedin: getValue('linkedin') || undefined,
-        location: getValue('location') || undefined,
-        jobTitle: getValue('jobTitle') || undefined,
-        city: getValue('city') || undefined,
-        state: getValue('state') || undefined,
-        country: getValue('country') || undefined,
-        status: 'pending',
-        createdAt: new Date(),
-      };
-
-      if (contact.email || contact.phone || contact.instagram) {
-        contacts.push(contact);
-      }
-    }
-
-    return contacts;
-  };
-
-  const parseCSVLine = (line: string): string[] => {
-    const values: string[] = [];
-    let current = '';
-    let inQuotes = false;
-    
-    for (const char of line) {
-      if (char === '"') {
-        inQuotes = !inQuotes;
-      } else if (char === ',' && !inQuotes) {
-        values.push(current.trim());
-        current = '';
-      } else {
-        current += char;
-      }
-    }
-    values.push(current.trim());
-    return values;
-  };
-
-  const parseAirtableToContacts = (records: any[]): Contact[] => {
-    return records.map((record: any) => {
-      const fields = record.fields;
-      return {
-        id: crypto.randomUUID(),
-        firstName: fields['First Name'] || fields.firstName || fields.first_name || '',
-        lastName: fields['Last Name'] || fields.lastName || fields.last_name || '',
-        businessName: fields['Business'] || fields.Company || fields.businessName || '',
-        email: fields['Email'] || fields.email || '',
-        phone: fields['Phone'] || fields.phone || undefined,
-        instagram: fields['Instagram'] || fields.instagram || undefined,
-        tiktok: fields['TikTok'] || fields.tiktok || undefined,
-        linkedin: fields['LinkedIn'] || fields.linkedin || undefined,
-        location: fields['Location'] || fields.location || undefined,
-        jobTitle: fields['Job Title'] || fields.Title || fields.jobTitle || undefined,
-        city: fields['City'] || fields.city || undefined,
-        state: fields['State'] || fields.state || undefined,
-        country: fields['Country'] || fields.country || undefined,
-        status: 'pending' as const,
-        createdAt: new Date(),
-      };
-    }).filter(c => c.email || c.phone || c.instagram);
-  };
+  const parseCSVToContacts = (csv: string): Contact[] => parseCsvTextToContacts(csv).contacts;
+  const parseAirtableToContacts = (records: any[]): Contact[] => parseAirtableRecordsToContacts(records);
 
   return (
     <div className="glass-card rounded-xl p-6">
