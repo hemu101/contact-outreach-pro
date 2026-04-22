@@ -198,6 +198,6 @@ function escapeCsv(value: unknown) {
 
 export function contactsToCsv(contacts: Contact[]) {
   const headerRow = exportColumns.map((column) => column.label).join(',');
-  const rows = contacts.map((contact) => exportColumns.map((column) => escapeCsv(contact[column] ?? '')).join(','));
+  const rows = contacts.map((contact) => exportColumns.map((column) => escapeCsv(contact[column.key] ?? '')).join(','));
   return [headerRow, ...rows].join('\n');
 }
