@@ -119,7 +119,7 @@ export function CampaignCreationModal({ onSelectMode, onBrowseTemplates }: Campa
               </li>
               <li className="flex items-center gap-2">
                 <PenTool className="w-4 h-4 text-primary" />
-                Write outbound messages with {'{{variables}}'}
+                Set per-channel copy and send times
               </li>
               <li className="flex items-center gap-2">
                 <Zap className="w-4 h-4 text-primary" />
