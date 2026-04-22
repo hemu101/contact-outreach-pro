@@ -23,7 +23,7 @@ export function ContactsPage({ contacts, onUpload, onDeleteContacts, onUpdateCon
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         <div className="space-y-4">
           <h3 className="text-lg font-semibold text-foreground">Upload CSV</h3>
-          <CSVUploader onUpload={onUpload} />
+          <CSVUploader onUpload={onUpload} contacts={contacts} />
         </div>
         <ExternalImporter onImport={onUpload} />
       </div>
