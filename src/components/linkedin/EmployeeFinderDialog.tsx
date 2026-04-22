@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -37,6 +37,17 @@ export function EmployeeFinderDialog({ open, onClose, initialWebsite = '', compa
   const [sources, setSources] = useState<string[]>([]);
   const { toast } = useToast();
 
+  useEffect(() => {
+    if (!open) return;
+    setWebsite(initialWebsite || '');
+    setName(companyName || '');
+  }, [open, initialWebsite, companyName]);
+
+  const sortedPeople = useMemo(
+    () => [...people].sort((a, b) => (b.confidence || 0) - (a.confidence || 0)),
+    [people]
+  );
+
   const handleFind = async () => {
     if (!website.trim()) {
       toast({ title: 'Enter a company website', variant: 'destructive' });
@@ -71,7 +82,7 @@ export function EmployeeFinderDialog({ open, onClose, initialWebsite = '', compa
             <Users className="w-5 h-5 text-primary" /> Find Employees by Company
           </DialogTitle>
           <DialogDescription>
-            Enter a company website. We'll scrape team pages, search LinkedIn, and predict emails.
+            Enter a company website to run a LeadIQ-style search across team pages, LinkedIn signals, and predicted work emails.
           </DialogDescription>
         </DialogHeader>
 
@@ -98,13 +109,14 @@ export function EmployeeFinderDialog({ open, onClose, initialWebsite = '', compa
 
         <ScrollArea className="flex-1 -mx-6 px-6">
           <div className="space-y-2">
-            {people.map((p, i) => (
+            {sortedPeople.map((p, i) => (
               <div key={i} className="border border-border rounded-lg p-3 hover:bg-muted/30">
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex-1 min-w-0">
                     <div className="flex items-center gap-2">
                       <p className="font-medium text-foreground">{p.name}</p>
                       <Badge variant="secondary" className="text-xs">{p.source}</Badge>
+                      <Badge variant="outline" className="text-xs">{p.confidence || 0}% match</Badge>
                     </div>
                     {p.title && <p className="text-sm text-muted-foreground">{p.title}</p>}
                     <div className="flex flex-wrap gap-3 mt-2 text-xs">

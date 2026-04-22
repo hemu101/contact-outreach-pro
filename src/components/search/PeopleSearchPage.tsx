@@ -14,6 +14,7 @@ import { useCompanies } from '@/hooks/useCompanies';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { useToast } from '@/hooks/use-toast';
+import { EmployeeFinderDialog } from '@/components/linkedin/EmployeeFinderDialog';
 
 interface SearchFilters {
   name: string;
@@ -56,6 +57,7 @@ export function PeopleSearchPage() {
   const [saveDialogOpen, setSaveDialogOpen] = useState(false);
   const [searchName, setSearchName] = useState('');
   const [selectedContact, setSelectedContact] = useState<CompanyContact | null>(null);
+  const [showLeadFinder, setShowLeadFinder] = useState(false);
 
   const filteredContacts = contacts.filter(c => {
     const fullName = `${c.first_name || ''} ${c.last_name || ''}`.toLowerCase();
@@ -63,6 +65,14 @@ export function PeopleSearchPage() {
     if (filters.title && !(c.title || '').toLowerCase().includes(filters.title.toLowerCase())) return false;
     if (filters.seniority && c.seniority !== filters.seniority) return false;
     if (filters.department && !(c.departments || '').toLowerCase().includes(filters.department.toLowerCase())) return false;
+    if (filters.company) {
+      const companyName = companies.find(company => company.id === c.company_id)?.name?.toLowerCase() || '';
+      if (!companyName.includes(filters.company.toLowerCase())) return false;
+    }
+    if (filters.industry) {
+      const companyIndustry = companies.find(company => company.id === c.company_id)?.industry?.toLowerCase() || '';
+      if (!companyIndustry.includes(filters.industry.toLowerCase())) return false;
+    }
     if (filters.city && !(c.city || '').toLowerCase().includes(filters.city.toLowerCase())) return false;
     if (filters.state && !(c.state || '').toLowerCase().includes(filters.state.toLowerCase())) return false;
     if (filters.country && !(c.country || '').toLowerCase().includes(filters.country.toLowerCase())) return false;
@@ -132,6 +142,9 @@ export function PeopleSearchPage() {
           <p className="text-muted-foreground mt-1">Apollo-style advanced lead search & filtering</p>
         </div>
         <div className="flex gap-2">
+          <Button size="sm" onClick={() => setShowLeadFinder(true)}>
+            <UserPlus className="w-4 h-4 mr-2" />Lead Finder
+          </Button>
           <Dialog open={saveDialogOpen} onOpenChange={setSaveDialogOpen}>
             <DialogTrigger asChild>
               <Button variant="outline" size="sm"><Save className="w-4 h-4 mr-2" />Save Search</Button>
@@ -177,6 +190,8 @@ export function PeopleSearchPage() {
               <div><Label className="text-xs">City</Label><Input placeholder="City" value={filters.city} onChange={e => setFilters(f => ({ ...f, city: e.target.value }))} /></div>
               <div><Label className="text-xs">State</Label><Input placeholder="State" value={filters.state} onChange={e => setFilters(f => ({ ...f, state: e.target.value }))} /></div>
               <div><Label className="text-xs">Country</Label><Input placeholder="Country" value={filters.country} onChange={e => setFilters(f => ({ ...f, country: e.target.value }))} /></div>
+              <div><Label className="text-xs">Company</Label><Input placeholder="Company name" value={filters.company} onChange={e => setFilters(f => ({ ...f, company: e.target.value }))} /></div>
+              <div><Label className="text-xs">Industry</Label><Input placeholder="Industry" value={filters.industry} onChange={e => setFilters(f => ({ ...f, industry: e.target.value }))} /></div>
               <div><Label className="text-xs">Department</Label>
                 <Select value={filters.department} onValueChange={v => setFilters(f => ({ ...f, department: v === 'all' ? '' : v }))}>
                   <SelectTrigger><SelectValue placeholder="Department" /></SelectTrigger>
@@ -348,6 +363,11 @@ export function PeopleSearchPage() {
           )}
         </DialogContent>
       </Dialog>
+
+      <EmployeeFinderDialog
+        open={showLeadFinder}
+        onClose={() => setShowLeadFinder(false)}
+      />
     </div>
   );
 }
