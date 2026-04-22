@@ -1881,6 +1881,54 @@ export type Database = {
           },
         ]
       }
+      creator_import_batches: {
+        Row: {
+          admin_user_id: string
+          completed_at: string | null
+          created_at: string
+          error_log: Json | null
+          failed_rows: number | null
+          filename: string | null
+          id: string
+          inserted_rows: number | null
+          metadata: Json | null
+          source_type: string
+          status: string
+          total_rows: number | null
+          updated_rows: number | null
+        }
+        Insert: {
+          admin_user_id: string
+          completed_at?: string | null
+          created_at?: string
+          error_log?: Json | null
+          failed_rows?: number | null
+          filename?: string | null
+          id?: string
+          inserted_rows?: number | null
+          metadata?: Json | null
+          source_type?: string
+          status?: string
+          total_rows?: number | null
+          updated_rows?: number | null
+        }
+        Update: {
+          admin_user_id?: string
+          completed_at?: string | null
+          created_at?: string
+          error_log?: Json | null
+          failed_rows?: number | null
+          filename?: string | null
+          id?: string
+          inserted_rows?: number | null
+          metadata?: Json | null
+          source_type?: string
+          status?: string
+          total_rows?: number | null
+          updated_rows?: number | null
+        }
+        Relationships: []
+      }
       creator_industries: {
         Row: {
           created_at: string
@@ -1919,6 +1967,78 @@ export type Database = {
             referencedColumns: ["id"]
           },
         ]
+      }
+      creator_list_items: {
+        Row: {
+          added_at: string
+          creator_id: string
+          id: string
+          list_id: string
+          notes: string | null
+          user_id: string
+        }
+        Insert: {
+          added_at?: string
+          creator_id: string
+          id?: string
+          list_id: string
+          notes?: string | null
+          user_id: string
+        }
+        Update: {
+          added_at?: string
+          creator_id?: string
+          id?: string
+          list_id?: string
+          notes?: string | null
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "creator_list_items_creator_id_fkey"
+            columns: ["creator_id"]
+            isOneToOne: false
+            referencedRelation: "creators"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "creator_list_items_list_id_fkey"
+            columns: ["list_id"]
+            isOneToOne: false
+            referencedRelation: "creator_lists"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      creator_lists: {
+        Row: {
+          color: string | null
+          created_at: string
+          description: string | null
+          id: string
+          name: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          color?: string | null
+          created_at?: string
+          description?: string | null
+          id?: string
+          name?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
       }
       creator_social_accounts: {
         Row: {
@@ -1969,57 +2089,168 @@ export type Database = {
       }
       creators: {
         Row: {
+          address_city: string | null
+          address_country: string | null
+          address_state: string | null
+          age: number | null
+          age_group: string | null
+          ai_summary: string | null
+          ai_tags: string[] | null
           avatar: string | null
           avg_likes: string | null
           bio: string | null
+          bio_data: string | null
           category: string[] | null
           created_at: string
+          email: string | null
           engagement: string | null
+          estimated_roi: string | null
+          first_name: string | null
+          follower_count: number | null
           followers: string | null
+          gender: string | null
           handle: string
+          hashtags: string | null
           id: string
+          imported_at: string | null
+          impressions_visibility: string | null
+          is_visible: boolean
+          last_name: string | null
+          latitude: number | null
           location: string | null
+          longitude: number | null
+          mention: string | null
           name: string
+          niche_primary: string | null
+          niche_secondary: string | null
+          other_social_media: string | null
+          phone_number: string | null
           platform: string | null
+          price_1_5min: number | null
+          price_15s: number | null
+          price_30s: number | null
+          price_5min_plus: number | null
+          price_60s: number | null
+          price_usd_raw: string | null
+          primary_social_link: string | null
+          profile_picture: string | null
           recent_post: string | null
+          sanitized_bio: string | null
+          source: string | null
+          top_collaboration: string | null
           updated_at: string
           user_id: string | null
+          username: string | null
           verified: boolean | null
         }
         Insert: {
+          address_city?: string | null
+          address_country?: string | null
+          address_state?: string | null
+          age?: number | null
+          age_group?: string | null
+          ai_summary?: string | null
+          ai_tags?: string[] | null
           avatar?: string | null
           avg_likes?: string | null
           bio?: string | null
+          bio_data?: string | null
           category?: string[] | null
           created_at?: string
+          email?: string | null
           engagement?: string | null
+          estimated_roi?: string | null
+          first_name?: string | null
+          follower_count?: number | null
           followers?: string | null
+          gender?: string | null
           handle: string
+          hashtags?: string | null
           id?: string
+          imported_at?: string | null
+          impressions_visibility?: string | null
+          is_visible?: boolean
+          last_name?: string | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
+          mention?: string | null
           name: string
+          niche_primary?: string | null
+          niche_secondary?: string | null
+          other_social_media?: string | null
+          phone_number?: string | null
           platform?: string | null
+          price_1_5min?: number | null
+          price_15s?: number | null
+          price_30s?: number | null
+          price_5min_plus?: number | null
+          price_60s?: number | null
+          price_usd_raw?: string | null
+          primary_social_link?: string | null
+          profile_picture?: string | null
           recent_post?: string | null
+          sanitized_bio?: string | null
+          source?: string | null
+          top_collaboration?: string | null
           updated_at?: string
           user_id?: string | null
+          username?: string | null
           verified?: boolean | null
         }
         Update: {
+          address_city?: string | null
+          address_country?: string | null
+          address_state?: string | null
+          age?: number | null
+          age_group?: string | null
+          ai_summary?: string | null
+          ai_tags?: string[] | null
           avatar?: string | null
           avg_likes?: string | null
           bio?: string | null
+          bio_data?: string | null
           category?: string[] | null
           created_at?: string
+          email?: string | null
           engagement?: string | null
+          estimated_roi?: string | null
+          first_name?: string | null
+          follower_count?: number | null
           followers?: string | null
+          gender?: string | null
           handle?: string
+          hashtags?: string | null
           id?: string
+          imported_at?: string | null
+          impressions_visibility?: string | null
+          is_visible?: boolean
+          last_name?: string | null
+          latitude?: number | null
           location?: string | null
+          longitude?: number | null
+          mention?: string | null
           name?: string
+          niche_primary?: string | null
+          niche_secondary?: string | null
+          other_social_media?: string | null
+          phone_number?: string | null
           platform?: string | null
+          price_1_5min?: number | null
+          price_15s?: number | null
+          price_30s?: number | null
+          price_5min_plus?: number | null
+          price_60s?: number | null
+          price_usd_raw?: string | null
+          primary_social_link?: string | null
+          profile_picture?: string | null
           recent_post?: string | null
+          sanitized_bio?: string | null
+          source?: string | null
+          top_collaboration?: string | null
           updated_at?: string
           user_id?: string | null
+          username?: string | null
           verified?: boolean | null
         }
         Relationships: []
