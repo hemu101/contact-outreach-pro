@@ -571,6 +571,7 @@ export type Database = {
       campaigns: {
         Row: {
           ab_testing_enabled: boolean | null
+          channel_config: Json
           click_count: number | null
           completed_at: string | null
           created_at: string
@@ -600,6 +601,7 @@ export type Database = {
         }
         Insert: {
           ab_testing_enabled?: boolean | null
+          channel_config?: Json
           click_count?: number | null
           completed_at?: string | null
           created_at?: string
@@ -629,6 +631,7 @@ export type Database = {
         }
         Update: {
           ab_testing_enabled?: boolean | null
+          channel_config?: Json
           click_count?: number | null
           completed_at?: string | null
           created_at?: string
