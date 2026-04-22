@@ -28,6 +28,12 @@ export function ContactsPage({ contacts, onUpload, onDeleteContacts, onUpdateCon
         <ExternalImporter onImport={onUpload} />
       </div>
 
+      <div className="glass-card rounded-xl p-4">
+        <p className="text-sm text-muted-foreground">
+          Common headers are auto-mapped for <span className="text-foreground font-medium">First Name</span>, <span className="text-foreground font-medium">Business</span>, <span className="text-foreground font-medium">Email</span>, <span className="text-foreground font-medium">Instagram</span>, <span className="text-foreground font-medium">TikTok</span>, and <span className="text-foreground font-medium">Phone</span> before import.
+        </p>
+      </div>
+
       {/* Table */}
       <ContactsTable 
         contacts={contacts} 
