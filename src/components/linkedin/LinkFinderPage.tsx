@@ -21,6 +21,7 @@ export function LinkFinderPage() {
   const [loading, setLoading] = useState(false);
   const [result, setResult] = useState<FindResult | null>(null);
   const [showFinder, setShowFinder] = useState(false);
+  const [scribeMode, setScribeMode] = useState(false);
   const { toast } = useToast();
 
   const handleFind = async () => {
@@ -70,7 +71,7 @@ export function LinkFinderPage() {
       <Card>
         <CardHeader>
           <CardTitle className="flex items-center gap-2"><Sparkles className="w-5 h-5 text-primary" />Universal Company Search</CardTitle>
-          <CardDescription>One input → website + LinkedIn + employees, like LeadIQ Scribe.</CardDescription>
+          <CardDescription>One input → website + LinkedIn + employees with a dedicated LeadIQ-style Scribe run.</CardDescription>
         </CardHeader>
         <CardContent className="space-y-4">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
@@ -88,17 +89,28 @@ export function LinkFinderPage() {
             </div>
           </div>
 
-          <div className="flex gap-2">
+          <div className="flex flex-col gap-3">
+            <div className="grid grid-cols-2 gap-2">
+              <Button variant={scribeMode ? 'gradient' : 'outline'} onClick={() => setScribeMode(true)}>
+                <Sparkles className="w-4 h-4 mr-2" />Scribe
+              </Button>
+              <Button variant={!scribeMode ? 'gradient' : 'outline'} onClick={() => setScribeMode(false)}>
+                <Search className="w-4 h-4 mr-2" />Finder
+              </Button>
+            </div>
+
+            <div className="flex gap-2">
             <Input
-              placeholder="acme.com or Acme Inc"
+              placeholder={scribeMode ? 'Paste company URL to run Scribe in one step' : 'acme.com or Acme Inc'}
               value={query}
               onChange={e => setQuery(e.target.value)}
               onKeyDown={e => e.key === 'Enter' && !loading && handleFind()}
               className="flex-1"
             />
             <Button onClick={handleFind} disabled={loading || !query.trim()}>
-              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <><Search className="w-4 h-4 mr-2" />Find</>}
+              {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : <>{scribeMode ? <Sparkles className="w-4 h-4 mr-2" /> : <Search className="w-4 h-4 mr-2" />}{scribeMode ? 'Run Scribe' : 'Find'}</>}
             </Button>
+            </div>
           </div>
 
           {result && (
@@ -155,11 +167,11 @@ export function LinkFinderPage() {
               )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                <Button onClick={() => setShowFinder(true)} className="w-full" variant="outline">
-                  <Users className="w-4 h-4 mr-2" />Find Employees at This Company
+                 <Button onClick={() => setShowFinder(true)} className="w-full" variant="outline">
+                   <Users className="w-4 h-4 mr-2" />Find Employees at This Company
                 </Button>
                 <Button onClick={() => setShowFinder(true)} className="w-full">
-                  <Sparkles className="w-4 h-4 mr-2" />Lead Finder Option
+                   <Sparkles className="w-4 h-4 mr-2" />Open Scribe Results
                 </Button>
               </div>
             </div>
